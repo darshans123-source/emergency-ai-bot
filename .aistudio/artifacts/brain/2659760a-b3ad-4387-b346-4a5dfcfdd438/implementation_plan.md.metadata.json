@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan for adding a global incident search bar in the AppLayout header with live typeahead filtering by incident ID, location address, and title, keyboard shortcut support, and direct navigation to the Incident Workspace and Incidents Queue.",
+  "updatedAt":  "2026-10-25T06:03:37.993089257Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

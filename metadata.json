@@ -1,0 +1,6 @@
+{
+  "name": "Emergency Response Bot AI",
+  "description": "Multi-agent emergency coordination and intelligent routing platform for real-time incident analysis, priority assessment, resource allocation, and road-network dispatch decision support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

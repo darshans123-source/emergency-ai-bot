@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile with role-based access information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "role": { "type": "string", "enum": ["reporter", "operator", "admin"] },
+        "organization": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "incident": {
+      "title": "Incident",
+      "description": "Emergency incident record reported and tracked in the tactical twin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 256 },
+        "category": { "type": "string", "maxLength": 64 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "maxLength": 64 },
+        "priority": { "type": "string", "maxLength": 64 },
+        "reporterId": { "type": "string", "maxLength": 128 },
+        "reporterName": { "type": "string", "maxLength": 128 },
+        "casualtiesCount": { "type": "number" },
+        "assignedOperatorId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "title", "category", "description", "status", "priority"]
+    },
+    "dispatch": {
+      "title": "Dispatch",
+      "description": "Resource dispatch assignment associated with an emergency incident",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "incidentId": { "type": "string", "maxLength": 64 },
+        "resourceId": { "type": "string", "maxLength": 64 },
+        "resourceName": { "type": "string", "maxLength": 128 },
+        "resourceType": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "maxLength": 64 },
+        "distanceKm": { "type": "number" },
+        "matchScore": { "type": "number" },
+        "requestedAt": { "type": "string", "maxLength": 64 },
+        "approvedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "incidentId", "resourceId", "status"]
+    },
+    "auditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security and operational audit trail entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userEmail": { "type": "string", "maxLength": 256 },
+        "userRole": { "type": "string", "maxLength": 32 },
+        "action": { "type": "string", "maxLength": 128 },
+        "entityType": { "type": "string", "maxLength": 64 },
+        "entityId": { "type": "string", "maxLength": 64 },
+        "details": { "type": "string", "maxLength": 1024 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "action", "entityType", "entityId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User account profiles with RBAC roles and metadata"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "incident",
+      "description": "Emergency incident reports and status tracking"
+    },
+    "/dispatches/{dispatchId}": {
+      "schema": "dispatch",
+      "description": "Fleet unit dispatch assignments linked to incidents"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "auditLog",
+      "description": "Audit trails for dispatch actions and operator triage"
+    }
+  }
+}

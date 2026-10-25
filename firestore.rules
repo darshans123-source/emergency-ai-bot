@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email.lower() == 'darshansraichur12@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'role']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.name is string && data.name.size() <= 128 &&
+        data.email is string && data.email.size() <= 256 &&
+        data.role is string && (data.role == 'reporter' || data.role == 'operator' || data.role == 'admin');
+    }
+
+    function isValidIncident(data) {
+      return data.keys().hasAll(['id', 'title', 'category', 'description', 'status', 'priority']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.title is string && data.title.size() <= 256 &&
+        data.category is string && data.category.size() <= 64 &&
+        data.description is string && data.description.size() <= 2048 &&
+        data.status is string && data.status.size() <= 64 &&
+        data.priority is string && data.priority.size() <= 64;
+    }
+
+    function isValidDispatch(data) {
+      return data.keys().hasAll(['id', 'incidentId', 'resourceId', 'status']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.incidentId is string && data.incidentId.size() <= 64 &&
+        data.resourceId is string && data.resourceId.size() <= 64 &&
+        data.status is string && data.status.size() <= 64;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'userId', 'action', 'entityType', 'entityId']) &&
+        data.id is string && data.id.size() <= 64 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.action is string && data.action.size() <= 128 &&
+        data.entityType is string && data.entityType.size() <= 64 &&
+        data.entityId is string && data.entityId.size() <= 64;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming());
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin()) && isValidUser(incoming()) &&
+                    incoming().id == existing().id &&
+                    (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['name', 'organization', 'updatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // Incidents Collection
+    match /incidents/{incidentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidIncident(incoming());
+      allow update: if isSignedIn() && isValidIncident(incoming()) &&
+                    (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly([
+                      'status', 'priority', 'assignedOperatorId', 'assignedOperatorName',
+                      'notes', 'updatedAt', 'casualtiesCount'
+                    ]));
+      allow delete: if isAdmin();
+    }
+
+    // Dispatches Collection
+    match /dispatches/{dispatchId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidDispatch(incoming());
+      allow update: if isSignedIn() && isValidDispatch(incoming()) &&
+                    (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly([
+                      'status', 'approvedBy', 'approvedAt', 'rejectionReason', 'releasedAt'
+                    ]));
+      allow delete: if isAdmin();
+    }
+
+    // Audit Logs Collection (Append-Only)
+    match /auditLogs/{logId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidAuditLog(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

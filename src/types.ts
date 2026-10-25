@@ -1,0 +1,324 @@
+export type UserRole = 'reporter' | 'operator' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  organization: string;
+  createdAt: string;
+}
+
+export type IncidentCategory =
+  | 'ROAD_ACCIDENT'
+  | 'MEDICAL_EMERGENCY'
+  | 'FIRE_INCIDENT'
+  | 'FLOOD'
+  | 'NATURAL_DISASTER'
+  | 'PUBLIC_SAFETY'
+  | 'OTHER';
+
+export type IncidentPriority =
+  | 'CRITICAL'
+  | 'HIGH'
+  | 'MEDIUM'
+  | 'LOW'
+  | 'UNASSESSED';
+
+export type IncidentStatus =
+  | 'RECEIVED'
+  | 'UNDER_REVIEW'
+  | 'RESOURCES_DISPATCHED'
+  | 'ON_SCENE'
+  | 'RESOLVED'
+  | 'CLOSED';
+
+export interface IncidentLocation {
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  verified: boolean;
+  notes?: string;
+}
+
+export interface Incident {
+  id: string;
+  title: string;
+  category: IncidentCategory;
+  description: string;
+  status: IncidentStatus;
+  priority: IncidentPriority;
+  priorityRecommendation?: {
+    recommendedPriority: IncidentPriority;
+    score: number;
+    explanation: string;
+    evidence: string[];
+    missingInfo: string[];
+    confidence: number;
+  };
+  location: IncidentLocation;
+  casualtiesCount: number;
+  reporterId?: string;
+  reporterName?: string;
+  reporterContact?: string;
+  imageUrl?: string;
+  notes?: string;
+  assignedOperatorId?: string;
+  assignedOperatorName?: string;
+  isDemo: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ResourceType =
+  | 'AMBULANCE'
+  | 'FIRE_UNIT'
+  | 'POLICE_PATROL'
+  | 'RESCUE_TEAM'
+  | 'GENERAL_SUPPORT';
+
+export type ResourceStatus =
+  | 'AVAILABLE'
+  | 'ASSIGNED'
+  | 'EN_ROUTE'
+  | 'ON_SCENE'
+  | 'UNAVAILABLE';
+
+export interface Resource {
+  id: string;
+  name: string;
+  type: ResourceType;
+  status: ResourceStatus;
+  latitude: number;
+  longitude: number;
+  address: string;
+  capacity: string;
+  operationalNotes: string;
+  assignedIncidentId: string | null;
+  isDemo: boolean;
+  lastVerifiedAt: string;
+}
+
+export type AssignmentStatus =
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'RELEASED';
+
+export interface ResourceAssignment {
+  id: string;
+  incidentId: string;
+  resourceId: string;
+  resourceName: string;
+  resourceType: ResourceType;
+  status: AssignmentStatus;
+  distanceKm: number;
+  estimatedDurationMins: number;
+  matchScore: number;
+  recommendationReason: string;
+  rejectionReason?: string;
+  requestedAt: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  releasedAt?: string;
+}
+
+export type AgentWorkflowState =
+  | 'RECEIVED'
+  | 'VALIDATING'
+  | 'ANALYZING'
+  | 'ASSESSING_PRIORITY'
+  | 'CHECKING_RESOURCES'
+  | 'PLANNING_ROUTE'
+  | 'PREPARING_NOTIFICATIONS'
+  | 'AWAITING_OPERATOR_APPROVAL'
+  | 'COMPLETED'
+  | 'FAILED';
+
+export interface AgentEvent {
+  id: string;
+  runId: string;
+  incidentId: string;
+  agentName: string;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
+  stepOrder: number;
+  inputSummary: string;
+  outputSummary: string;
+  durationMs: number;
+  timestamp: string;
+  error?: string;
+}
+
+export interface AgentRun {
+  id: string;
+  incidentId: string;
+  workflowState: AgentWorkflowState;
+  status: 'RUNNING' | 'COMPLETED' | 'FAILED';
+  startedAt: string;
+  completedAt?: string;
+  durationMs: number;
+  errorMessage?: string;
+  events: AgentEvent[];
+  structuredOutput?: {
+    analysis?: {
+      normalizedCategory: IncidentCategory;
+      extractedFacts: string[];
+      knownUncertainties: string[];
+      missingInformation: string[];
+      resourceNeeds: string[];
+      explanation: string;
+    };
+    priority?: {
+      score: number;
+      recommendedPriority: IncidentPriority;
+      explanation: string;
+      evidence: string[];
+      missingInfo: string[];
+      confidence: number;
+    };
+    candidateResources?: Array<{
+      resourceId: string;
+      resourceName: string;
+      resourceType: ResourceType;
+      distanceKm: number;
+      estimatedMinutes: number;
+      matchReason: string;
+      conflictDetected: boolean;
+      conflictDetails?: string;
+    }>;
+    routePlan?: {
+      status: 'SUCCESS' | 'PREREQUISITE_FAILED' | 'UNREACHABLE';
+      distanceKm?: number;
+      estimatedMinutes?: number;
+      steps?: string[];
+      polyline?: [number, number][];
+      message: string;
+    };
+    notificationsPrepared?: Array<{
+      title: string;
+      message: string;
+      recipientRole: UserRole;
+    }>;
+    specializedConsensus?: MultiAgentConsensusMessage[];
+    specializedAgents?: SpecializedAgent[];
+  };
+}
+
+export interface IncidentNote {
+  id: string;
+  incidentId: string;
+  authorId: string;
+  authorName: string;
+  authorRole: UserRole;
+  content: string;
+  createdAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId?: string;
+  targetRole?: UserRole;
+  title: string;
+  message: string;
+  incidentId?: string;
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userRole: UserRole;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details: string;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface DashboardSummary {
+  totalActive: number;
+  awaitingReview: number;
+  highOrCriticalPriority: number;
+  availableUnits: number;
+  assignedUnits: number;
+  resolvedIncidents: number;
+  priorityCounts: Record<IncidentPriority, number>;
+  categoryCounts: Record<IncidentCategory, number>;
+  statusCounts: Record<IncidentStatus, number>;
+}
+
+export interface RouteCalculationResult {
+  status: 'SUCCESS' | 'PREREQUISITE_FAILED' | 'UNREACHABLE';
+  distanceKm?: number;
+  estimatedDurationMinutes?: number;
+  steps?: Array<{
+    instruction: string;
+    distanceKm: number;
+    estimatedMinutes: number;
+    streetName: string;
+  }>;
+  polyline?: [number, number][];
+  dataSource: string;
+  limitations: string[];
+  message: string;
+  unitName?: string;
+}
+
+export type SpecializedAgentId =
+  | 'POLICE_TACTICAL'
+  | 'HOSPITAL_EMS'
+  | 'WATER_HYDRO'
+  | 'CURRENT_KEB';
+
+export interface SpecializedAgentMetric {
+  id: string;
+  label: string;
+  value: string | number;
+  unit?: string;
+  status: 'nominal' | 'warning' | 'critical';
+  trend?: 'up' | 'down' | 'stable';
+}
+
+export interface SpecializedAgentAction {
+  id: string;
+  label: string;
+  description: string;
+  category: 'CORDON' | 'DISPATCH' | 'TELEMETRY' | 'SAFETY_LOCKOUT' | 'SURGE' | 'TRIAGE';
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  status: 'READY' | 'TRIGGERED' | 'EXECUTING' | 'COMPLETED';
+}
+
+export type AgentStatusType = 'Online' | 'Offline' | 'Busy' | 'Error' | 'Not Configured' | 'Status Unavailable';
+
+export interface SpecializedAgent {
+  id: SpecializedAgentId;
+  name: string;
+  code: string;
+  sector: string;
+  roleDescription: string;
+  description: string;
+  status: AgentStatusType;
+  currentTask: string | null;
+  assignedIncidentId?: string | null;
+  assignedIncidentTitle?: string | null;
+  lastUpdated?: string | null;
+  liveAssessment: string;
+  actions: SpecializedAgentAction[];
+  consensusDialogue?: string[];
+}
+
+export interface MultiAgentConsensusMessage {
+  id: string;
+  agentId: SpecializedAgentId;
+  agentName: string;
+  code: string;
+  timestamp: string;
+  message: string;
+  phase: 'INGEST' | 'ASSESSMENT' | 'CROSS_CHECK' | 'ACTION' | 'RESOLVED';
+  status: 'INFO' | 'ACTION_REQUIRED' | 'INTERVENTION_EXECUTED' | 'CONSENSUS_REACHED';
+}
+

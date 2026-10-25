@@ -1,0 +1,173 @@
+{
+  "users": [
+    {
+      "id": "USR-ADMIN-01",
+      "name": "Dr. Evelyn Carter",
+      "email": "admin@emergency.gov",
+      "passwordHash": "475d3364ba34726c065735b360d2c3c051954d08c0daced7cdecb1b2d69d0408",
+      "role": "admin",
+      "organization": "Metro Emergency Command HQ",
+      "createdAt": "2026-10-24T14:23:59.941Z"
+    },
+    {
+      "id": "USR-OPERATOR-01",
+      "name": "Marcus Vance",
+      "email": "operator@emergency.gov",
+      "passwordHash": "d95b3fc6796a44ae294b780877bc998715d316e0e62208dace0f1a3e1197a007",
+      "role": "operator",
+      "organization": "Central Incident Dispatch Hub",
+      "createdAt": "2026-10-24T16:03:59.941Z"
+    },
+    {
+      "id": "USR-OPERATOR-02",
+      "name": "Sarah Lin",
+      "email": "sarah.lin@emergency.gov",
+      "passwordHash": "d95b3fc6796a44ae294b780877bc998715d316e0e62208dace0f1a3e1197a007",
+      "role": "operator",
+      "organization": "Regional Fire & Rescue Coordination",
+      "createdAt": "2026-10-24T16:53:59.942Z"
+    },
+    {
+      "id": "USR-REPORTER-01",
+      "name": "Citizen Jane Doe",
+      "email": "citizen@metro.org",
+      "passwordHash": "8d51a4bb4e79e1cabfeedb7f4d07b9d5e39f5a87bbf7da774ff5c139502ed7ff",
+      "role": "reporter",
+      "organization": "Public Safety Reporter",
+      "createdAt": "2026-10-24T17:43:59.943Z"
+    }
+  ],
+  "incidents": [],
+  "resources": [
+    {
+      "id": "RES-AMB-01",
+      "name": "Medic Unit 1 (ALS Advanced Life Support)",
+      "type": "AMBULANCE",
+      "status": "AVAILABLE",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "address": "Metro General Hospital Station, Medical Blvd",
+      "capacity": "2 Paramedics, 1 Critical Bed",
+      "operationalNotes": "Equipped with defibrillator, ventilator, emergency narcotics",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-AMB-02",
+      "name": "Medic Unit 4 (Rapid Response BLS)",
+      "type": "AMBULANCE",
+      "status": "AVAILABLE",
+      "latitude": 37.7812,
+      "longitude": -122.4215,
+      "address": "Westside Transit Hub Medical Bay",
+      "capacity": "2 EMTs, 1 Transport Stretcher",
+      "operationalNotes": "Rapid triage ready; oxygen support",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-FIRE-01",
+      "name": "Engine Company 3 (Pumper / 1500 GPM)",
+      "type": "FIRE_UNIT",
+      "status": "AVAILABLE",
+      "latitude": 37.7785,
+      "longitude": -122.4115,
+      "address": "Fire Station #1, Mission & 7th",
+      "capacity": "4 Firefighters, 750 Gal Tank",
+      "operationalNotes": "Foam suppression capable, hydraulic extrication gear",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-FIRE-02",
+      "name": "Ladder Truck 1 (Heavy Extrication)",
+      "type": "FIRE_UNIT",
+      "status": "AVAILABLE",
+      "latitude": 37.765,
+      "longitude": -122.391,
+      "address": "East Industrial Fire Depot, 3rd & 16th",
+      "capacity": "5 Firefighters, 100ft Aerial Ladder",
+      "operationalNotes": "High-angle rescue and heavy structural breaching gear",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-POL-01",
+      "name": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+      "type": "POLICE_PATROL",
+      "status": "AVAILABLE",
+      "latitude": 37.7755,
+      "longitude": -122.404,
+      "address": "South Police Precinct, Bryant & 6th",
+      "capacity": "2 Officers, Scene Barricades",
+      "operationalNotes": "Traffic management, perimeter lockdown, emergency escort",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-POL-02",
+      "name": "Patrol Unit 105 (Downtown Sector Squad)",
+      "type": "POLICE_PATROL",
+      "status": "AVAILABLE",
+      "latitude": 37.7858,
+      "longitude": -122.4065,
+      "address": "Downtown Sector Post, Market & 4th",
+      "capacity": "2 Officers",
+      "operationalNotes": "Active downtown patrol, pedestrian crowd containment",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-RSC-01",
+      "name": "Metro Technical Search & Rescue Alpha",
+      "type": "RESCUE_TEAM",
+      "status": "AVAILABLE",
+      "latitude": 37.7795,
+      "longitude": -122.418,
+      "address": "Civic Center Command Plaza Depot",
+      "capacity": "6 Specialists, Trench & Structural Rigging",
+      "operationalNotes": "Acoustic listening equipment, search & rescue gear",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    },
+    {
+      "id": "RES-SUP-01",
+      "name": "Mobile HazMat & Decontamination Support",
+      "type": "GENERAL_SUPPORT",
+      "status": "AVAILABLE",
+      "latitude": 37.769,
+      "longitude": -122.4075,
+      "address": "Highway 101 Emergency Logistics Depot",
+      "capacity": "3 HazMat Technicians, Neutralization Units",
+      "operationalNotes": "Spill containment barriers, chemical air monitoring",
+      "assignedIncidentId": null,
+      "isDemo": false,
+      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+    }
+  ],
+  "assignments": [],
+  "agentRuns": [],
+  "agentEvents": [],
+  "incidentNotes": [],
+  "notifications": [],
+  "auditLogs": [
+    {
+      "id": "AUD-001",
+      "userId": "USR-ADMIN-01",
+      "userEmail": "admin@emergency.gov",
+      "userRole": "admin",
+      "action": "SYSTEM_STARTUP",
+      "entityType": "SYSTEM",
+      "entityId": "ROOT",
+      "details": "AegisAI Grid command center initialized. Fleet and multi-agent coordination ready.",
+      "createdAt": "2026-10-25T00:00:00.000Z"
+    }
+  ]
+}
