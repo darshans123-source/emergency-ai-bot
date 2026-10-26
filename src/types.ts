@@ -308,7 +308,33 @@ export interface SpecializedAgent {
   lastUpdated?: string | null;
   liveAssessment: string;
   actions: SpecializedAgentAction[];
+  suggestedPrompts?: string[];
   consensusDialogue?: string[];
+}
+
+export interface SpecializedAgentChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: string;
+  incidentId?: string | null;
+}
+
+export interface SpecializedAgentChatResponse {
+  agentId: SpecializedAgentId;
+  agentName: string;
+  reply: string;
+  timestamp: string;
+  providerStatus: AgentStatusType;
+  providerNotice?: string | null;
+  incidentContext?: {
+    id: string;
+    title: string;
+    category: string;
+    priority: string;
+    address: string;
+  } | null;
+  updatedAgent: SpecializedAgent;
 }
 
 export interface MultiAgentConsensusMessage {
@@ -321,4 +347,52 @@ export interface MultiAgentConsensusMessage {
   phase: 'INGEST' | 'ASSESSMENT' | 'CROSS_CHECK' | 'ACTION' | 'RESOLVED';
   status: 'INFO' | 'ACTION_REQUIRED' | 'INTERVENTION_EXECUTED' | 'CONSENSUS_REACHED';
 }
+
+export interface AgentPerformanceMetric {
+  agentId: SpecializedAgentId;
+  agentName: string;
+  shortName: string;
+  totalTasks: number;
+  completedTasks: number;
+  failedTasks: number;
+  completionRate: number;
+  avgResponseTimeMs: number;
+  lastResponseTimeMs: number | null;
+}
+
+export interface GridEfficiencySummary {
+  totalTasks: number;
+  completedTasks: number;
+  overallCompletionRate: number;
+  overallAvgResponseTimeMs: number;
+  agents: AgentPerformanceMetric[];
+  recentTimeline: Array<{
+    timestamp: string;
+    label: string;
+    agentName: string;
+    responseTimeMs: number;
+    status: 'COMPLETED' | 'FAILED';
+  }>;
+}
+
+export interface AICommandResponse {
+  command: string;
+  routedAgentId: SpecializedAgentId;
+  routedAgentName: string;
+  routedAgentCode: string;
+  summary: string;
+  matchingIncidents: Incident[];
+  matchingResources: Resource[];
+  suggestedActions: Array<{
+    label: string;
+    route: string;
+    description: string;
+  }>;
+  providerStatus: AgentStatusType;
+  providerNotice?: string | null;
+  timestamp: string;
+}
+
+
+
 

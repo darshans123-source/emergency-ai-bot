@@ -11,7 +11,6 @@ import { IncidentsPage } from './pages/IncidentsPage';
 import { IncidentDetailsPage } from './pages/IncidentDetailsPage';
 import { LiveMapPage } from './pages/LiveMapPage';
 import { ResourcesPage } from './pages/ResourcesPage';
-import { AgentControlCenterPage } from './pages/AgentControlCenterPage';
 import { AdminAuditPage } from './pages/AdminAuditPage';
 import { Tactical3DPage } from './pages/Tactical3DPage';
 
@@ -61,13 +60,15 @@ export default function App() {
               }
             >
               <Route index element={<DashboardPage />} />
+              <Route path="dashboard" element={<Navigate to="/" replace />} />
+              <Route path="agents" element={<Navigate to="/" replace />} />
+              <Route path="agents/:agentId" element={<DashboardPage />} />
               <Route path="incidents" element={<IncidentsPage />} />
               <Route path="incidents/:id" element={<IncidentDetailsPage />} />
               <Route path="report" element={<ReportIncidentPage />} />
               <Route path="map" element={<LiveMapPage />} />
               <Route path="tactical-3d" element={<Tactical3DPage />} />
               <Route path="resources" element={<ResourcesPage />} />
-              <Route path="agents" element={<AgentControlCenterPage />} />
               <Route
                 path="admin"
                 element={

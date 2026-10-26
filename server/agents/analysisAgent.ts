@@ -8,16 +8,11 @@ export interface AnalysisOutput {
   missingInformation: string[];
   resourceNeeds: string[];
   explanation: string;
-  source: 'GEMINI_AI' | 'RULE_BASED_ENGINE';
+  source: 'OPENAI' | 'GEMINI_AI' | 'RULE_BASED_ENGINE';
 }
 
 export async function runIncidentAnalysisAgent(incident: Incident): Promise<AnalysisOutput> {
-  // If GEMINI_API_KEY is available, attempt structured extraction
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (apiKey) {
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const prompt = `You are the Incident Analysis Agent for an emergency command center.
+  const prompt = `You are the Incident Analysis Agent for an emergency command center.
 Analyze this emergency report strictly based on provided text. Never fabricate facts.
 
 INCIDENT DETAILS:
@@ -37,8 +32,69 @@ Return a valid JSON object matching this schema:
   "explanation": "concise objective summary of situation"
 }`;
 
+  // 1. If OPENAI_API_KEY is available, attempt structured extraction via OpenAI
+  const openAiKey = process.env.OPENAI_API_KEY;
+  if (openAiKey) {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openAiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an emergency command center triage AI. Respond strictly in valid JSON.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          const parsed = JSON.parse(content);
+          if (parsed.extractedFacts && parsed.normalizedCategory) {
+            return {
+              normalizedCategory: parsed.normalizedCategory,
+              extractedFacts: Array.isArray(parsed.extractedFacts) ? parsed.extractedFacts : [],
+              knownUncertainties: Array.isArray(parsed.knownUncertainties) ? parsed.knownUncertainties : [],
+              missingInformation: Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
+              resourceNeeds: Array.isArray(parsed.resourceNeeds) ? parsed.resourceNeeds : [],
+              explanation: parsed.explanation || 'Extracted structured facts using OpenAI.',
+              source: 'OPENAI'
+            };
+          }
+        }
+      } else {
+        console.warn(`[AnalysisAgent] OpenAI request returned status ${response.status}`);
+      }
+    } catch (err) {
+      console.warn('[AnalysisAgent] OpenAI extraction failed or timed out, checking fallbacks:', err);
+    }
+  }
+
+  // 2. If GEMINI_API_KEY is available, attempt structured extraction via Gemini
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    try {
+      const ai = new GoogleGenAI({
+        apiKey: geminiKey,
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+      });
+
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -64,7 +120,7 @@ Return a valid JSON object matching this schema:
     }
   }
 
-  // Deterministic Rule-Based Fallback Engine
+  // 3. Deterministic Rule-Based Fallback Engine
   const desc = (incident.description + ' ' + incident.title).toLowerCase();
   const facts: string[] = [];
   const uncertainties: string[] = [];
@@ -116,7 +172,7 @@ Return a valid JSON object matching this schema:
   }
 
   if (incident.casualtiesCount === 0 && !desc.includes('no injuries')) {
-    missingInfo.push('Verification of triage triage status of involved civilians.');
+    missingInfo.push('Verification of triage status of involved civilians.');
   }
 
   if (resourceNeeds.length === 0) {

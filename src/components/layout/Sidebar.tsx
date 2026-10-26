@@ -2,15 +2,12 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
-  LayoutDashboard,
   AlertCircle,
   FilePlus2,
   MapPin,
   Ambulance,
   Cpu,
-  ShieldCheck,
   LogOut,
-  Layers,
   ShieldAlert,
   User as UserIcon
 } from 'lucide-react';
@@ -25,21 +22,15 @@ export const AegisEmblem: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'm
 };
 
 export const Sidebar: React.FC = () => {
-  const { user, firebaseUser, logout, hasRole } = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
 
   const navItems = [
-    { to: '/', label: 'Operations Dashboard', icon: LayoutDashboard },
-    { to: '/incidents', label: 'Incidents Queue', icon: AlertCircle },
+    { to: '/', label: 'Command Center', icon: Cpu },
+    { to: '/incidents', label: 'Incidents', icon: AlertCircle },
     { to: '/report', label: 'Report Emergency', icon: FilePlus2 },
-    { to: '/map', label: 'Live Operations Map', icon: MapPin },
-    { to: '/resources', label: 'Fleet & Resources', icon: Ambulance },
-    { to: '/agents', label: 'AI Agents', icon: Cpu },
-    { to: '/tactical-3d', label: '3D Tactical Twin', icon: Layers }
+    { to: '/map', label: 'Live Map', icon: MapPin },
+    { to: '/resources', label: 'Fleet & Resources', icon: Ambulance }
   ];
-
-  if (hasRole(['admin'])) {
-    navItems.push({ to: '/admin', label: 'System Audit & Users', icon: ShieldCheck });
-  }
 
   return (
     <aside className="w-64 bg-[#0f172a] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">

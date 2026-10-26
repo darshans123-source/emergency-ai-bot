@@ -10,6 +10,11 @@ import {
   User,
   RouteCalculationResult,
   SpecializedAgent,
+  SpecializedAgentId,
+  SpecializedAgentChatMessage,
+  SpecializedAgentChatResponse,
+  GridEfficiencySummary,
+  AICommandResponse,
   MultiAgentConsensusMessage
 } from '../types';
 
@@ -133,6 +138,32 @@ export const api = {
     request<{ incidentId: string; consensus: MultiAgentConsensusMessage[] }>('/agents/specialized/consensus', {
       method: 'POST',
       body: JSON.stringify({ incidentId })
+    }),
+
+  chatWithSpecializedAgent: (data: {
+    agentId: SpecializedAgentId;
+    message: string;
+    history?: SpecializedAgentChatMessage[];
+    incidentId?: string | null;
+  }) =>
+    request<SpecializedAgentChatResponse>('/agents/specialized/chat', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  getGridEfficiencyMetrics: () =>
+    request<GridEfficiencySummary>('/agents/specialized/metrics'),
+
+  runGridBenchmark: (incidentId?: string | null) =>
+    request<GridEfficiencySummary>('/agents/specialized/benchmark', {
+      method: 'POST',
+      body: JSON.stringify({ incidentId: incidentId || null })
+    }),
+
+  executeAICommand: (command: string, incidentId?: string | null) =>
+    request<AICommandResponse>('/agents/command', {
+      method: 'POST',
+      body: JSON.stringify({ command, incidentId: incidentId || null })
     }),
 
   // Resources

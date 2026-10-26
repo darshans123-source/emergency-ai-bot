@@ -4,7 +4,16 @@ import { generateToken, AuthenticatedRequest, requireAuth, requireRole } from '.
 import { orchestrator } from './agents/orchestrator';
 import { calculateRoadRoute } from './roadGraph';
 import { IncidentCategory, IncidentPriority, IncidentStatus, ResourceType, ResourceStatus, SpecializedAgentId } from './types';
-import { getSpecializedAgentsList, executeSpecializedAgentAction, generateSpecializedConsensus } from './agents/specializedAgents';
+import {
+  getSpecializedAgentsList,
+  executeSpecializedAgentAction,
+  generateSpecializedConsensus,
+  chatWithSpecializedAgent,
+  getGridEfficiencySummary,
+  runGridReadinessBenchmark,
+  routeOperatorCommand
+} from './agents/specializedAgents';
+
 
 export const apiRouter = Router();
 
@@ -494,6 +503,66 @@ apiRouter.post('/agents/specialized/consensus', (req: AuthenticatedRequest, res:
   const consensus = generateSpecializedConsensus(incident);
   res.json({ incidentId: incident.id, consensus });
 });
+
+apiRouter.post('/agents/specialized/chat', async (req: AuthenticatedRequest, res: Response) => {
+  const { agentId, message, history, incidentId } = req.body;
+  if (!agentId || !message || typeof message !== 'string' || !message.trim()) {
+    res.status(400).json({ error: 'Validation Error', message: 'agentId and a non-empty message are required.' });
+    return;
+  }
+
+  try {
+    const result = await chatWithSpecializedAgent(
+      agentId as SpecializedAgentId,
+      message,
+      Array.isArray(history) ? history : [],
+      incidentId || null
+    );
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({
+      error: 'Agent Chat Error',
+      message: err?.message || 'Failed to generate agent response.'
+    });
+  }
+});
+
+apiRouter.get('/agents/specialized/metrics', (_req: AuthenticatedRequest, res: Response) => {
+  const summary = getGridEfficiencySummary();
+  res.json(summary);
+});
+
+apiRouter.post('/agents/specialized/benchmark', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { incidentId } = req.body || {};
+    const summary = await runGridReadinessBenchmark(incidentId || null);
+    res.json(summary);
+  } catch (err: any) {
+    res.status(500).json({
+      error: 'Benchmark Error',
+      message: err?.message || 'Failed to execute readiness benchmark.'
+    });
+  }
+});
+
+apiRouter.post('/agents/command', async (req: AuthenticatedRequest, res: Response) => {
+  const { command, incidentId } = req.body || {};
+  if (!command || typeof command !== 'string' || !command.trim()) {
+    res.status(400).json({ error: 'Validation Error', message: 'A non-empty command is required.' });
+    return;
+  }
+
+  try {
+    const response = await routeOperatorCommand(command, incidentId || null);
+    res.json(response);
+  } catch (err: any) {
+    res.status(500).json({
+      error: 'Command Execution Error',
+      message: err?.message || 'Failed to route and execute AI command.'
+    });
+  }
+});
+
 
 // -------------------------------------------------------------
 // RESOURCES ENDPOINTS

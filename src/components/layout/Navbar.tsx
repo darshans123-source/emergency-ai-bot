@@ -14,10 +14,6 @@ import {
   ArrowRight,
   Mic,
   MicOff,
-  Key,
-  Check,
-  Eye,
-  EyeOff,
   AlertCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -45,44 +41,6 @@ export const Navbar: React.FC = () => {
   const [voiceFeedback, setVoiceFeedback] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
-
-  // API Key Settings Modal State
-  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
-  const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem('aegis_gemini_api_key') || '');
-  const [mapKey, setMapKey] = useState(() => localStorage.getItem('aegis_map_api_key') || '');
-  const [showGeminiKey, setShowGeminiKey] = useState(false);
-  const [showMapKey, setShowMapKey] = useState(false);
-  const [keySavedMessage, setKeySavedMessage] = useState<string | null>(null);
-
-  const hasActiveKey = Boolean(geminiKey || mapKey);
-
-  const handleSaveKeys = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (geminiKey.trim()) {
-      localStorage.setItem('aegis_gemini_api_key', geminiKey.trim());
-    } else {
-      localStorage.removeItem('aegis_gemini_api_key');
-    }
-    if (mapKey.trim()) {
-      localStorage.setItem('aegis_map_api_key', mapKey.trim());
-    } else {
-      localStorage.removeItem('aegis_map_api_key');
-    }
-    setKeySavedMessage('Settings saved successfully.');
-    setTimeout(() => {
-      setKeySavedMessage(null);
-      setIsKeyModalOpen(false);
-    }, 1200);
-  };
-
-  const handleClearKeys = () => {
-    setGeminiKey('');
-    setMapKey('');
-    localStorage.removeItem('aegis_gemini_api_key');
-    localStorage.removeItem('aegis_map_api_key');
-    setKeySavedMessage('Custom keys cleared.');
-    setTimeout(() => setKeySavedMessage(null), 2000);
-  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -137,9 +95,15 @@ export const Navbar: React.FC = () => {
       return;
     }
 
-    if (lower === 'agents' || lower === 'open agents' || lower === 'ai agents') {
-      setVoiceFeedback('Navigating to AI Agents...');
-      navigate('/agents');
+    if (
+      lower === 'agents' ||
+      lower === 'open agents' ||
+      lower === 'ai agents' ||
+      lower === 'command center' ||
+      lower === 'open command center'
+    ) {
+      setVoiceFeedback('Navigating to Command Center...');
+      navigate('/');
       setIsSearchOpen(false);
       setTimeout(() => setVoiceFeedback(null), 2500);
       return;
@@ -481,26 +445,8 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Right: API Key Settings & Notifications */}
+      {/* Right: Notifications */}
       <div className="flex items-center gap-2 shrink-0">
-        {/* API Key Modal Button */}
-        <button
-          type="button"
-          onClick={() => setIsKeyModalOpen(true)}
-          className={`relative p-2 rounded-lg transition border ${
-            hasActiveKey
-              ? 'text-blue-600 bg-blue-50 border-blue-200'
-              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 border-slate-200'
-          }`}
-          title="API Configuration"
-          aria-label="API Settings"
-        >
-          <Key className="w-4 h-4" />
-          {hasActiveKey && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full" />
-          )}
-        </button>
-
         {/* Notifications Button */}
         <div className="relative" ref={notifRef}>
           <button
@@ -588,111 +534,6 @@ export const Navbar: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* API Key Settings Modal */}
-      {isKeyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-lg bg-blue-100 text-blue-600">
-                  <Key className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">API Credentials</h3>
-                  <p className="text-xs text-slate-500">Configure custom model or map keys</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsKeyModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveKeys} className="p-5 space-y-4">
-              <div className={`p-3 rounded-lg border flex items-center justify-between text-xs ${
-                hasActiveKey
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                  : 'bg-slate-50 border-slate-200 text-slate-600'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${hasActiveKey ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                  <span className="font-semibold">{hasActiveKey ? 'Custom Key Active' : 'System Default Active'}</span>
-                </div>
-                <span>{hasActiveKey ? 'User Override' : 'Built-in Server'}</span>
-              </div>
-
-              {keySavedMessage && (
-                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 shrink-0" />
-                  <span>{keySavedMessage}</span>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  GEMINI_API_KEY (AI Triage & Synthesis)
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type={showGeminiKey ? 'text' : 'password'}
-                    value={geminiKey}
-                    onChange={(e) => setGeminiKey(e.target.value)}
-                    placeholder="AIzaSy..."
-                    className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowGeminiKey(!showGeminiKey)}
-                    className="absolute right-2 p-1 text-slate-400 hover:text-slate-600"
-                  >
-                    {showGeminiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1">Optional override for multi-agent reasoning models.</p>
-              </div>
-
-              <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-200/80 text-xs text-blue-900 space-y-1">
-                <div className="flex items-center gap-2 font-semibold text-blue-800">
-                  <Check className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Interactive Map & Routing: 100% Free</span>
-                </div>
-                <p className="text-[11px] text-blue-700 leading-relaxed">
-                  AEGISAI GRID uses Leaflet, OpenStreetMap tiles, and public OSRM routing. No Google Maps API key or billing required.
-                </p>
-              </div>
-
-              <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={handleClearKeys}
-                  className="px-3 py-1.5 rounded-lg text-xs text-rose-600 hover:bg-rose-50 transition"
-                >
-                  Clear Keys
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsKeyModalOpen(false)}
-                    className="px-3 py-1.5 rounded-lg text-xs text-slate-600 hover:bg-slate-100 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
