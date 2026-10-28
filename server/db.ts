@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import os from 'os';
 import {
   User,
   Incident,
@@ -15,7 +16,10 @@ import {
   EmergencyFacility
 } from './types';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+// Detect serverless runtime (Vercel, AWS Lambda, etc.)
+const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const BUNDLED_DB_FILE = path.resolve(process.cwd(), 'data', 'emergency_db.json');
+const DATA_DIR = IS_SERVERLESS ? path.join(os.tmpdir(), 'emergency_data') : path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'emergency_db.json');
 
 export interface DatabaseSchema {
@@ -397,12 +401,17 @@ class DatabaseService {
   }
 
   private ensureDataDir() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+    } catch {
+      // In serverless read-only filesystem, silently proceed with in-memory state
     }
   }
 
   private load(): DatabaseSchema {
+    // 1. Try reading from active DB_FILE (e.g. /tmp or local data/)
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
@@ -413,8 +422,25 @@ class DatabaseService {
         return parsed;
       }
     } catch (err) {
-      console.error('[DB] Failed reading db file, regenerating seed data:', err);
+      console.warn('[DB] Failed reading primary db file:', err);
     }
+
+    // 2. Fall back to bundled repo DB_FILE if running in serverless /tmp was empty
+    try {
+      if (fs.existsSync(BUNDLED_DB_FILE)) {
+        const raw = fs.readFileSync(BUNDLED_DB_FILE, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (!parsed.facilities || parsed.facilities.length === 0) {
+          parsed.facilities = [...INITIAL_FACILITIES];
+        }
+        // Attempt to copy/save to writable directory for future reads in same lambda
+        this.saveDirect(parsed);
+        return parsed;
+      }
+    } catch (err) {
+      console.warn('[DB] Failed reading bundled db file:', err);
+    }
+
     const seed = createInitialSeed();
     this.saveDirect(seed);
     return seed;
@@ -427,7 +453,8 @@ class DatabaseService {
       fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf-8');
       fs.renameSync(tmpPath, DB_FILE);
     } catch (err) {
-      console.error('[DB] Failed writing db file:', err);
+      // In serverless read-only contexts, changes remain active in-memory
+      console.warn('[DB] File persistence write skipped or failed (ephemeral in-memory state active):', err instanceof Error ? err.message : err);
     }
   }
 

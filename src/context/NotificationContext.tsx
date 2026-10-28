@@ -53,6 +53,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     let socket: WebSocket;
     let reconnectTimeout: any;
 
+    let attempt = 0;
     function connect() {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -63,6 +64,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         socket.onopen = () => {
           setIsConnected(true);
+          attempt = 0;
         };
 
         socket.onmessage = (event) => {
@@ -86,8 +88,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         socket.onclose = () => {
           setIsConnected(false);
-          // Try reconnect after 3 seconds
-          reconnectTimeout = setTimeout(connect, 3000);
+          attempt++;
+          const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
+          reconnectTimeout = setTimeout(connect, delay);
         };
 
         socket.onerror = () => {
@@ -95,7 +98,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         };
       } catch {
         setIsConnected(false);
-        reconnectTimeout = setTimeout(connect, 3000);
+        attempt++;
+        const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
+        reconnectTimeout = setTimeout(connect, delay);
       }
     }
 
