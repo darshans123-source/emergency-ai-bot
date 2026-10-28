@@ -3,8 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AppLayout } from './components/layout/AppLayout';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
+import { SplashPage } from './pages/SplashPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ReportIncidentPage } from './pages/ReportIncidentPage';
 import { IncidentsPage } from './pages/IncidentsPage';
@@ -24,22 +23,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRoles?: stri
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#111827] text-slate-300 font-mono text-xs">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500 animate-ping" />
+          <div className="w-3 h-3 rounded-full bg-cyan-500 animate-ping" />
           <span>INITIALIZING DISPATCH CONSOLE...</span>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRoles && !requiredRoles.includes(user.role)) {
+  if (requiredRoles && user && !requiredRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
+};
+
+const RootLayout: React.FC = () => {
+  const hasSeenSplash = sessionStorage.getItem('aegis_splash_dismissed') === 'true';
+  if (!hasSeenSplash) {
+    return <Navigate to="/splash" replace />;
+  }
+  return <AppLayout />;
 };
 
 export default function App() {
@@ -48,17 +51,15 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            {/* High-Tech Tactical Splash Screen */}
+            <Route path="/splash" element={<SplashPage />} />
 
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
+            {/* Seamless redirects for legacy login and register URLs */}
+            <Route path="/login" element={<Navigate to="/splash" replace />} />
+            <Route path="/register" element={<Navigate to="/splash" replace />} />
+
+            {/* Main Application Layout */}
+            <Route path="/" element={<RootLayout />}>
               <Route index element={<DashboardPage />} />
               <Route path="dashboard" element={<Navigate to="/" replace />} />
               <Route path="agents" element={<Navigate to="/" replace />} />

@@ -137,9 +137,9 @@ export const RegisterPage: React.FC = () => {
           </form>
 
           <div className="mt-5 text-center text-xs text-slate-400">
-            Already have an active account?{' '}
-            <Link to="/login" className="text-cyan-400 font-semibold hover:underline">
-              Back to Sign In
+            Already have access?{' '}
+            <Link to="/splash" className="text-cyan-400 font-semibold hover:underline">
+              Enter Command Splash
             </Link>
           </div>
         </div>

@@ -1,47 +1,60 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { UserRole } from '../../types';
 import {
   AlertCircle,
   FilePlus2,
   MapPin,
   Ambulance,
   Cpu,
-  LogOut,
   ShieldAlert,
-  User as UserIcon
+  User as UserIcon,
+  Sparkles,
+  RotateCcw,
+  Box
 } from 'lucide-react';
 
 export const AegisEmblem: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const dim = size === 'lg' ? 'w-10 h-10' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8';
   return (
-    <div className={`${dim} shrink-0 flex items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs`}>
+    <div className={`${dim} shrink-0 flex items-center justify-center rounded-lg bg-cyan-600 text-white shadow-xs`}>
       <ShieldAlert className="w-5 h-5 stroke-[2.2]" />
     </div>
   );
 };
 
 export const Sidebar: React.FC = () => {
-  const { user, firebaseUser, logout } = useAuth();
+  const { user, firebaseUser, switchRole, logout } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { to: '/', label: 'Command Center', icon: Cpu },
     { to: '/incidents', label: 'Incidents', icon: AlertCircle },
     { to: '/report', label: 'Report Emergency', icon: FilePlus2 },
     { to: '/map', label: 'Live Map', icon: MapPin },
-    { to: '/resources', label: 'Fleet & Resources', icon: Ambulance }
+    { to: '/tactical-3d', label: '3D Tactical Twin', icon: Box },
+    { to: '/resources', label: 'Fleet & Resources', icon: Ambulance },
+    { to: '/splash', label: 'Mission Splash', icon: Sparkles }
   ];
 
+  const handleResetSession = async () => {
+    await logout();
+    navigate('/splash');
+  };
+
   return (
-    <aside className="w-64 bg-[#0f172a] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
+    <aside className="w-64 bg-[#0a0f1d] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
       {/* Brand Header */}
       <div className="p-4 border-b border-slate-800 flex items-center gap-3">
-        <AegisEmblem size="md" />
+        <NavLink to="/splash" title="View Splash Briefing" className="hover:opacity-90 transition">
+          <AegisEmblem size="md" />
+        </NavLink>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <h1 className="text-base font-bold text-white tracking-tight">AegisAI</h1>
-            <span className="text-[10px] px-1.5 py-0.5 bg-blue-900/60 text-blue-300 font-semibold rounded border border-blue-700/50">
-              GRID
+            <span className="text-[10px] px-1.5 py-0.5 bg-cyan-950 text-cyan-300 font-semibold rounded border border-cyan-800/50">
+              v4.8
             </span>
           </div>
           <p className="text-[11px] text-slate-400 truncate" title="One Voice. Four Agents. Faster Emergency Response.">
@@ -65,7 +78,7 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                    ? 'bg-cyan-600 text-white font-semibold shadow-xs'
                     : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                 }`
               }
@@ -77,8 +90,8 @@ export const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      {/* Operator Session Info & Logout */}
-      <div className="p-3 border-t border-slate-800 bg-[#090d16]">
+      {/* Operator Session Info & Quick Role Switcher */}
+      <div className="p-3 border-t border-slate-800 bg-[#070b14]">
         <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800/80 mb-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
@@ -86,39 +99,62 @@ export const Sidebar: React.FC = () => {
                 <img
                   src={firebaseUser.photoURL}
                   alt="Profile"
-                  className="w-7 h-7 rounded-full border border-blue-400/40 shrink-0"
+                  className="w-7 h-7 rounded-full border border-cyan-400/40 shrink-0"
                 />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 shrink-0">
-                  <UserIcon className="w-4 h-4" />
+                  <UserIcon className="w-4 h-4 text-cyan-400" />
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-200 truncate">{user?.name || 'Operator'}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user?.organization || 'Emergency Ops'}</p>
+                <p className="text-xs font-semibold text-slate-200 truncate">{user?.name || 'Commander Marcus'}</p>
+                <p className="text-[11px] text-slate-400 truncate">{user?.organization || 'Incident Dispatch Hub'}</p>
               </div>
             </div>
             <span
-              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded font-mono ${
                 user?.role === 'admin'
-                  ? 'bg-purple-900/60 text-purple-200'
+                  ? 'bg-purple-900/60 text-purple-200 border border-purple-500/30'
                   : user?.role === 'operator'
-                  ? 'bg-blue-900/60 text-blue-200'
-                  : 'bg-emerald-900/60 text-emerald-200'
+                  ? 'bg-cyan-900/60 text-cyan-200 border border-cyan-500/30'
+                  : 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/30'
               }`}
             >
               {user?.role || 'OPERATOR'}
             </span>
           </div>
+
+          {/* Quick Role Switcher Pills */}
+          <div className="mt-2.5 pt-2 border-t border-slate-800/80">
+            <p className="text-[10px] text-slate-400 uppercase font-mono tracking-wider mb-1.5">
+              Active Role Preset:
+            </p>
+            <div className="grid grid-cols-3 gap-1">
+              {(['operator', 'admin', 'reporter'] as UserRole[]).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => switchRole(r)}
+                  className={`py-1 px-1.5 rounded text-[10px] font-mono uppercase tracking-wider text-center transition ${
+                    user?.role === r
+                      ? 'bg-cyan-600 text-white font-bold'
+                      : 'bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  {r === 'operator' ? 'Op' : r === 'admin' ? 'Admin' : 'Field'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <button
           type="button"
-          onClick={logout}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition"
+          onClick={handleResetSession}
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-cyan-400 hover:bg-slate-900 transition font-mono"
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Return to Splash</span>
         </button>
       </div>
     </aside>

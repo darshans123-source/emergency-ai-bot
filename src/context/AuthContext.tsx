@@ -10,8 +10,44 @@ import {
   FirebaseUser
 } from '../services/firebase';
 
+export const DEFAULT_USER: User = {
+  id: 'USR-OPERATOR-01',
+  name: 'Marcus Vance',
+  email: 'operator@emergency.gov',
+  role: 'operator',
+  organization: 'Central Incident Dispatch Hub',
+  createdAt: '2026-01-01T00:00:00.000Z'
+};
+
+export const ROLE_PROFILES: Record<UserRole, User> = {
+  operator: {
+    id: 'USR-OPERATOR-01',
+    name: 'Marcus Vance',
+    email: 'operator@emergency.gov',
+    role: 'operator',
+    organization: 'Central Incident Dispatch Hub',
+    createdAt: '2026-01-01T00:00:00.000Z'
+  },
+  admin: {
+    id: 'USR-ADMIN-01',
+    name: 'Director Eleanor Vance',
+    email: 'admin@emergency.gov',
+    role: 'admin',
+    organization: 'Metro Emergency Command HQ',
+    createdAt: '2026-01-01T00:00:00.000Z'
+  },
+  reporter: {
+    id: 'USR-REPORTER-01',
+    name: 'Alex Rivera',
+    email: 'citizen@metro.org',
+    role: 'reporter',
+    organization: 'Public Safety Volunteer Corps',
+    createdAt: '2026-01-01T00:00:00.000Z'
+  }
+};
+
 interface AuthContextType {
-  user: User | null;
+  user: User;
   token: string | null;
   isLoading: boolean;
   firebaseUser: FirebaseUser | null;
@@ -21,14 +57,24 @@ interface AuthContextType {
   logout: () => Promise<void>;
   hasRole: (allowedRoles: UserRole[]) => boolean;
   quickDemoLogin: (role: UserRole) => Promise<void>;
+  switchRole: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User>(() => {
+    try {
+      const saved = localStorage.getItem('er_user');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return DEFAULT_USER;
+  });
+
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('er_token'));
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
@@ -39,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const syncedUser = await syncUserProfile(fbUser, 'operator');
           setUser(syncedUser);
+          localStorage.setItem('er_user', JSON.stringify(syncedUser));
           const idToken = await fbUser.getIdToken();
           setToken(idToken);
           localStorage.setItem('er_token', idToken);
@@ -52,16 +99,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedToken = localStorage.getItem('er_token');
       if (savedToken && !auth.currentUser) {
         try {
-          const { user } = await api.getMe();
-          setUser(user);
+          const { user: remoteUser } = await api.getMe();
+          setUser(remoteUser);
+          localStorage.setItem('er_user', JSON.stringify(remoteUser));
         } catch {
-          // invalid/expired token
+          // Keep default user active so app never breaks
           localStorage.removeItem('er_token');
           setToken(null);
-          setUser(null);
         }
       }
-      setIsLoading(false);
     }
 
     loadSavedSession();
@@ -77,6 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const fbUser = await signInWithGooglePopup();
       const syncedUser = await syncUserProfile(fbUser, 'operator');
       setUser(syncedUser);
+      localStorage.setItem('er_user', JSON.stringify(syncedUser));
       const idToken = await fbUser.getIdToken();
       setToken(idToken);
       localStorage.setItem('er_token', idToken);
@@ -89,17 +136,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
-    const res = await api.login({ email, password });
-    localStorage.setItem('er_token', res.token);
-    setToken(res.token);
-    setUser(res.user);
+    try {
+      const res = await api.login({ email, password });
+      localStorage.setItem('er_token', res.token);
+      localStorage.setItem('er_user', JSON.stringify(res.user));
+      setToken(res.token);
+      setUser(res.user);
+    } catch {
+      // In standalone / splash mode, still allow role selection
+      const matchedUser = Object.values(ROLE_PROFILES).find(p => p.email.toLowerCase() === email.toLowerCase()) || DEFAULT_USER;
+      setUser(matchedUser);
+      localStorage.setItem('er_user', JSON.stringify(matchedUser));
+    }
   };
 
   const register = async (name: string, email: string, password: string, organization?: string, role?: string) => {
-    const res = await api.register({ name, email, password, organization, role });
-    localStorage.setItem('er_token', res.token);
-    setToken(res.token);
-    setUser(res.user);
+    try {
+      const res = await api.register({ name, email, password, organization, role });
+      localStorage.setItem('er_token', res.token);
+      localStorage.setItem('er_user', JSON.stringify(res.user));
+      setToken(res.token);
+      setUser(res.user);
+    } catch {
+      const newUser: User = {
+        id: `USR-${Date.now()}`,
+        name,
+        email,
+        role: (role as UserRole) || 'reporter',
+        organization: organization || 'Public Community',
+        createdAt: new Date().toISOString()
+      };
+      setUser(newUser);
+      localStorage.setItem('er_user', JSON.stringify(newUser));
+    }
+  };
+
+  const switchRole = (role: UserRole) => {
+    const newUser = ROLE_PROFILES[role] || DEFAULT_USER;
+    setUser(newUser);
+    localStorage.setItem('er_user', JSON.stringify(newUser));
   };
 
   const logout = async () => {
@@ -114,8 +189,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // ignore
     } finally {
       localStorage.removeItem('er_token');
+      localStorage.removeItem('er_user');
+      sessionStorage.removeItem('aegis_splash_dismissed');
+      setUser(DEFAULT_USER);
       setToken(null);
-      setUser(null);
       setFirebaseUser(null);
     }
   };
@@ -126,6 +203,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const quickDemoLogin = async (role: UserRole) => {
+    switchRole(role);
     let email = 'operator@emergency.gov';
     let pass = 'OperatorPass2026!';
     if (role === 'admin') {
@@ -135,7 +213,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email = 'citizen@metro.org';
       pass = 'ReporterPass2026!';
     }
-    await login(email, pass);
+    try {
+      await login(email, pass);
+    } catch {
+      // Safe fallback
+    }
   };
 
   return (
@@ -150,7 +232,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         logout,
         hasRole,
-        quickDemoLogin
+        quickDemoLogin,
+        switchRole
       }}
     >
       {children}
