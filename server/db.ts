@@ -11,7 +11,8 @@ import {
   IncidentNote,
   Notification,
   AuditLog,
-  DashboardSummary
+  DashboardSummary,
+  EmergencyFacility
 } from './types';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -27,12 +28,172 @@ export interface DatabaseSchema {
   incidentNotes: IncidentNote[];
   notifications: Notification[];
   auditLogs: AuditLog[];
+  facilities?: EmergencyFacility[];
 }
 
 export function hashPassword(password: string): string {
   const salt = 'emrg_salt_2026';
   return crypto.pbkdf2Sync(password, salt, 1000, 32, 'sha256').toString('hex');
 }
+
+export const INITIAL_FACILITIES: EmergencyFacility[] = [
+  {
+    id: 'FAC-POL-01',
+    name: 'Metro Central Police Headquarters',
+    type: 'POLICE_STATION',
+    address: '850 Bryant St, San Francisco, CA',
+    latitude: 37.7755,
+    longitude: -122.4040,
+    contactPhone: '(415) 553-0123',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'POLICE_TACTICAL',
+    details: '24/7 Tactical dispatch headquarters, perimeter security control, and incident command post.',
+    verified: true
+  },
+  {
+    id: 'FAC-POL-02',
+    name: 'Downtown Police Precinct Sector 1',
+    type: 'POLICE_STATION',
+    address: '766 Vallejo St, San Francisco, CA',
+    latitude: 37.7980,
+    longitude: -122.4098,
+    contactPhone: '(415) 553-1563',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'POLICE_TACTICAL',
+    details: 'High-density urban safety watch, traffic rerouting division, and public order operations.',
+    verified: true
+  },
+  {
+    id: 'FAC-POL-03',
+    name: 'Southern Waterfront Patrol Post',
+    type: 'POLICE_STATION',
+    address: '1251 3rd St, San Francisco, CA',
+    latitude: 37.7725,
+    longitude: -122.3890,
+    contactPhone: '(415) 671-2300',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'POLICE_TACTICAL',
+    details: 'Bay corridor security, transit cordon support, and harbor tactical staging.',
+    verified: true
+  },
+  {
+    id: 'FAC-HOS-01',
+    name: 'Metro General Hospital & Trauma Center',
+    type: 'HOSPITAL',
+    address: '1001 Potrero Ave, San Francisco, CA',
+    latitude: 37.7560,
+    longitude: -122.4060,
+    contactPhone: '(415) 206-8000',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'HOSPITAL_EMS',
+    details: 'Level 1 Comprehensive Trauma Center with helipad, burn critical unit, and 450 bed capacity.',
+    verified: true
+  },
+  {
+    id: 'FAC-HOS-02',
+    name: 'St. Jude Emergency Medical Center',
+    type: 'HOSPITAL',
+    address: '900 Hyde St, San Francisco, CA',
+    latitude: 37.7895,
+    longitude: -122.4170,
+    contactPhone: '(415) 353-6000',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'HOSPITAL_EMS',
+    details: 'Cardiac & Stroke Emergency Receiving Center, 24/7 Pediatric Emergency Resuscitation Unit.',
+    verified: true
+  },
+  {
+    id: 'FAC-HOS-03',
+    name: 'Westside Urgent Care & Surgical Bay',
+    type: 'HOSPITAL',
+    address: '1600 Divisadero St, San Francisco, CA',
+    latitude: 37.7850,
+    longitude: -122.4395,
+    contactPhone: '(415) 567-6600',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'HOSPITAL_EMS',
+    details: 'Rapid triage clinic, acute stabilization beds, and mobile medical dispatch support.',
+    verified: true
+  },
+  {
+    id: 'FAC-WAT-01',
+    name: 'Central Municipal Water Treatment Plant',
+    type: 'WATER_FACILITY',
+    address: '525 Golden Gate Ave, San Francisco, CA',
+    latitude: 37.7810,
+    longitude: -122.4190,
+    contactPhone: '(415) 554-3155',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'WATER_HYDRO',
+    details: 'Main reservoir intake, 120 MGD filtration facility, high-pressure emergency fire mains monitoring.',
+    verified: true
+  },
+  {
+    id: 'FAC-WAT-02',
+    name: 'North Basin Hydro Pumping & Surge Station',
+    type: 'WATER_FACILITY',
+    address: '2090 Marina Blvd, San Francisco, CA',
+    latitude: 37.8040,
+    longitude: -122.4360,
+    contactPhone: '(415) 554-3200',
+    operationalStatus: 'OPERATIONAL',
+    agentDomain: 'WATER_HYDRO',
+    details: 'High-volume urban flood runoff diversion station and emergency auxiliary water supply pumps.',
+    verified: true
+  },
+  {
+    id: 'FAC-WAT-03',
+    name: 'East District Water Storage & Main Gate',
+    type: 'WATER_FACILITY',
+    address: '1300 Evans Ave, San Francisco, CA',
+    latitude: 37.7470,
+    longitude: -122.3850,
+    contactPhone: '(415) 554-3320',
+    operationalStatus: 'STANDBY',
+    agentDomain: 'WATER_HYDRO',
+    details: '15-million gallon underground reservoir and automated pressure telemetry station.',
+    verified: true
+  },
+  {
+    id: 'FAC-PWR-01',
+    name: 'KEB / Metro Grid Primary 230kV Substation',
+    type: 'POWER_SUBSTATION',
+    address: '450 8th St, San Francisco, CA',
+    latitude: 37.7740,
+    longitude: -122.4080,
+    contactPhone: '(415) 558-4500',
+    agentDomain: 'CURRENT_KEB',
+    operationalStatus: 'OPERATIONAL',
+    details: 'High-voltage bulk transmission step-down substation with automated SCADA isolation switches.',
+    verified: true
+  },
+  {
+    id: 'FAC-PWR-02',
+    name: 'Downtown Electrical Distribution Substation',
+    type: 'POWER_SUBSTATION',
+    address: '222 Jessie St, San Francisco, CA',
+    latitude: 37.7875,
+    longitude: -122.4030,
+    contactPhone: '(415) 558-4520',
+    agentDomain: 'CURRENT_KEB',
+    operationalStatus: 'OPERATIONAL',
+    details: 'Underground grid network transformers serving financial core with automatic fault isolation.',
+    verified: true
+  },
+  {
+    id: 'FAC-PWR-03',
+    name: 'Potrero Grid Switching & BESS Substation',
+    type: 'POWER_SUBSTATION',
+    address: '1201 Illinois St, San Francisco, CA',
+    latitude: 37.7590,
+    longitude: -122.3865,
+    contactPhone: '(415) 558-4540',
+    agentDomain: 'CURRENT_KEB',
+    operationalStatus: 'OPERATIONAL',
+    details: '50MW Battery Energy Storage System (BESS) and black-start contingency grid interconnect.',
+    verified: true
+  }
+];
 
 export function createInitialSeed(): DatabaseSchema {
   const now = new Date().toISOString();
@@ -221,7 +382,8 @@ export function createInitialSeed(): DatabaseSchema {
     agentEvents,
     incidentNotes,
     notifications,
-    auditLogs
+    auditLogs,
+    facilities: [...INITIAL_FACILITIES]
   };
 }
 
@@ -244,7 +406,11 @@ class DatabaseService {
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        if (!parsed.facilities || parsed.facilities.length === 0) {
+          parsed.facilities = [...INITIAL_FACILITIES];
+        }
+        return parsed;
       }
     } catch (err) {
       console.error('[DB] Failed reading db file, regenerating seed data:', err);
@@ -720,6 +886,18 @@ class DatabaseService {
       categoryCounts,
       statusCounts
     };
+  }
+
+  // --- Verified Emergency Facilities ---
+  public getFacilities(filters?: { type?: string; agentDomain?: string }): EmergencyFacility[] {
+    let list = this.db.facilities && this.db.facilities.length > 0 ? [...this.db.facilities] : [...INITIAL_FACILITIES];
+    if (filters?.type && filters.type !== 'ALL') {
+      list = list.filter(f => f.type === filters.type);
+    }
+    if (filters?.agentDomain && filters.agentDomain !== 'ALL') {
+      list = list.filter(f => f.agentDomain === filters.agentDomain);
+    }
+    return list;
   }
 }
 

@@ -85,38 +85,47 @@ Return a valid JSON object matching this schema:
   }
 
   // 2. If GEMINI_API_KEY is available, attempt structured extraction via Gemini
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
   if (geminiKey) {
-    try {
-      const ai = new GoogleGenAI({
-        apiKey: geminiKey,
-        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-      });
+    const candidateModels = [
+      process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash'
+    ].filter(Boolean);
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json'
-        }
-      });
+    for (const model of candidateModels) {
+      try {
+        const ai = new GoogleGenAI({
+          apiKey: geminiKey,
+          httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+        });
 
-      if (response.text) {
-        const parsed = JSON.parse(response.text);
-        if (parsed.extractedFacts && parsed.normalizedCategory) {
-          return {
-            normalizedCategory: parsed.normalizedCategory,
-            extractedFacts: Array.isArray(parsed.extractedFacts) ? parsed.extractedFacts : [],
-            knownUncertainties: Array.isArray(parsed.knownUncertainties) ? parsed.knownUncertainties : [],
-            missingInformation: Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
-            resourceNeeds: Array.isArray(parsed.resourceNeeds) ? parsed.resourceNeeds : [],
-            explanation: parsed.explanation || 'Extracted structured facts using Gemini AI.',
-            source: 'GEMINI_AI'
-          };
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json'
+          }
+        });
+
+        if (response.text) {
+          const parsed = JSON.parse(response.text);
+          if (parsed.extractedFacts && parsed.normalizedCategory) {
+            return {
+              normalizedCategory: parsed.normalizedCategory,
+              extractedFacts: Array.isArray(parsed.extractedFacts) ? parsed.extractedFacts : [],
+              knownUncertainties: Array.isArray(parsed.knownUncertainties) ? parsed.knownUncertainties : [],
+              missingInformation: Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
+              resourceNeeds: Array.isArray(parsed.resourceNeeds) ? parsed.resourceNeeds : [],
+              explanation: parsed.explanation || `Extracted structured facts using Gemini AI (${model}).`,
+              source: 'GEMINI_AI'
+            };
+          }
         }
+        break;
+      } catch (err: any) {
+        console.warn(`[AnalysisAgent] Gemini model ${model} failed:`, err?.message || err);
       }
-    } catch (err) {
-      console.warn('[AnalysisAgent] Gemini extraction failed or timed out, using rule-based engine:', err);
     }
   }
 

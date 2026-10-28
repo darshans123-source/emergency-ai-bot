@@ -320,13 +320,30 @@ export interface SpecializedAgentChatMessage {
   incidentId?: string | null;
 }
 
+export interface UserLocationContext {
+  latitude: number;
+  longitude: number;
+  address?: string;
+  accuracy?: number;
+}
+
 export interface SpecializedAgentChatResponse {
   agentId: SpecializedAgentId;
   agentName: string;
   reply: string;
+  language?: 'en' | 'hi' | 'kn';
   timestamp: string;
   providerStatus: AgentStatusType;
   providerNotice?: string | null;
+  userLocation?: UserLocationContext | null;
+  nearbyFacilities?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    address: string;
+    contactPhone?: string;
+    distanceKm: number;
+  }>;
   incidentContext?: {
     id: string;
     title: string;
@@ -334,6 +351,19 @@ export interface SpecializedAgentChatResponse {
     priority: string;
     address: string;
   } | null;
+  incidentDraft?: {
+    isIncidentReport: boolean;
+    readyToSubmit: boolean;
+    category: IncidentCategory;
+    title: string;
+    description: string;
+    address: string;
+    casualtiesCount: number;
+    priority: IncidentPriority;
+    summaryText: string;
+    missingFields: string[];
+  } | null;
+  createdIncidentId?: string | null;
   updatedAgent: SpecializedAgent;
 }
 
@@ -391,6 +421,26 @@ export interface AICommandResponse {
   providerStatus: AgentStatusType;
   providerNotice?: string | null;
   timestamp: string;
+}
+
+export type FacilityType =
+  | 'POLICE_STATION'
+  | 'HOSPITAL'
+  | 'WATER_FACILITY'
+  | 'POWER_SUBSTATION';
+
+export interface EmergencyFacility {
+  id: string;
+  name: string;
+  type: FacilityType;
+  address: string;
+  latitude: number;
+  longitude: number;
+  contactPhone: string;
+  operationalStatus: 'OPERATIONAL' | 'STANDBY' | 'BUSY';
+  agentDomain: SpecializedAgentId;
+  details: string;
+  verified: true;
 }
 
 

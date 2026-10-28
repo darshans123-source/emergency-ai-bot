@@ -15,6 +15,12 @@ import { GoogleGenAI } from '@google/genai';
 import { runIncidentAnalysisAgent } from './analysisAgent';
 import { runPriorityAssessmentAgent } from './priorityAgent';
 import { runResourceCoordinationAgent } from './resourceCoordinationAgent';
+import {
+  SupportedLanguage,
+  extractIncidentParameters,
+  IncidentDraft,
+  detectLanguage
+} from '../aiProviderAdapter';
 
 interface AgentExecutionLog {
   actionId: string;
@@ -78,11 +84,11 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
 
   const policeAgent: SpecializedAgent = {
     id: 'POLICE_TACTICAL',
-    name: 'Police Tactical Agent',
-    code: 'POL-TAC-01',
-    sector: 'Security & Law Enforcement',
-    roleDescription: 'Coordinates perimeter security, public safety precautions, and traffic control.',
-    description: 'Coordinates perimeter security, public safety precautions, and traffic control.',
+    name: 'Rakshak AI',
+    code: 'RAKSHAK-01',
+    sector: 'Police & Public Safety',
+    roleDescription: 'Understands police emergency reports, accident logging, live map incidents, and tactical dispatch recommendations.',
+    description: 'Rakshak AI — Police & Public Safety emergency response, tactical perimeter cordon, and accident triage.',
     status: connectionStatus,
     currentTask: policeLastLog
       ? policeLastLog.details
@@ -117,7 +123,7 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
     consensusDialogue: []
   };
 
-  // 2. Hospital & EMS Agent
+  // 2. Hospital & EMS Agent (Jeevan AI)
   const emsIncident =
     specificIncident ||
     activeIncidents.find((i) => i.category === 'MEDICAL_EMERGENCY' || i.casualtiesCount > 0) ||
@@ -128,11 +134,11 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
 
   const emsAgent: SpecializedAgent = {
     id: 'HOSPITAL_EMS',
-    name: 'Hospital & EMS Agent',
-    code: 'EMS-MED-02',
-    sector: 'Emergency Medical Services & Healthcare',
-    roleDescription: 'Coordinates medical triage, casualty assessment, and ambulance dispatch.',
-    description: 'Coordinates medical triage, casualty assessment, and ambulance dispatch.',
+    name: 'Jeevan AI',
+    code: 'JEEVAN-02',
+    sector: 'Hospital & Emergency Medical Services',
+    roleDescription: 'Understands medical emergency requests, locates real hospitals, and assists with ambulance coordination.',
+    description: 'Jeevan AI — Hospital & Emergency Medical Services, casualty triage, and verified hospital navigation.',
     status: connectionStatus,
     currentTask: emsLastLog
       ? emsLastLog.details
@@ -167,7 +173,7 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
     consensusDialogue: []
   };
 
-  // 3. Water Supply & Hydro Agent
+  // 3. Water Supply & Hydro Agent (JalRakshak AI)
   const hydroIncident =
     specificIncident ||
     activeIncidents.find((i) => i.category === 'FIRE_INCIDENT' || i.category === 'FLOOD') ||
@@ -178,11 +184,11 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
 
   const hydroAgent: SpecializedAgent = {
     id: 'WATER_HYDRO',
-    name: 'Water Supply & Hydro Agent',
-    code: 'HYD-WTR-03',
-    sector: 'Water Infrastructure & Hydrology',
-    roleDescription: 'Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.',
-    description: 'Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.',
+    name: 'JalRakshak AI',
+    code: 'JALRAKSHAK-03',
+    sector: 'Water Supply & Hydro',
+    roleDescription: 'Reports water shortages, pipeline leaks, contamination, and tracks municipal repair requests.',
+    description: 'JalRakshak AI — Water supply disruption monitoring, pipeline burst isolation, and hydro incident reporting.',
     status: connectionStatus,
     currentTask: hydroLastLog
       ? hydroLastLog.details
@@ -217,7 +223,7 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
     consensusDialogue: []
   };
 
-  // 4. Power Grid / KEB Agent
+  // 4. Power Grid / KEB Agent (Shakti AI)
   const kebIncident =
     specificIncident ||
     activeIncidents.find(
@@ -234,11 +240,11 @@ export function getSpecializedAgentsList(specificIncident?: Incident | null): Sp
 
   const kebAgent: SpecializedAgent = {
     id: 'CURRENT_KEB',
-    name: 'Power Grid / KEB Agent',
-    code: 'KEB-PWR-04',
-    sector: 'Electricity Infrastructure & Grid Safety',
-    roleDescription: 'Evaluates electrical hazards, feeder line de-energization, and utility coordination.',
-    description: 'Evaluates electrical hazards, feeder line de-energization, and utility coordination.',
+    name: 'Shakti AI',
+    code: 'SHAKTI-04',
+    sector: 'Power Grid & Electricity',
+    roleDescription: 'Reports electricity outages, identifies electrical hazards, and registers electricity complaints.',
+    description: 'Shakti AI — Power grid safety, electricity outage reporting, downed cable warnings, and feeder tracking.',
     status: connectionStatus,
     currentTask: kebLastLog
       ? kebLastLog.details
@@ -326,285 +332,338 @@ export function executeSpecializedAgentAction(
   };
 }
 
-function getAgentSystemInstruction(agentId: SpecializedAgentId, incidentContextText: string): string {
+function getAgentSystemInstruction(agentId: SpecializedAgentId, incidentContextText: string, language: SupportedLanguage = 'en'): string {
+  let langDirective = 'CRITICAL LANGUAGE DIRECTIVE: You MUST respond in clear, spoken English.';
+  if (language === 'hi') {
+    langDirective = 'CRITICAL LANGUAGE DIRECTIVE: You MUST respond entirely in natural, fluent Hindi (हिन्दी) in standard Devanagari script. Use simple, reassuring spoken Hindi that is easily understood when read aloud via voice synthesis. Do NOT mix English sentences unless quoting an alphanumeric ID.';
+  } else if (language === 'kn') {
+    langDirective = 'CRITICAL LANGUAGE DIRECTIVE: You MUST respond entirely in natural, fluent Kannada (ಕನ್ನಡ) in standard Kannada script. Use simple, reassuring spoken Kannada that is easily understood when read aloud via voice synthesis. Do NOT mix English sentences unless quoting an alphanumeric ID.';
+  }
+
   const baseRules = `CRITICAL RULES:
+- ${langDirective}
 - Respond ONLY from your specialized domain perspective.
+- NEVER state or claim that police, ambulances, fire crews, or repair workers have been dispatched unless the backend incident record explicitly confirms an active dispatched assignment.
+- For Hospital & EMS Agent: You MUST explicitly remind callers that submitting an emergency report does NOT guarantee that an ambulance has been dispatched until verified and assigned by dispatch.
+- For Power Grid / KEB Agent: Always provide life safety guidance (stay at least 10 meters / 30 feet away from downed power lines and do not touch energized wires or water near electrical apparatus).
+- For Water & Hydro Agent: Help the user build a structured report with location and valve/leak details.
+- For Police Tactical Agent: Ask short, clear follow-up questions when necessary.
 - Never fabricate incident counts, confidence percentages, latency metrics, or unverified facts.
-- Base your response strictly on the user's message and the provided incident context.
-- Keep your response structured, practical, and concise with clear headings or bullet points where helpful.
+- Keep your response structured, empathetic, concise, and easy to understand when spoken aloud.
 
 ${incidentContextText}`;
 
   switch (agentId) {
     case 'POLICE_TACTICAL':
-      return `You are the Police Tactical Agent (POL-TAC-01) in the AEGISAI GRID Command Center.
-Your domain is strictly Law Enforcement, Public Safety, Perimeter Control, Crowd Protection, Traffic Diversion, and Security Incident Review.
-Do NOT act as a medical doctor, water engineer, or electrical utility engineer. Focus on:
-1. Security threat & scene safety assessment
-2. Perimeter cordon & access corridor control for emergency responders
-3. Public safety precautions & evacuation/traffic management
-4. Missing law-enforcement/witness details to verify
+      return `You are Rakshak AI (RAKSHAK-01), the Police & Public Safety AI Agent in the AegisAI Emergency Grid.
+Your domain is strictly Law Enforcement, Public Safety, Road Accidents, Perimeter Security, and Tactical Incident Review.
+Focus on:
+1. Understanding police-related emergency reports and road accidents
+2. Displaying actual incident locations and retrieving verified police stations
+3. Providing clear response recommendations and scene safety precautions
+4. Conversational intake in simple sentences suitable for voice playback
 
 ${baseRules}`;
 
     case 'HOSPITAL_EMS':
-      return `You are the Hospital & EMS Agent (EMS-MED-02) in the AEGISAI GRID Command Center.
-Your domain is strictly Emergency Medical Services (EMS), Casualty Triage, Trauma Coordination, Ambulance Dispatch, and Missing Medical Information Identification.
-Do NOT act as a police tactical commander, water utility engineer, or power grid operator. Focus on:
-1. Medical emergency summary & casualty severity assessment
-2. Missing casualty/patient information (e.g., exact headcount, mechanism of injury, airway/breathing status, entrapment)
-3. Ambulance staging & hospital receiving coordination steps
-4. Responder medical safety precautions
+      return `You are Jeevan AI (JEEVAN-02), the Hospital & Emergency Medical Services AI Agent in the AegisAI Emergency Grid.
+Your domain is strictly Emergency Medical Services (EMS), Casualty Triage, Trauma Coordination, and Ambulance Intake.
+CRITICAL MANDATE: Never claim an ambulance has been dispatched without backend confirmation. Explain that an intake report does not guarantee immediate ambulance arrival.
+Focus on:
+1. Understanding medical emergency requests and locating nearby verified hospitals
+2. Retrieving actual hospital information from configured places-data provider
+3. Asking essential triage questions (conscious, breathing, severe bleeding) in simple language
+4. Providing basic life-safety first-aid guidance
 
 ${baseRules}`;
 
     case 'WATER_HYDRO':
-      return `You are the Water Supply & Hydro Agent (HYD-WTR-03) in the AEGISAI GRID Command Center.
-Your domain is strictly Municipal Water Infrastructure, Fire Hydrant Pressure Support, Water Main Isolation, Contamination Prevention, and Flood/Drainage Risk Management.
-Do NOT act as a police officer, paramedic, or electrical grid operator. Focus on:
-1. Water infrastructure & hydrological impact analysis
-2. Potential water supply, pressure loss, or contamination risks
-3. Hydrant pressure support (if fire is involved) or valve isolation/drainage priorities (if flood/leak is involved)
-4. Field inspection priorities for hydro crews
+      return `You are JalRakshak AI (JALRAKSHAK-03), the Water Supply & Hydro AI Agent in the AegisAI Emergency Grid.
+Your domain is strictly Water Supply Disruptions, Pipeline Leaks, Water Shortages, and Municipal Hydro Infrastructure.
+Focus on:
+1. Reporting water shortages and pipeline leaks
+2. Helping locate water supply incidents on the live map
+3. Organizing complaints and repair requests using backend records
+4. Safety precautions around flooded roadways or contaminated water
 
 ${baseRules}`;
 
     case 'CURRENT_KEB':
-      return `You are the Power Grid / KEB Agent (KEB-PWR-04) in the AEGISAI GRID Command Center.
-Your domain is strictly Electrical Infrastructure, High-Voltage Grid Safety, Downed Wire/Transformer Hazards, Feeder De-energization, and Priority Backup Power Coordination.
-Do NOT act as a police officer, paramedic, or water utility operator. Focus on:
-1. Electrical infrastructure & grid hazard analysis
-2. Identification of reported or potential electrical hazards (downed lines, energized water, transformer faults, arc risks)
-3. Feeder line de-energization & lockout/tagout coordination steps to protect first responders
-4. Critical facility power continuity (hospitals, pumps, shelters)
+      return `You are Shakti AI (SHAKTI-04), the Power Grid & Electricity AI Agent in the AegisAI Emergency Grid.
+Your domain is strictly Electrical Infrastructure, Electricity Outages, Downed Conductors, and Transformer Hazards.
+Focus on:
+1. Reporting electricity outages and electrical hazards
+2. Providing vital safety guidance: stay at least 10 meters away from downed wires, do not touch wet electrical apparatus
+3. Assisting with electricity complaint registration and tracking maintenance requests
+4. Clear conversational answers in simple sentences suitable for voice playback
 
 ${baseRules}`;
   }
 }
 
+export interface UserLocationContext {
+  latitude: number;
+  longitude: number;
+  address?: string;
+  accuracy?: number;
+}
+
+function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10;
+}
+
 async function generateDomainSpecificFallback(
   agentId: SpecializedAgentId,
   userMessage: string,
-  incident: Incident | null
+  incident: Incident | null,
+  language: SupportedLanguage = 'en',
+  userLocation?: UserLocationContext | null
 ): Promise<string> {
-  const analysis = incident ? await runIncidentAnalysisAgent(incident) : null;
-  const priority = incident && analysis ? runPriorityAssessmentAgent(incident, analysis) : null;
-  const resources = dbService.getResources();
-  const coordination = incident ? runResourceCoordinationAgent(incident, resources) : null;
-
   const msgLower = userMessage.toLowerCase();
-  const combinedText = `${userMessage} ${incident ? `${incident.title} ${incident.description} ${incident.location.address}` : ''}`.toLowerCase();
+  const hasLocation =
+    !!userLocation ||
+    /(?:at|near|in|on|around|स्थान|जगह|इलाके|में|ಬಳಿ|ಹತ್ತಿರ|ನಲ್ಲಿ|ದಲ್ಲಿ|ಪ್ರದೇಶದಲ್ಲಿ)\s+[A-Za-z0-9\u0900-\u097F\u0C80-\u0CFF\s,.-]{3,35}/i.test(
+      userMessage
+    );
 
-  if (agentId === 'POLICE_TACTICAL') {
-    const policeUnits = resources.filter((r) => r.type === 'POLICE_PATROL');
-    const availablePolice = policeUnits.filter((r) => r.status === 'AVAILABLE');
+  // Check if caller is asking for nearby facilities
+  const isAskingNearbyHospital = /(?:nearby hospital|nearest hospital|where is hospital|hospital nearby|hospital|ಆಸ್ಪತ್ರೆ ಎಲ್ಲಿದೆ|ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆ|ದವಾಖಾನೆ|ಅಸ್ಪताल कहाँ|निकटतम अस्पताल|पास का अस्पताल)/i.test(
+    userMessage
+  );
+  const isAskingNearbyPolice = /(?:nearby police|nearest police|where is police|police station|ಹತ್ತಿರದ ಪೊಲೀಸ್|ಪೊಲೀಸ್ ಠಾಣೆ|पुलिस स्टेशन|थाना कहाँ)/i.test(
+    userMessage
+  );
+  const isAskingNearbyWater = /(?:nearby water|water station|water office|ಹತ್ತಿರದ ನೀರಿನ|ಜಲ ಮಂಡಳಿ|जल केंद्र)/i.test(
+    userMessage
+  );
+  const isAskingNearbyPower = /(?:nearby power|keb office|power substation|electric office|ವಿದ್ಯುತ್ ಕಚೇರಿ|ಸಬ್‌ಸ್ಟೇಷನ್|ಕೆಇಬಿ ಕಚೇರಿ|बिजली दफ्तर|सबस्टेशन)/i.test(
+    userMessage
+  );
 
-    const lines: string[] = [
-      `### Police Tactical Agent Assessment`
-    ];
-
-    if (incident) {
-      lines.push(
-        `**Incident Context:** ${incident.id} — ${incident.title} (${incident.category}, Priority: ${priority?.recommendedPriority || incident.priority})`,
-        `**Location:** ${incident.location.address} (${incident.location.verified ? 'Coordinates Verified' : 'Coordinates Unverified'})`
-      );
-    } else {
-      lines.push(`**Context:** General Security & Public Safety Evaluation (No active incident attached)`);
-    }
-
-    if (msgLower.includes('precaution') || msgLower.includes('safety')) {
-      lines.push(
-        `\n**Recommended Public Safety Precautions:**`,
-        `- Establish an immediate safety perimeter around the affected area to restrict unauthorized civilian entry.`,
-        `- Keep emergency ingress and egress lanes unobstructed for incoming response vehicles.`,
-        `- Advise nearby residents and bystanders to remain clear of potential secondary hazards (${combinedText.includes('fire') || combinedText.includes('smoke') ? 'smoke plume and suppression zone' : combinedText.includes('wire') || combinedText.includes('power') ? 'downed utility lines' : 'active incident roadway'}).`,
-        `- Coordinate with local traffic control to divert non-essential vehicles away from ${incident ? incident.location.address : 'the reported sector'}.`
-      );
-    } else if (msgLower.includes('review') || msgLower.includes('report')) {
-      lines.push(
-        `\n**Incident Report Security Review:**`,
-        `- **Verified Facts:** ${analysis ? analysis.extractedFacts.join('; ') : 'Reviewing user-submitted statement: "' + userMessage + '"'}`,
-        `- **Information Gaps to Confirm:** ${analysis ? analysis.missingInformation.join('; ') : 'Exact cross-street boundaries, number of involved vehicles/individuals, and whether road access is blocked.'}`,
-        `- **Patrol Availability:** ${availablePolice.length} of ${policeUnits.length} registered police patrol units currently marked AVAILABLE.`
-      );
-    } else {
-      lines.push(
-        `\n**Security & Tactical Analysis:**`,
-        `- **Scene Control:** ${incident ? `Incident ${incident.id} requires perimeter control at ${incident.location.address}.` : 'Evaluate scene boundaries and secure access corridors before secondary units arrive.'}`,
-        `- **Identified Risks:** ${analysis ? analysis.extractedFacts.join('; ') : 'Potential roadway obstruction, bystander crowding, or unverified perimeter access.'}`,
-        `- **Recommended Police Actions:**`,
-        `  1. Dispatch nearest patrol unit (${availablePolice[0]?.name || 'Patrol Unit'}) to verify scene coordinates and establish outer cordon.`,
-        `  2. Secure dedicated emergency transit lane for EMS and utility crews.`,
-        `  3. Confirm witness statements and log any road closures with Command Center.`
-      );
-    }
-
-    return lines.join('\n');
-  }
-
+  // 1. HOSPITAL_EMS
   if (agentId === 'HOSPITAL_EMS') {
-    const ambulances = resources.filter((r) => r.type === 'AMBULANCE');
-    const availableAmbulances = ambulances.filter((r) => r.status === 'AVAILABLE');
+    if (isAskingNearbyHospital) {
+      if (userLocation && userLocation.latitude && userLocation.longitude) {
+        const facilities = dbService.getFacilities({ type: 'HOSPITAL' });
+        const withDist = facilities.map((f) => ({
+          ...f,
+          distanceKm: calculateDistanceKm(userLocation.latitude, userLocation.longitude, f.latitude, f.longitude)
+        })).sort((a, b) => a.distanceKm - b.distanceKm);
+        const closest = withDist[0] || facilities[0];
+        const distStr = withDist[0] ? `${withDist[0].distanceKm} km` : 'nearby';
 
-    const lines: string[] = [
-      `### Hospital & EMS Agent Assessment`
-    ];
-
-    if (incident) {
-      lines.push(
-        `**Medical Context:** ${incident.id} — ${incident.title}`,
-        `**Reported Casualties:** ${incident.casualtiesCount} | **Location:** ${incident.location.address}`
-      );
-    } else {
-      lines.push(`**Context:** Emergency Medical Triage & Coordination Inquiry`);
+        if (language === 'kn') {
+          return `ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಜಿಪಿಎಸ್ ಸ್ಥಳದಿಂದ ಅತ್ಯಂತ ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆ: ${closest.name} (${closest.address}). ಅಂದಾಜು ದೂರ: ಸುಮಾರು ${distStr}. ತುರ್ತು ಸಂಪರ್ಕ: ${closest.contactPhone}. (ಗಮನಿಸಿ: ಆಂಬ್ಯುಲೆನ್ಸ್ ರವಾನೆಗಾಗಿ 112 ಅಥವಾ ಕಂಟ್ರೋಲ್ ರೂಮ್ ಸಂಪರ್ಕಿಸಿ.)`;
+        }
+        if (language === 'hi') {
+          return `आपके वर्तमान जीपीएस स्थान से निकटतम अस्पताल: ${closest.name} (${closest.address})। अनुमानित दूरी: लगभग ${distStr}। आपातकालीन संपर्क: ${closest.contactPhone}।`;
+        }
+        return `Based on your live GPS coordinates, the nearest verified hospital is ${closest.name} at ${closest.address}, approximately ${distStr} away. Emergency phone: ${closest.contactPhone}.`;
+      } else {
+        if (language === 'kn') {
+          return `ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಗಳನ್ನು ಹುಡುಕಲು, ದಯವಿಟ್ಟು 'ನನ್ನ ಸ್ಥಳ' (My Location) ಜಿಪಿಎಸ್ ಅನುಮತಿಯನ್ನು ನೀಡಿ ಅಥವಾ ನಿಮ್ಮ ಪ್ರದೇಶದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.`;
+        }
+        if (language === 'hi') {
+          return `निकटतम अस्पताल की जानकारी के लिए, कृपया 'मेरा स्थान' (My Location) जीपीएस अनुमति दें या अपने क्षेत्र का नाम बताएं।`;
+        }
+        return `To find the nearest hospitals, please grant GPS location permission using 'My Location' or enter your locality name.`;
+      }
     }
 
-    if (msgLower.includes('missing') || msgLower.includes('casualty')) {
-      lines.push(
-        `\n**Missing Casualty & Triage Information to Verify:**`,
-        `- Exact number of injured individuals requiring immediate Advanced Life Support (ALS) vs. Basic Life Support (BLS).`,
-        `- Patient consciousness, airway/breathing status, and presence of severe hemorrhage or burns.`,
-        `- Whether any individuals are physically trapped or require extrication before medical transport.`,
-        `- Safe ambulance staging point at ${incident ? incident.location.address : 'the incident scene'}.`
-      );
-    } else if (msgLower.includes('coordinat') || msgLower.includes('step')) {
-      lines.push(
-        `\n**Medical Coordination Steps:**`,
-        `1. **Triage Staging:** Establish a primary triage collection point upwind and uphill of any active hazard at ${incident ? incident.location.address : 'the scene'}.`,
-        `2. **Ambulance Allocation:** ${availableAmbulances.length} of ${ambulances.length} registered ambulance units are currently AVAILABLE (${availableAmbulances.map((a) => a.name).join(', ') || 'No units currently marked available'}).`,
-        `3. **Hospital Notification:** Alert receiving trauma center of ${incident ? `${incident.casualtiesCount} reported casualties` : 'potential incoming patients'} and confirm trauma bay readiness.`,
-        `4. **Responder Safety:** Confirm scene is cleared of electrical or structural hazards prior to paramedic entry.`
-      );
-    } else {
-      lines.push(
-        `\n**Medical Emergency Summary:**`,
-        `- **Situation Overview:** ${incident ? `${incident.description} (${incident.casualtiesCount} casualties reported).` : `Evaluating submitted medical query: "${userMessage}".`}`,
-        `- **Triage Assessment:** ${priority ? `${priority.recommendedPriority} priority — ${priority.explanation}` : 'Requires verification of patient count, injury mechanism, and vital status.'}`,
-        `- **EMS Resource Readiness:** ${availableAmbulances.length} ambulance unit(s) available for dispatch.`
-      );
+    if (language === 'hi') {
+      if (hasLocation) {
+        return `मैंने चिकित्सा सहायता का विवरण नोट कर लिया है। कृपया बताएं कि कितने लोग घायल हैं और क्या वे होश में हैं? ध्यान रहे: यहाँ रिपोर्ट दर्ज करने से एम्बुलेंस रवाना होने की गारंटी नहीं होती है, जब तक कि कंट्रोल रूम पुष्टि न करे। क्या मैं यह रिपोर्ट सबमिट करूँ?`;
+      }
+      return `मैं आपकी मदद करता हूँ। कृपया अपना स्थान और घायलों की संख्या बताएं। कृपया ध्यान दें: आपातकालीन रिपोर्ट दर्ज करने से एम्बुलेंस रवाना होने की गारंटी नहीं है, जब तक कि नियंत्रण कक्ष द्वारा पुष्टि न हो जाए।`;
     }
-
-    return lines.join('\n');
+    if (language === 'kn') {
+      if (hasLocation) {
+        return `ವೈದ್ಯಕೀಯ ತುರ್ತುಸ್ಥಿತಿ ವಿವರಗಳನ್ನು ದಾಖಲಿಸಿಕೊಳ್ಳಲಾಗಿದೆ. ಗಾಯಾಳುಗಳ ಸ್ಥಿತಿ ಹೇಗಿದೆ? ಗಮನಿಸಿ: ತುರ್ತು ವರದಿ ಸಲ್ಲಿಸುವುದರಿಂದ ಆಂಬ್ಯುಲೆನ್ಸ್ ತಕ್ಷಣ ರವಾನೆಯಾಗಿದೆ ಎಂಬ ಖಾತರಿ ಇಲ್ಲ, ನಿಯಂತ್ರಣ ಕೊಠಡಿಯಿಂದ ದೃಢೀಕರಿಸಿದ ನಂತರವೇ ರವಾನೆಯಾಗುತ್ತದೆ. ಇದನ್ನು ಸಲ್ಲಿಸಬೇಕೇ?`;
+      }
+      return `ವೈದ್ಯಕೀಯ ತುರ್ತುಸ್ಥಿತಿ ದಾಖಲಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳ ಮತ್ತು ಗಾಯಾಳುಗಳ ವಿವರ ತಿಳಿಸಿ. (ಗಮನಿಸಿ: ತುರ್ತು ವರದಿ ಸಲ್ಲಿಸುವುದರಿಂದ ಆಂಬ್ಯುಲೆನ್ಸ್ ರವಾನೆಯಾಗಿದೆ ಎಂಬ ಖಾತರಿ ಇಲ್ಲ.)`;
+    }
+    // English
+    if (hasLocation) {
+      return `I have noted the medical incident details at your location. Please confirm the number of injured individuals and their breathing status. (Important safety note: Submitting an emergency report does not guarantee that an ambulance has been dispatched until verified by dispatch.) Would you like me to submit this report?`;
+    }
+    return `I can help you report this medical emergency. Please share your location and the number of injured individuals. (Note: Submitting an emergency report does not guarantee that an ambulance has been dispatched until verified by dispatch.)`;
   }
 
+  // 2. POLICE_TACTICAL
+  if (agentId === 'POLICE_TACTICAL') {
+    if (isAskingNearbyPolice) {
+      if (userLocation && userLocation.latitude && userLocation.longitude) {
+        const facilities = dbService.getFacilities({ type: 'POLICE_STATION' });
+        const withDist = facilities.map((f) => ({
+          ...f,
+          distanceKm: calculateDistanceKm(userLocation.latitude, userLocation.longitude, f.latitude, f.longitude)
+        })).sort((a, b) => a.distanceKm - b.distanceKm);
+        const closest = withDist[0] || facilities[0];
+        const distStr = withDist[0] ? `${withDist[0].distanceKm} km` : 'nearby';
+
+        if (language === 'kn') {
+          return `ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಜಿಪಿಎಸ್ ಸ್ಥಳದಿಂದ ಹತ್ತಿರದ ಪೊಲೀಸ್ ಠಾಣೆ: ${closest.name} (${closest.address}). ದೂರ: ಸುಮಾರು ${distStr}. ನಿಯಂತ್ರಣ ಕೊಠಡಿ ದೂರವಾಣಿ: ${closest.contactPhone}. (ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ 112 ಗೆ ಕರೆ ಮಾಡಿ.)`;
+        }
+        if (language === 'hi') {
+          return `आपके वर्तमान जीपीएस स्थान से निकटतम पुलिस स्टेशन: ${closest.name} (${closest.address})। दूरी: लगभग ${distStr}। नियंत्रण कक्ष: ${closest.contactPhone}।`;
+        }
+        return `Based on your live GPS coordinates, the nearest police facility is ${closest.name} at ${closest.address}, approximately ${distStr} away. Contact: ${closest.contactPhone}.`;
+      } else {
+        if (language === 'kn') {
+          return `ಹತ್ತಿರದ ಪೊಲೀಸ್ ಠಾಣೆಯನ್ನು ಹುಡುಕಲು, ದಯವಿಟ್ಟು 'ನನ್ನ ಸ್ಥಳ' (My Location) ಜಿಪಿಎಸ್ ಅನುಮತಿಯನ್ನು ನೀಡಿ ಅಥವಾ ನಿಮ್ಮ ಪ್ರದೇಶದ ಹೆಸರನ್ನು ತಿಳಿಸಿ.`;
+        }
+        if (language === 'hi') {
+          return `निकटतम पुलिस स्टेशन खोजने के लिए, कृपया 'मेरा स्थान' (My Location) जीपीएस अनुमति दें या अपने क्षेत्र का नाम बताएं।`;
+        }
+        return `To find the nearest police station, please allow GPS location access using 'My Location' or state your street or area.`;
+      }
+    }
+
+    if (language === 'hi') {
+      if (hasLocation) {
+        return `मैं आपकी मदद करता हूँ। मैंने आपके दिए गए स्थान को नोट कर लिया है। कृपया पुष्टि करें कि क्या कोई घायल है या रास्ता अवरुद्ध है? मैं आपकी पुलिस रिपोर्ट दर्ज करने के लिए तैयार हूँ।`;
+      }
+      return `मैं आपकी मदद करता हूँ। कृपया अपना स्थान बताएं ताकि सुरक्षा व पुलिस रिपोर्ट दर्ज की जा सके। (सावधानी: सुरक्षित दूरी बनाए रखें और आपातकालीन रास्ते को खुला रखें।)`;
+    }
+    if (language === 'kn') {
+      if (hasLocation) {
+        return `ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ದಾಖಲಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ಸ್ಥಳದ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ. ಈ ವರದಿಯನ್ನು ಸಲ್ಲಿಸಲು ದೃಢೀಕರಿಸುತ್ತೀರಾ?`;
+      }
+      return `ಪೊಲೀಸ್ ನಿಯಂತ್ರಣ ಕೊಠಡಿಯಿಂದ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳ ಮತ್ತು ಘಟನೆಯ ವಿವರವನ್ನು ತಿಳಿಸಿ. (ಮುನ್ನೆಚ್ಚರಿಕೆ: ವಾಹನಗಳಿಂದ ಸುರಕ್ಷಿತ ಅಂತರ ಕಾಪಾಡಿಕೊಳ್ಳಿ.)`;
+    }
+    // English
+    if (hasLocation) {
+      return `I can help you report this public safety incident. I have noted your location. Are there any injuries, blocked roads, or active security hazards? Say 'Confirm' to submit this report.`;
+    }
+    return `I am the Police Tactical AI coordinator. I can help you report this public safety incident or road accident. Please share your location.`;
+  }
+
+  // 3. WATER_HYDRO
   if (agentId === 'WATER_HYDRO') {
-    const isFire = combinedText.includes('fire') || combinedText.includes('flame') || combinedText.includes('smoke') || incident?.category === 'FIRE_INCIDENT';
-    const isFlood = combinedText.includes('flood') || combinedText.includes('water') || combinedText.includes('leak') || combinedText.includes('pipe') || incident?.category === 'FLOOD';
+    if (isAskingNearbyWater) {
+      if (userLocation && userLocation.latitude && userLocation.longitude) {
+        const facilities = dbService.getFacilities({ type: 'WATER_FACILITY' });
+        const withDist = facilities.map((f) => ({
+          ...f,
+          distanceKm: calculateDistanceKm(userLocation.latitude, userLocation.longitude, f.latitude, f.longitude)
+        })).sort((a, b) => a.distanceKm - b.distanceKm);
+        const closest = withDist[0] || facilities[0];
+        const distStr = withDist[0] ? `${withDist[0].distanceKm} km` : 'nearby';
 
-    const lines: string[] = [
-      `### Water Supply & Hydro Agent Assessment`
-    ];
-
-    if (incident) {
-      lines.push(
-        `**Infrastructure Context:** ${incident.id} — ${incident.title} at ${incident.location.address}`
-      );
-    } else {
-      lines.push(`**Context:** Water Infrastructure & Hydrology Evaluation`);
+        if (language === 'kn') {
+          return `ನಿಮ್ಮ ಸ್ಥಳದಿಂದ ಹತ್ತಿರದ ಜಲ ಮಂಡಳಿ ಕೇಂದ್ರ: ${closest.name} (${closest.address}). ದೂರ: ಸುಮಾರು ${distStr}. ಸಂಪರ್ಕ: ${closest.contactPhone}.`;
+        }
+        if (language === 'hi') {
+          return `आपके स्थान से निकटतम जल बोर्ड केंद्र: ${closest.name} (${closest.address})। दूरी: लगभग ${distStr}।`;
+        }
+        return `The nearest municipal water facility is ${closest.name} at ${closest.address}, approximately ${distStr} away. Contact: ${closest.contactPhone}.`;
+      }
     }
 
-    if (msgLower.includes('risk') || msgLower.includes('supply')) {
-      lines.push(
-        `\n**Identified Water Supply & Hydrological Risks:**`,
-        isFire
-          ? `- High demand on local municipal fire hydrants during active suppression may reduce static main pressure in adjacent blocks.`
-          : isFlood
-          ? `- Risk of subterranean water main washout, stormwater drainage overflow, and potential backflow contamination into potable lines.`
-          : `- Potential damage to underground water distribution mains or surface hydrants near the incident zone.`,
-        `- Risk of firefighting or hazardous runoff entering municipal storm drains without containment.`,
-        `- Need to verify shutoff valve accessibility around ${incident ? incident.location.address : 'the affected sector'}.`
-      );
-    } else if (msgLower.includes('inspection') || msgLower.includes('priorit')) {
-      lines.push(
-        `\n**Water Infrastructure Inspection Priorities:**`,
-        `1. **Primary Hydrant & Valve Check:** Verify operational pressure and accessibility of fire hydrants and isolation valves nearest ${incident ? incident.location.address : 'the incident location'}.`,
-        `2. **Main Integrity Inspection:** Check for pressure drops or surface seepage indicating a ruptured distribution line.`,
-        `3. **Drainage & Runoff Control:** Inspect storm drain inlets and sluice channels to prevent roadway flooding or contaminant runoff.`,
-        `4. **Potable Water Protection:** Confirm backflow preventers are active on nearby commercial and municipal feeds.`
-      );
-    } else {
-      lines.push(
-        `\n**Water & Hydro Infrastructure Analysis:**`,
-        `- **Operational Focus:** ${
-          isFire
-            ? 'Active fire suppression support — prioritize municipal hydrant flow and booster station pressure.'
-            : isFlood
-            ? 'Inundation and main integrity control — prioritize valve isolation and stormwater drainage routing.'
-            : 'Monitor local water main telemetry and hydrant readiness near the incident perimeter.'
-        }`,
-        `- **Recommended Hydro Actions:**`,
-        `  1. Verify hydrant static pressure and flow capacity for responding fire apparatus.`,
-        `  2. Locate nearest main isolation valves in case emergency shutoff is required.`,
-        `  3. Coordinate with Police Tactical Agent to keep utility access covers clear of parked vehicles.`
-      );
+    if (language === 'hi') {
+      if (hasLocation) {
+        return `मैंने आपके क्षेत्र में पानी की समस्या का स्थान नोट कर लिया है। क्या पाइपलाइन से रिसाव हो रहा है या आपूर्ति बाधित है? कृपया पुष्टि करें ताकि जल बोर्ड को रिपोर्ट सबमिट की जा सके।`;
+      }
+      return `मैं आपकी मदद करता हूँ। आपकी पानी की समस्या या पाइपलाइन लीकेज दर्ज करने के लिए कृपया अपना स्थान बताएं।`;
+    }
+    if (language === 'kn') {
+      if (hasLocation) {
+        return `ನಿಮ್ಮ ನೀರಿನ ಸಮಸ್ಯೆಯ ಸ್ಥಳವನ್ನು ದಾಖಲಿಸಲಾಗಿದೆ. ಪೈಪ್‌ಲೈನ್ ಸೋರಿಕೆಯಾಗುತ್ತಿದೆಯೇ ಅಥವಾ ನೀರು ಬರುತ್ತಿಲ್ಲವೇ? ಜಲ ಮಂಡಳಿಗೆ ವರದಿ ಸಲ್ಲಿಸಲು ದೃಢೀಕರಿಸಿ.`;
+      }
+      return `ನಿಮ್ಮ ನೀರಿನ ಸಮಸ್ಯೆಯನ್ನು ದಾಖಲಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ತಿಳಿಸಿ.`;
+    }
+    // English
+    if (hasLocation) {
+      return `I have noted your location for the water infrastructure report. Is this a main pipeline burst, drainage overflow, or complete water outage? Confirm to submit this to municipal hydro dispatch.`;
+    }
+    return `I can help you report the water supply disruption or leak. Please share your location.`;
+  }
+
+  // 4. CURRENT_KEB (Power Grid / KEB Agent)
+  if (isAskingNearbyPower && userLocation && userLocation.latitude && userLocation.longitude) {
+    const facilities = dbService.getFacilities({ type: 'POWER_SUBSTATION' });
+    const withDist = facilities.map((f) => ({
+      ...f,
+      distanceKm: calculateDistanceKm(userLocation.latitude, userLocation.longitude, f.latitude, f.longitude)
+    })).sort((a, b) => a.distanceKm - b.distanceKm);
+    const closest = withDist[0] || facilities[0];
+    const distStr = withDist[0] ? `${withDist[0].distanceKm} km` : 'nearby';
+
+    if (language === 'kn') {
+      return `ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಜಿಪಿಎಸ್ ಸ್ಥಳದಿಂದ ಹತ್ತಿರದ ವಿದ್ಯುತ್ ಸಬ್‌ಸ್ಟೇಷನ್: ${closest.name} (${closest.address}). ದೂರ: ಸುಮಾರು ${distStr}. ಸಹಾಯವಾಣಿ: ${closest.contactPhone}.`;
+    }
+    if (language === 'hi') {
+      return `आपके निकटतम विद्युत सबस्टेशन: ${closest.name} (${closest.address})। दूरी: लगभग ${distStr}। हेल्पलाइन: ${closest.contactPhone}।`;
+    }
+    return `The nearest power grid facility is ${closest.name} at ${closest.address}, approximately ${distStr} away. Helplines: ${closest.contactPhone}.`;
+  }
+
+  // Understanding power outage in Kannada: "ನಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ವಿದ್ಯುತ್ ಇಲ್ಲ."
+  const isPowerOutageReport = /(?:ವಿದ್ಯುತ್ ಇಲ್ಲ|ಕರೆಂಟ್ ಇಲ್ಲ|ವಿದ್ಯುತ್ ಕಡಿತ|ವಿದ್ಯುತ್ ವ್ಯತ್ಯಯ|ಬೆಳಕಿಲ್ಲ|power outage|blackout|no power|no electricity|बिजली नहीं है|बिजली गुल|करंट नहीं)/i.test(
+    userMessage
+  );
+
+  if (language === 'kn') {
+    if (isPowerOutageReport) {
+      if (userLocation || hasLocation) {
+        const locDesc = userLocation?.address || 'ನಿಮ್ಮ ಪ್ರದೇಶ';
+        return `ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ (${locDesc}) ವಿದ್ಯುತ್ ವ್ಯತ್ಯಯವನ್ನು ದಾಖಲಿಸಲಾಗಿದೆ. ಬೆಸ್ಕಾಂ/ಕೆಇಬಿ ಕಂಟ್ರೋಲ್ ರೂಮ್‌ಗೆ ವರದಿ ಸಿದ್ಧವಾಗಿದೆ. (ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ: ಬಿದ್ದಿರುವ ವಿದ್ಯುತ್ ತಂತಿಗಳಿಂದ ಕನಿಷ್ಠ 10 ಮೀಟರ್ ದೂರವಿರಿ.) ವರದಿಯನ್ನು ಸಲ್ಲಿಸಲು ದೃಢೀಕರಿಸಿ.`;
+      }
+      return `ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿನ ವಿದ್ಯುತ್ ವ್ಯತ್ಯಯ ಅಥವಾ ಕರೆಂಟ್ ಸಮಸ್ಯೆಯನ್ನು ದಾಖಲಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪ್ರದೇಶ, ಬಡಾವಣೆ ಅಥವಾ ಜಿಪಿಎಸ್ ಸ್ಥಳವನ್ನು ತಿಳಿಸಿ. (ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ: ಬಿದ್ದಿರುವ ವಿದ್ಯುತ್ ತಂತಿಗಳಿಂದ ಕನಿಷ್ಠ 10 ಮೀಟರ್ ದೂರವಿರಿ.)`;
     }
 
-    return lines.join('\n');
+    if (hasLocation) {
+      return `ನಿಮ್ಮ ಪ್ರದೇಶದ ವಿದ್ಯುತ್ ಸಮಸ್ಯೆಯ ಸ್ಥಳವನ್ನು ದಾಖಲಿಸಲಾಗಿದೆ. ವಿದ್ಯುತ್ ತಂತಿ ಬಿದ್ದಿದ್ದರೆ ಕನಿಷ್ಠ 10 ಮೀಟರ್ ದೂರವಿರಿ. ಬೆಸ್ಕಾಂ/ಕೆಇಬಿ ಕಂಟ್ರೋಲ್‌ಗೆ ವರದಿ ಸಲ್ಲಿಸಲು ದೃಢೀಕರಿಸುತ್ತೀರಾ?`;
+    }
+    return `ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿನ ವಿದ್ಯುತ್ ವ್ಯತ್ಯಯ ಅಥವಾ ವಿದ್ಯುತ್ ಅಪಾಯವನ್ನು ದಾಖಲಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ತಿಳಿಸಿ. (ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ: ಬಿದ್ದಿರುವ ವಿದ್ಯುತ್ ತಂತಿಗಳಿಂದ ಕನಿಷ್ಠ 10 ಮೀಟರ್ ದೂರವಿರಿ.)`;
   }
 
-  // CURRENT_KEB (Power Grid / KEB Agent)
-  const hasElectricalKeyword =
-    combinedText.includes('electric') ||
-    combinedText.includes('power') ||
-    combinedText.includes('wire') ||
-    combinedText.includes('transformer') ||
-    combinedText.includes('shock') ||
-    combinedText.includes('outage') ||
-    combinedText.includes('spark') ||
-    incident?.category === 'FIRE_INCIDENT';
-
-  const lines: string[] = [
-    `### Power Grid / KEB Agent Assessment`
-  ];
-
-  if (incident) {
-    lines.push(
-      `**Grid Context:** ${incident.id} — ${incident.title} at ${incident.location.address}`
-    );
-  } else {
-    lines.push(`**Context:** Electrical Infrastructure & Grid Safety Evaluation`);
+  if (language === 'hi') {
+    if (isPowerOutageReport) {
+      if (userLocation || hasLocation) {
+        const locDesc = userLocation?.address || 'आपके क्षेत्र';
+        return `मैंने आपके क्षेत्र (${locDesc}) में बिजली कटौती की रिपोर्ट तैयार कर ली है। (चेतावनी: टूटे हुए तारों से कम से कम 10 मीटर दूर रहें।) क्या मैं यह शिकायत विद्युत नियंत्रण कक्ष को सबमिट करूँ?`;
+      }
+      return `मैं आपकी बिजली कटौती दर्ज करने में सहायता करूँगा। कृपया अपना इलाका या जीपीएस स्थान बताएं। (सावधानी: टूटे हुए तारों से 10 मीटर दूर रहें।)`;
+    }
+    if (hasLocation) {
+      return `मैंने बिजली कटौती और ग्रिड स्थिति का स्थान दर्ज कर लिया है। यदि कोई बिजली का तार गिरा है तो उससे कम से कम 10 मीटर की दूरी बनाए रखें। क्या आप इस रिपोर्ट को सबमिट करना चाहते हैं?`;
+    }
+    return `मैं आपकी बिजली कटौती या विद्युत खतरे की रिपोर्ट दर्ज करने में सहायता करूँगा। कृपया अपना स्थान बताएं। (जीवन रक्षा चेतावनी: टूटे हुए बिजली के तारों से कम से कम 10 मीटर दूर रहें और उन्हें न छुएं।)`;
   }
 
-  if (msgLower.includes('hazard')) {
-    lines.push(
-      `\n**Reported & Potential Electrical Hazards:**`,
-      hasElectricalKeyword
-        ? `- Potential energized downed conductors, damaged transformer equipment, or compromised building service drops near ${incident ? incident.location.address : 'the scene'}.`
-        : `- No explicit downed-wire report confirmed yet; however, Collisions, fires, or flooding near utility poles/substations carry secondary electrocution risks.`,
-      `- Step-potential and touch-potential hazards if water or firefighting foam contacts energized equipment.`,
-      `- Risk of unexpected automatic recloser activation on faulted distribution feeders if not locked out.`
-    );
-  } else if (msgLower.includes('coordinat') || msgLower.includes('step')) {
-    lines.push(
-      `\n**Electrical Grid Coordination Steps:**`,
-      `1. **Responder Safety Lockout:** Verify whether local feeder de-energization is required before Fire/EMS personnel enter hazard zones.`,
-      `2. **Substation & Feeder Isolation:** Isolate faulted distribution segments while maintaining power to surrounding traffic signals and critical facilities.`,
-      `3. **Priority Medical Feeds:** Confirm uninterrupted power supply to regional hospitals and water booster stations.`,
-      `4. **Utility Crew Dispatch:** Stage insulated high-voltage line crew to ground and clear any damaged conductors.`
-    );
-  } else {
-    lines.push(
-      `\n**Electrical Infrastructure Incident Analysis:**`,
-      `- **Hazard Assessment:** ${
-        hasElectricalKeyword
-          ? 'Elevated electrical hazard profile detected. Treat all downed lines and damaged electrical enclosures as energized.'
-          : 'Standard grid monitoring active. Verify clearance from overhead lines and pad-mounted transformers at the scene.'
-      }`,
-      `- **Recommended KEB / Grid Actions:**`,
-      `  1. Identify the distribution feeder serving ${incident ? incident.location.address : 'the reported location'} and prepare remote breaker lockout if requested by on-scene command.`,
-      `  2. Coordinate with Water & Hydro Agent to ensure water streams are not directed at energized high-voltage equipment.`,
-      `  3. Maintain priority power routing for emergency medical and communications infrastructure.`
-    );
+  // English
+  if (isPowerOutageReport) {
+    if (userLocation || hasLocation) {
+      const locDesc = userLocation?.address || 'your reported area';
+      return `I have noted the power outage at ${locDesc}. Critical safety reminder: stay at least 10 meters away from any downed power lines. Would you like me to submit this outage report to the electrical dispatch grid?`;
+    }
+    return `I can help you report the power outage. Please share your street name, landmark, or GPS location. (Critical safety advisory: Stay at least 10 meters away from any downed power lines or sparking apparatus.)`;
   }
 
-  return lines.join('\n');
+  if (hasLocation) {
+    return `I have noted the location of the electrical issue. Critical safety reminder: maintain at least 10 meters distance from any downed lines. Would you like me to submit this report to the grid control center?`;
+  }
+  return `I can help you report the power outage. Please share your location. (Critical safety advisory: Stay at least 10 meters away from any downed power lines or sparking apparatus.)`;
 }
 
 export async function chatWithSpecializedAgent(
   agentId: SpecializedAgentId,
   message: string,
   history: SpecializedAgentChatMessage[] = [],
-  incidentId?: string | null
+  incidentId?: string | null,
+  preferredLanguage: SupportedLanguage = 'en',
+  userLocation?: UserLocationContext | null
 ): Promise<SpecializedAgentChatResponse> {
   const startTime = Date.now();
   const validIds: SpecializedAgentId[] = ['POLICE_TACTICAL', 'HOSPITAL_EMS', 'WATER_HYDRO', 'CURRENT_KEB'];
@@ -617,6 +676,9 @@ export async function chatWithSpecializedAgent(
     throw new Error('Message cannot be empty.');
   }
 
+  // Determine language (detecting Kannada/Hindi characters if present, or using preferredLanguage)
+  const language = detectLanguage(trimmedMessage, preferredLanguage);
+
   // Load target incident context if specified or if an active incident exists
   const allIncidents = dbService.getIncidents();
   const activeIncidents = allIncidents.filter((i) => i.status !== 'RESOLVED' && i.status !== 'CLOSED');
@@ -625,15 +687,54 @@ export async function chatWithSpecializedAgent(
     : activeIncidents[0] || null;
 
   const resources = dbService.getResources();
-  const analysis = incident ? await runIncidentAnalysisAgent(incident) : null;
-  const priority = incident && analysis ? runPriorityAssessmentAgent(incident, analysis) : null;
+  const priorityRecommendation =
+    incident?.priorityRecommendation?.recommendedPriority || incident?.priority || 'UNASSESSED';
+
+  // Calculate real distances to nearby facilities if userLocation provided
+  let nearbyFacilitiesSummary = '';
+  let nearbyFacilitiesList: Array<{
+    id: string;
+    name: string;
+    type: string;
+    address: string;
+    contactPhone?: string;
+    distanceKm: number;
+  }> = [];
+
+  if (userLocation && userLocation.latitude && userLocation.longitude) {
+    const allFacilities = dbService.getFacilities();
+    const sortedFacilities = allFacilities
+      .map((f) => ({
+        id: f.id,
+        name: f.name,
+        type: f.type,
+        address: f.address,
+        contactPhone: f.contactPhone,
+        distanceKm: calculateDistanceKm(
+          userLocation.latitude,
+          userLocation.longitude,
+          f.latitude,
+          f.longitude
+        )
+      }))
+      .sort((a, b) => a.distanceKm - b.distanceKm);
+
+    nearbyFacilitiesList = sortedFacilities.slice(0, 4);
+    nearbyFacilitiesSummary = `VERIFIED REAL NEARBY FACILITIES (Based on caller live GPS: ${userLocation.latitude}, ${userLocation.longitude}, Address: ${userLocation.address || 'Detected'}):
+${nearbyFacilitiesList
+  .map(
+    (f) =>
+      `- [${f.type}] ${f.name} at ${f.address} (Exact Distance: ${f.distanceKm} km, Phone: ${f.contactPhone || '112'})`
+  )
+  .join('\n')}`;
+  }
 
   const incidentContextBlock = incident
     ? `ACTIVE INCIDENT CONTEXT FROM SYSTEM DATABASE:
 - Incident ID: ${incident.id}
 - Title: ${incident.title}
 - Category: ${incident.category}
-- Priority: ${priority?.recommendedPriority || incident.priority}
+- Priority: ${priorityRecommendation}
 - Status: ${incident.status}
 - Description: ${incident.description}
 - Reported Casualties: ${incident.casualtiesCount}
@@ -642,117 +743,212 @@ export async function chatWithSpecializedAgent(
           ? `${incident.location.latitude}, ${incident.location.longitude}`
           : 'Not provided'
       }, Verified: ${incident.location.verified})
-- Extracted Facts: ${analysis ? analysis.extractedFacts.join('; ') : 'None'}
-- Missing Information: ${analysis ? analysis.missingInformation.join('; ') : 'None'}
-- Registered Fleet Summary: ${resources.length} total units (${resources.filter((r) => r.status === 'AVAILABLE').length} available)`
+- Registered Fleet Summary: ${resources.length} total units (${
+        resources.filter((r) => r.status === 'AVAILABLE').length
+      } available)
+${nearbyFacilitiesSummary ? `\n${nearbyFacilitiesSummary}` : ''}`
     : `INCIDENT CONTEXT:
 - No active incident is currently selected in the database (${allIncidents.length} total incidents on record).
-- Registered Fleet Summary: ${resources.length} total units (${resources.filter((r) => r.status === 'AVAILABLE').length} available).
-- Answer based on the incident details or question provided in the user's message.`;
+- Registered Fleet Summary: ${resources.length} total units (${
+        resources.filter((r) => r.status === 'AVAILABLE').length
+      } available).
+${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLocation.longitude} (${userLocation.address || 'Coordinates confirmed'})\n` : ''}${nearbyFacilitiesSummary ? `\n${nearbyFacilitiesSummary}\n` : ''}- Answer based on the incident details or question provided in the user's message.`;
 
-  const systemInstruction = getAgentSystemInstruction(agentId, incidentContextBlock);
+  const systemInstruction = getAgentSystemInstruction(agentId, incidentContextBlock, language);
 
-  const recentHistoryText = history
-    .slice(-6)
-    .map((m) => `${m.role === 'user' ? 'Operator' : 'Agent'}: ${m.content}`)
-    .join('\n\n');
+  // Extract incident parameters for voice reporting draft
+  const incidentDraft = extractIncidentParameters(trimmedMessage, agentId, language);
 
-  const fullPrompt = `${
-    recentHistoryText ? `CONVERSATION HISTORY:\n${recentHistoryText}\n\n` : ''
-  }OPERATOR MESSAGE:\n${trimmedMessage}`;
+  // If incidentDraft detected but address was missing, attach user's confirmed GPS address
+  if (incidentDraft && !incidentDraft.address && userLocation) {
+    incidentDraft.address =
+      userLocation.address || `${userLocation.latitude.toFixed(5)}, ${userLocation.longitude.toFixed(5)}`;
+    incidentDraft.readyToSubmit = true;
+  }
 
+  // Check if user is confirming report submission
+  const lowerMsg = trimmedMessage.toLowerCase();
+  const confirmWords = [
+    'confirm',
+    'submit',
+    'yes',
+    'हाँ',
+    'हा',
+    'सबमिट',
+    'दर्ज',
+    'ಹೌದು',
+    'ಸಲ್ಲಿಸು',
+    'ಸಲ್ಲಿಸಿ',
+    'ದೃಢೀಕರಿಸಿ'
+  ];
+  const isConfirming = confirmWords.some((w) => lowerMsg.includes(w));
+
+  let createdIncidentId: string | null = null;
   let replyText = '';
   let providerStatus: AgentStatusType = 'Online';
   let providerNotice: string | null = null;
 
-  const geminiKey = process.env.GEMINI_API_KEY?.trim();
-  const openAiKey = process.env.OPENAI_API_KEY?.trim();
-
-  // 1. Try Gemini API if configured
-  if (geminiKey) {
+  // If user is confirming an incident draft with a location
+  if (isConfirming && incidentDraft && incidentDraft.readyToSubmit) {
     try {
-      const ai = new GoogleGenAI({
-        apiKey: geminiKey,
-        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-      });
+      const incLat = userLocation?.latitude ?? 12.9716;
+      const incLng = userLocation?.longitude ?? 77.5946;
+      const incAddr = incidentDraft.address || userLocation?.address || 'Reported Location';
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: fullPrompt,
-        config: {
-          systemInstruction
-        }
+      const newInc = dbService.createIncident({
+        title: incidentDraft.title,
+        category: incidentDraft.category,
+        description: incidentDraft.description,
+        status: 'RECEIVED',
+        priority: incidentDraft.priority,
+        location: {
+          address: incAddr,
+          latitude: incLat,
+          longitude: incLng,
+          verified: !!userLocation,
+          notes: userLocation
+            ? `Reported via Multilingual Voice AI (${language.toUpperCase()}) with confirmed GPS coordinates (${incLat}, ${incLng})`
+            : `Reported via Multilingual Voice AI (${language.toUpperCase()})`
+        },
+        casualtiesCount: incidentDraft.casualtiesCount,
+        reporterName: 'Voice Assistant Caller',
+        reporterContact: 'Voice Gateway',
+        isDemo: false
       });
+      createdIncidentId = newInc.id;
 
-      if (response.text && response.text.trim()) {
-        replyText = response.text.trim();
-        providerStatus = 'Online';
+      if (language === 'hi') {
+        replyText = `आपकी आपातकालीन रिपोर्ट सफलतापूर्वक दर्ज कर ली गई है। आपका वास्तविक इन्सिडेंट आईडी है: ${newInc.id}। नियंत्रण कक्ष ने रिपोर्ट प्राप्त कर ली है और स्थिति का विश्लेषण कर रहा है।`;
+      } else if (language === 'kn') {
+        replyText = `ನಿಮ್ಮ ತುರ್ತು ವರದಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ. ಅಧಿಕೃತ ಇನ್ಸಿಡೆಂಟ್ ಐಡಿ: ${newInc.id}. ಕಮಾಂಡ್ ಸೆಂಟರ್ ವರದಿಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತಿದೆ.`;
+      } else {
+        replyText = `Your emergency report has been successfully submitted to dispatch. Your verified incident ID is ${newInc.id}. Command center is actively triaging the incident.`;
       }
     } catch (err: any) {
-      console.warn(`[SpecializedAgent:${agentId}] Gemini API error:`, err?.message || err);
-      providerNotice = `Gemini API error (${err?.message || 'Service unavailable'}). Generated response using local domain module.`;
+      console.error('[SpecializedAgent] Incident submission error:', err);
+      if (language === 'hi') {
+        replyText = `क्षमा करें, सिस्टम बैकएंड त्रुटि के कारण रिपोर्ट सबमिट नहीं हो सकी। आपकी रिपोर्ट अभी भेजी नहीं गई है। कृपया सीधे 112 पर कॉल करें।`;
+      } else if (language === 'kn') {
+        replyText = `ಕ್ಷಮಿಸಿ, ಸಿಸ್ಟಮ್ ಸಂಪರ್ಕ ಸಮಸ್ಯೆಯಿಂದಾಗಿ ವರದಿ ಸಲ್ಲಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ವರದಿ ಸಲ್ಲಿಕೆಯಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು 112 ಗೆ ಕರೆ ಮಾಡಿ.`;
+      } else {
+        replyText = `Submission failed because the backend dispatch service encountered an error. Your report has NOT been submitted. Please dial 112 directly.`;
+      }
     }
   }
 
-  // 2. Try OpenAI API if reply not yet generated and OPENAI_API_KEY is configured
-  if (!replyText && openAiKey) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${openAiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemInstruction },
-            ...history.slice(-6).map((m) => ({
-              role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
-              content: m.content
-            })),
-            { role: 'user', content: trimmedMessage }
-          ],
-          temperature: 0.3
-        })
-      });
+  // If not confirmed yet, attempt external LLM or domain fallback
+  if (!replyText) {
+    // Keep prompts concise and relevant (only send the last 4 recent messages capped to 250 characters each)
+    const recentHistoryText = history
+      .slice(-4)
+      .map((m) => `${m.role === 'user' ? 'Caller' : 'Agent'}: ${m.content.slice(0, 250)}`)
+      .join('\n');
 
-      if (response.ok) {
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content;
-        if (content && content.trim()) {
-          replyText = content.trim();
+    const fullPrompt = `${
+      recentHistoryText ? `RECENT CONVERSATION:\n${recentHistoryText}\n\n` : ''
+    }CALLER MESSAGE:\n${trimmedMessage}`;
+
+    const geminiKey = process.env.GEMINI_API_KEY?.trim();
+    const openAiKey = process.env.OPENAI_API_KEY?.trim();
+
+    // 1. Try Gemini API with supported model and strict 5-second timeout
+    if (geminiKey) {
+      const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
+      try {
+        const ai = new GoogleGenAI({
+          apiKey: geminiKey,
+          httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+        });
+
+        // Set 5-second timeout to prevent blocking user interactions
+        const generatePromise = ai.models.generateContent({
+          model: activeModel,
+          contents: fullPrompt,
+          config: {
+            systemInstruction
+          }
+        });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('AI Request Timeout (5000ms)')), 5000)
+        );
+
+        const response: any = await Promise.race([generatePromise, timeoutPromise]);
+
+        if (response?.text && response.text.trim()) {
+          replyText = response.text.trim();
           providerStatus = 'Online';
           providerNotice = null;
         }
-      } else {
-        let errDetail = `HTTP ${response.status}`;
-        try {
-          const errJson = await response.json();
-          if (errJson?.error?.message) errDetail = errJson.error.message;
-        } catch {
-          // ignore
-        }
-        console.warn(`[SpecializedAgent:${agentId}] OpenAI API error: ${errDetail}`);
-        providerNotice = `External AI provider error (${errDetail}). Showing response from built-in domain agent module.`;
+      } catch (err: any) {
+        console.warn(`[SpecializedAgent:${agentId}] Gemini model notice:`, err?.message || err);
+        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
       }
-    } catch (err: any) {
-      console.warn(`[SpecializedAgent:${agentId}] OpenAI network error:`, err?.message || err);
-      providerNotice = `External AI provider unreachable. Showing response from built-in domain agent module.`;
     }
-  }
 
-  // 3. If neither external LLM returned a reply, use the agent's domain-specific engine
-  if (!replyText) {
-    if (!geminiKey && !openAiKey) {
-      providerNotice = 'External AI API key not configured on server — response generated by built-in domain agent module.';
+    // 2. Try OpenAI API if reply not yet generated and OPENAI_API_KEY is configured
+    if (!replyText && openAiKey) {
+      try {
+        const openAiModel = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${openAiKey}`
+          },
+          body: JSON.stringify({
+            model: openAiModel,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              ...history.slice(-4).map((m) => ({
+                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
+                content: m.content.slice(0, 250)
+              })),
+              { role: 'user', content: trimmedMessage }
+            ],
+            temperature: 0.3
+          })
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content && content.trim()) {
+            replyText = content.trim();
+            providerStatus = 'Online';
+            providerNotice = null;
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[SpecializedAgent:${agentId}] OpenAI error:`, err?.message || err);
+      }
     }
-    replyText = await generateDomainSpecificFallback(agentId, trimmedMessage, incident);
+
+    // 3. Built-in Multilingual Emergency Agent Engine (sub-millisecond high-availability fallback)
+    if (!replyText) {
+      if (!geminiKey && !openAiKey) {
+        providerNotice = 'Built-in Multilingual Emergency Agent active (Hindi, Kannada, English).';
+      }
+      replyText = await generateDomainSpecificFallback(
+        agentId,
+        trimmedMessage,
+        incident,
+        language,
+        userLocation
+      );
+    }
   }
 
   const nowIso = new Date().toISOString();
   const durationMs = Math.max(1, Date.now() - startTime);
-  const shortTask = `Responded to: "${trimmedMessage.length > 48 ? trimmedMessage.slice(0, 48) + '...' : trimmedMessage}"`;
+  const shortTask = `Voice Agent (${language.toUpperCase()}): "${
+    trimmedMessage.length > 40 ? trimmedMessage.slice(0, 40) + '...' : trimmedMessage
+  }"`;
 
   actionLogs[agentId].unshift({
     actionId: 'AGENT_CHAT_RESPONSE',
@@ -769,9 +965,12 @@ export async function chatWithSpecializedAgent(
     agentId,
     agentName: updatedAgent.name,
     reply: replyText,
+    language,
     timestamp: nowIso,
     providerStatus,
     providerNotice,
+    userLocation: userLocation || null,
+    nearbyFacilities: nearbyFacilitiesList,
     incidentContext: incident
       ? {
           id: incident.id,
@@ -781,16 +980,18 @@ export async function chatWithSpecializedAgent(
           address: incident.location.address
         }
       : null,
+    incidentDraft,
+    createdIncidentId,
     updatedAgent
   };
 }
 
 export function getGridEfficiencySummary(): GridEfficiencySummary {
   const agentMeta: Array<{ id: SpecializedAgentId; name: string; shortName: string }> = [
-    { id: 'POLICE_TACTICAL', name: 'Police Tactical Agent', shortName: 'Police Tactical' },
-    { id: 'HOSPITAL_EMS', name: 'Hospital & EMS Agent', shortName: 'Hospital & EMS' },
-    { id: 'WATER_HYDRO', name: 'Water Supply & Hydro Agent', shortName: 'Water & Hydro' },
-    { id: 'CURRENT_KEB', name: 'Power Grid / KEB Agent', shortName: 'Power Grid / KEB' }
+    { id: 'POLICE_TACTICAL', name: 'Rakshak AI (Police & Public Safety)', shortName: 'Rakshak AI' },
+    { id: 'HOSPITAL_EMS', name: 'Jeevan AI (Hospital & EMS)', shortName: 'Jeevan AI' },
+    { id: 'WATER_HYDRO', name: 'JalRakshak AI (Water & Hydro)', shortName: 'JalRakshak AI' },
+    { id: 'CURRENT_KEB', name: 'Shakti AI (Power Grid & Electricity)', shortName: 'Shakti AI' }
   ];
 
   const allRuns = dbService.getAgentRuns();
@@ -932,7 +1133,9 @@ export async function runGridReadinessBenchmark(incidentId?: string | null): Pro
 
 export async function routeOperatorCommand(
   commandText: string,
-  incidentId?: string | null
+  incidentId?: string | null,
+  userLocation?: UserLocationContext | null,
+  language?: SupportedLanguage
 ): Promise<AICommandResponse> {
   const trimmed = commandText.trim();
   if (!trimmed) {
@@ -941,7 +1144,7 @@ export async function routeOperatorCommand(
 
   const lower = trimmed.toLowerCase();
 
-  // Route command to the appropriate specialized agent
+  // Route command to the appropriate specialized agent with multilingual keyword matching
   let routedAgentId: SpecializedAgentId = 'POLICE_TACTICAL';
   if (
     lower.includes('hospital') ||
@@ -951,7 +1154,19 @@ export async function routeOperatorCommand(
     lower.includes('patient') ||
     lower.includes('casualt') ||
     lower.includes('injury') ||
-    lower.includes('trauma')
+    lower.includes('trauma') ||
+    lower.includes('doctor') ||
+    lower.includes('health') ||
+    lower.includes('ಆಸ್ಪತ್ರೆ') ||
+    lower.includes('ವೈದ್ಯ') ||
+    lower.includes('ಆಂಬ್ಯುಲೆನ್ಸ್') ||
+    lower.includes('ಚಿಕಿತ್ಸೆ') ||
+    lower.includes('ಗಾಯ') ||
+    lower.includes('ಅಸ್ಪತ್ರೆ') ||
+    lower.includes('अस्पताल') ||
+    lower.includes('एम्बुलेंस') ||
+    lower.includes('डॉक्टर') ||
+    lower.includes('चिकित्सा')
   ) {
     routedAgentId = 'HOSPITAL_EMS';
   } else if (
@@ -962,19 +1177,48 @@ export async function routeOperatorCommand(
     lower.includes('hydrant') ||
     lower.includes('reservoir') ||
     lower.includes('flood') ||
-    lower.includes('shortage')
+    lower.includes('shortage') ||
+    lower.includes('drainage') ||
+    lower.includes('sewage') ||
+    lower.includes('ನೀರು') ||
+    lower.includes('ನೀರಿನ') ||
+    lower.includes('ಸೋರಿಕೆ') ||
+    lower.includes('ಪೈಪ್') ||
+    lower.includes('ಪ್ರವಾಹ') ||
+    lower.includes('पानी') ||
+    lower.includes('जल') ||
+    lower.includes('पाइप') ||
+    lower.includes('लीक') ||
+    lower.includes('बाढ़')
   ) {
     routedAgentId = 'WATER_HYDRO';
   } else if (
     lower.includes('power') ||
     lower.includes('electric') ||
+    lower.includes('electricity') ||
     lower.includes('keb') ||
+    lower.includes('bescom') ||
     lower.includes('outage') ||
     lower.includes('grid') ||
     lower.includes('substation') ||
     lower.includes('feeder') ||
     lower.includes('wire') ||
-    lower.includes('transformer')
+    lower.includes('cable') ||
+    lower.includes('transformer') ||
+    lower.includes('blackout') ||
+    lower.includes('ವಿದ್ಯುತ್') ||
+    lower.includes('ಕರೆಂಟ್') ||
+    lower.includes('ಬೆಳಕಿಲ್ಲ') ||
+    lower.includes('ತಂತಿ') ||
+    lower.includes('ಕಂಬ') ||
+    lower.includes('ವಿದ್ಯುತ್ ಕಡಿತ') ||
+    lower.includes('ಕೆಇಬಿ') ||
+    lower.includes('ಬೆಸ್ಕಾಂ') ||
+    lower.includes('बिजली') ||
+    lower.includes('करंट') ||
+    lower.includes('ट्रांसफार्मर') ||
+    lower.includes('तार') ||
+    lower.includes('पावर')
   ) {
     routedAgentId = 'CURRENT_KEB';
   } else {
@@ -982,10 +1226,10 @@ export async function routeOperatorCommand(
   }
 
   const agentMetaMap: Record<SpecializedAgentId, { name: string; code: string }> = {
-    POLICE_TACTICAL: { name: 'Police Tactical AI', code: 'AGENT 01' },
-    HOSPITAL_EMS: { name: 'Hospital & EMS AI', code: 'AGENT 02' },
-    WATER_HYDRO: { name: 'Water Supply & Hydro AI', code: 'AGENT 03' },
-    CURRENT_KEB: { name: 'Power Grid / KEB AI', code: 'AGENT 04' }
+    POLICE_TACTICAL: { name: 'Rakshak AI 🚔', code: 'AGENT 01' },
+    HOSPITAL_EMS: { name: 'Jeevan AI 🏥', code: 'AGENT 02' },
+    WATER_HYDRO: { name: 'JalRakshak AI 💧', code: 'AGENT 03' },
+    CURRENT_KEB: { name: 'Shakti AI ⚡', code: 'AGENT 04' }
   };
 
   const allIncidents = dbService.getIncidents();
@@ -1035,7 +1279,14 @@ export async function routeOperatorCommand(
   });
 
   const targetIncId = incidentId || matchingIncidents[0]?.id || null;
-  const chatResult = await chatWithSpecializedAgent(routedAgentId, trimmed, [], targetIncId);
+  const chatResult = await chatWithSpecializedAgent(
+    routedAgentId,
+    trimmed,
+    [],
+    targetIncId,
+    language || 'en',
+    userLocation || null
+  );
 
   const suggestedActions: AICommandResponse['suggestedActions'] = [
     {

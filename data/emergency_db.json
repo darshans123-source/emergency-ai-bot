@@ -7,7 +7,7 @@
       "passwordHash": "475d3364ba34726c065735b360d2c3c051954d08c0daced7cdecb1b2d69d0408",
       "role": "admin",
       "organization": "Metro Emergency Command HQ",
-      "createdAt": "2026-10-24T14:23:59.941Z"
+      "createdAt": "2026-10-25T19:08:50.547Z"
     },
     {
       "id": "USR-OPERATOR-01",
@@ -16,7 +16,7 @@
       "passwordHash": "d95b3fc6796a44ae294b780877bc998715d316e0e62208dace0f1a3e1197a007",
       "role": "operator",
       "organization": "Central Incident Dispatch Hub",
-      "createdAt": "2026-10-24T16:03:59.941Z"
+      "createdAt": "2026-10-25T20:48:50.547Z"
     },
     {
       "id": "USR-OPERATOR-02",
@@ -25,19 +25,216 @@
       "passwordHash": "d95b3fc6796a44ae294b780877bc998715d316e0e62208dace0f1a3e1197a007",
       "role": "operator",
       "organization": "Regional Fire & Rescue Coordination",
-      "createdAt": "2026-10-24T16:53:59.942Z"
+      "createdAt": "2026-10-25T21:38:50.548Z"
     },
     {
       "id": "USR-REPORTER-01",
       "name": "Citizen Jane Doe",
       "email": "citizen@metro.org",
       "passwordHash": "8d51a4bb4e79e1cabfeedb7f4d07b9d5e39f5a87bbf7da774ff5c139502ed7ff",
-      "role": "reporter",
+      "role": "operator",
       "organization": "Public Safety Reporter",
-      "createdAt": "2026-10-24T17:43:59.943Z"
+      "createdAt": "2026-10-25T22:28:50.549Z"
     }
   ],
-  "incidents": [],
+  "incidents": [
+    {
+      "title": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+      "category": "PUBLIC_SAFETY",
+      "description": "ನಮ್ಮ ರಾಯಚೂರು ಸ್ಕೂಲ್",
+      "status": "RECEIVED",
+      "priority": "HIGH",
+      "location": {
+        "address": "Reported via Voice Assistant",
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "verified": false,
+        "notes": "Voice Assistant intake in KN"
+      },
+      "casualtiesCount": 0,
+      "reporterId": "USR-REPORTER-01",
+      "reporterName": "Citizen Jane Doe",
+      "reporterContact": "citizen@metro.org",
+      "isDemo": false,
+      "id": "INC-2026-006",
+      "createdAt": "2026-10-26T13:29:36.784Z",
+      "updatedAt": "2026-10-26T13:29:36.895Z",
+      "priorityRecommendation": {
+        "recommendedPriority": "LOW",
+        "score": 13,
+        "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+        "evidence": [
+          "Hazard class weight for PUBLIC_SAFETY (+8)"
+        ],
+        "missingInfo": [
+          "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+          "Verification of triage status of involved civilians.",
+          "Precise location coordinates unverified"
+        ],
+        "confidence": 0.76
+      }
+    },
+    {
+      "title": "सार्वजनिक सुरक्षा / पुलिस सहायता",
+      "category": "PUBLIC_SAFETY",
+      "description": "पुलिस स्टेशन के बारे में जानकारी",
+      "status": "RECEIVED",
+      "priority": "HIGH",
+      "location": {
+        "address": "जानकारी",
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "verified": false,
+        "notes": "Voice Assistant intake in HI"
+      },
+      "casualtiesCount": 0,
+      "reporterId": "USR-REPORTER-01",
+      "reporterName": "Citizen Jane Doe",
+      "reporterContact": "citizen@metro.org",
+      "isDemo": false,
+      "id": "INC-2026-005",
+      "createdAt": "2026-10-26T13:28:51.811Z",
+      "updatedAt": "2026-10-26T13:28:51.922Z",
+      "priorityRecommendation": {
+        "recommendedPriority": "LOW",
+        "score": 13,
+        "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+        "evidence": [
+          "Hazard class weight for PUBLIC_SAFETY (+8)"
+        ],
+        "missingInfo": [
+          "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+          "Verification of triage status of involved civilians.",
+          "Precise location coordinates unverified"
+        ],
+        "confidence": 0.76
+      }
+    },
+    {
+      "title": "Public Safety / Police Assistance",
+      "category": "PUBLIC_SAFETY",
+      "description": "near me police station",
+      "status": "RECEIVED",
+      "priority": "HIGH",
+      "location": {
+        "address": "me police station",
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "verified": false,
+        "notes": "Voice Assistant intake in EN"
+      },
+      "casualtiesCount": 0,
+      "reporterId": "USR-REPORTER-01",
+      "reporterName": "Citizen Jane Doe",
+      "reporterContact": "citizen@metro.org",
+      "isDemo": false,
+      "id": "INC-2026-004",
+      "createdAt": "2026-10-26T13:27:56.935Z",
+      "updatedAt": "2026-10-26T13:27:57.065Z",
+      "priorityRecommendation": {
+        "recommendedPriority": "LOW",
+        "score": 13,
+        "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+        "evidence": [
+          "Hazard class weight for PUBLIC_SAFETY (+8)"
+        ],
+        "missingInfo": [
+          "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+          "Verification of triage status of involved civilians.",
+          "Precise location coordinates unverified"
+        ],
+        "confidence": 0.76
+      }
+    },
+    {
+      "title": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ",
+      "category": "FLOOD",
+      "description": "ನಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ಮುಖ್ಯ ಪೈಪ್‌ಲೈನ್ ಒಡೆದು ರಸ್ತೆಯಲ್ಲಿ ನೀರು ತುಂಬಿದೆ. ಸ್ಥಳ: ಎಂಜಿ ರಸ್ತೆ ಬೆಂಗಳೂರು.",
+      "status": "RECEIVED",
+      "priority": "HIGH",
+      "location": {
+        "address": "Reported via Voice Assistant",
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "verified": false,
+        "notes": "Voice Assistant intake in KN"
+      },
+      "casualtiesCount": 0,
+      "reporterId": "USR-OPERATOR-01",
+      "reporterName": "Marcus Vance",
+      "reporterContact": "operator@emergency.gov",
+      "isDemo": false,
+      "id": "INC-2026-003",
+      "createdAt": "2026-10-26T11:49:19.000Z",
+      "updatedAt": "2026-10-26T11:49:19.059Z",
+      "priorityRecommendation": {
+        "recommendedPriority": "LOW",
+        "score": 17,
+        "explanation": "Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk.",
+        "evidence": [
+          "Hazard class weight for FLOOD (+12)"
+        ],
+        "missingInfo": [
+          "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+          "Verification of triage status of involved civilians.",
+          "Precise location coordinates unverified"
+        ],
+        "confidence": 0.76
+      }
+    },
+    {
+      "title": "Report of Distant Smoke Plume",
+      "category": "FIRE_INCIDENT",
+      "description": "Caller sees smoke over the hills but cannot provide exact cross-street or coordinates.",
+      "status": "RECEIVED",
+      "priority": "UNASSESSED",
+      "location": {
+        "address": "Approx North Hills Area",
+        "latitude": null,
+        "longitude": null,
+        "verified": false
+      },
+      "casualtiesCount": 0,
+      "isDemo": true,
+      "id": "INC-2026-002",
+      "createdAt": "2026-10-26T11:48:50.632Z",
+      "updatedAt": "2026-10-26T11:48:50.632Z"
+    },
+    {
+      "title": "Multi-Vehicle Collision on I-80 On-Ramp",
+      "category": "ROAD_ACCIDENT",
+      "description": "Two sedans and a tanker truck collided. Fuel leaking, two occupants injured and conscious.",
+      "status": "ON_SCENE",
+      "priority": "UNASSESSED",
+      "location": {
+        "address": "I-80 Ramp & 4th St",
+        "latitude": 37.7858,
+        "longitude": -122.4065,
+        "verified": true
+      },
+      "casualtiesCount": 2,
+      "reporterName": "Officer Miller",
+      "isDemo": true,
+      "id": "INC-2026-001",
+      "createdAt": "2026-10-26T11:48:50.557Z",
+      "updatedAt": "2026-10-26T11:48:50.741Z",
+      "priorityRecommendation": {
+        "recommendedPriority": "CRITICAL",
+        "score": 81,
+        "explanation": "Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+        "evidence": [
+          "Life threat: Injury confirmed by caller (+15)",
+          "Life threat: Explosive or active fuel propagation hazard (+15)",
+          "Multiple casualties: 2 people affected (+18)",
+          "Hazard class weight for ROAD_ACCIDENT (+18)"
+        ],
+        "missingInfo": [
+          "On-scene command post radio contact frequency."
+        ],
+        "confidence": 0.94
+      }
+    }
+  ],
   "resources": [
     {
       "id": "RES-AMB-01",
@@ -50,8 +247,8 @@
       "capacity": "2 Paramedics, 1 Critical Bed",
       "operationalNotes": "Equipped with defibrillator, ventilator, emergency narcotics",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-AMB-02",
@@ -64,8 +261,8 @@
       "capacity": "2 EMTs, 1 Transport Stretcher",
       "operationalNotes": "Rapid triage ready; oxygen support",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-FIRE-01",
@@ -76,10 +273,10 @@
       "longitude": -122.4115,
       "address": "Fire Station #1, Mission & 7th",
       "capacity": "4 Firefighters, 750 Gal Tank",
-      "operationalNotes": "Foam suppression capable, hydraulic extrication gear",
+      "operationalNotes": "Foam suppression capable, hydraulic jaws on board",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-FIRE-02",
@@ -92,8 +289,8 @@
       "capacity": "5 Firefighters, 100ft Aerial Ladder",
       "operationalNotes": "High-angle rescue and heavy structural breaching gear",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-POL-01",
@@ -106,8 +303,8 @@
       "capacity": "2 Officers, Scene Barricades",
       "operationalNotes": "Traffic management, perimeter lockdown, emergency escort",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-POL-02",
@@ -120,8 +317,8 @@
       "capacity": "2 Officers",
       "operationalNotes": "Active downtown patrol, pedestrian crowd containment",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-RSC-01",
@@ -132,10 +329,10 @@
       "longitude": -122.418,
       "address": "Civic Center Command Plaza Depot",
       "capacity": "6 Specialists, Trench & Structural Rigging",
-      "operationalNotes": "Acoustic listening equipment, search & rescue gear",
+      "operationalNotes": "Canine search team, acoustic listening equipment",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     },
     {
       "id": "RES-SUP-01",
@@ -148,16 +345,3227 @@
       "capacity": "3 HazMat Technicians, Neutralization Units",
       "operationalNotes": "Spill containment barriers, chemical air monitoring",
       "assignedIncidentId": null,
-      "isDemo": false,
-      "lastVerifiedAt": "2026-10-25T00:00:00.000Z"
+      "isDemo": true,
+      "lastVerifiedAt": "2026-10-26T11:48:50.542Z"
     }
   ],
-  "assignments": [],
-  "agentRuns": [],
-  "agentEvents": [],
+  "assignments": [
+    {
+      "incidentId": "INC-2026-001",
+      "resourceId": "RES-AMB-01",
+      "resourceName": "Medic Unit 1 (ALS Advanced Life Support)",
+      "resourceType": "AMBULANCE",
+      "status": "REJECTED",
+      "distanceKm": 1.2,
+      "estimatedDurationMins": 2.5,
+      "matchScore": 90,
+      "recommendationReason": "Primary ALS unit",
+      "id": "ASG-MVP717IN-972",
+      "requestedAt": "2026-10-26T11:48:50.640Z",
+      "rejectionReason": "Unit designated for priority pediatric transport standing by elsewhere"
+    },
+    {
+      "incidentId": "INC-2026-001",
+      "resourceId": "RES-POL-01",
+      "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+      "resourceType": "POLICE_PATROL",
+      "status": "PENDING_APPROVAL",
+      "distanceKm": 0.8,
+      "estimatedDurationMins": 1.5,
+      "matchScore": 92,
+      "recommendationReason": "Perimeter blockade",
+      "id": "ASG-MVP717L6-587",
+      "requestedAt": "2026-10-26T11:48:50.730Z"
+    }
+  ],
+  "agentRuns": [
+    {
+      "id": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T13:29:36.831Z",
+      "durationMs": 205,
+      "events": [
+        {
+          "id": "EVT-VAL-1793021376845",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\" [PUBLIC_SAFETY]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:29:36.845Z"
+        },
+        {
+          "id": "EVT-ANA-1793021376866",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+          "durationMs": 2,
+          "timestamp": "2026-10-26T13:29:36.867Z"
+        },
+        {
+          "id": "EVT-PRI-1793021376885",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:29:36.885Z"
+        },
+        {
+          "id": "EVT-RES-1793021376915",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+          "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:29:36.915Z"
+        },
+        {
+          "id": "EVT-ROU-1793021376933",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Route Planning Agent",
+          "status": "SKIPPED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+          "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:29:36.933Z",
+          "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        {
+          "id": "EVT-COM-1793021377011",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+          "durationMs": 61,
+          "timestamp": "2026-10-26T13:29:37.011Z"
+        },
+        {
+          "id": "EVT-SPEC-1793021377025",
+          "runId": "RUN-MVPAMSSF-899",
+          "incidentId": "INC-2026-006",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T13:29:37.025Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "PUBLIC_SAFETY",
+          "extractedFacts": [
+            "Original reporter statement logged: \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\""
+          ],
+          "knownUncertainties": [
+            "Exact entrance gate, floor, or cross-street corridor is unverified."
+          ],
+          "missingInformation": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians."
+          ],
+          "resourceNeeds": [
+            "General Emergency Response Assessment Unit"
+          ],
+          "explanation": "Identified 1 verified facts, 1 potential response requirements, and flagged 2 informational gaps."
+        },
+        "priority": {
+          "score": 13,
+          "recommendedPriority": "LOW",
+          "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "evidence": [
+            "Hazard class weight for PUBLIC_SAFETY (+8)"
+          ],
+          "missingInfo": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians.",
+            "Precise location coordinates unverified"
+          ],
+          "confidence": 0.76
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-POL-01",
+            "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13998.87,
+            "estimatedMinutes": 18665.2,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-POL-02",
+            "resourceName": "Patrol Unit 105 (Downtown Sector Squad)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13997.73,
+            "estimatedMinutes": 18663.6,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-SUP-01",
+            "resourceName": "Mobile HazMat & Decontamination Support",
+            "resourceType": "GENERAL_SUPPORT",
+            "distanceKm": 13999.4,
+            "estimatedMinutes": 18665.9,
+            "matchReason": "General incident support and hazardous containment capabilities.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "PREREQUISITE_FAILED",
+          "message": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-006 [LOW]: Review Required",
+            "message": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Unverified Location Alert: INC-2026-006",
+            "message": "Caller gave address \"Reported via Voice Assistant\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Emergency Report Logged: INC-2026-006",
+            "message": "Your report regarding \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\" has been assigned tracking ID INC-2026-006 and is currently under operator triage.",
+            "recipientRole": "reporter"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793021377025",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T13:29:37.025Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near Reported via Voice Assistant. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793021377025",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T13:29:38.025Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for Reported via Voice Assistant."
+          },
+          {
+            "id": "CNS-03-1793021377025",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T13:29:39.025Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Water infrastructure context reviewed for Reported via Voice Assistant."
+          },
+          {
+            "id": "CNS-04-1793021377025",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T13:29:40.025Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (0 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Voice Agent (KN): \"ನಮ್ಮ ರಾಯಚೂರು ಸ್ಕೂಲ್\"",
+            "assignedIncidentId": "INC-2026-006",
+            "assignedIncidentTitle": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "lastUpdated": "2026-10-26T13:29:32.446Z",
+            "liveAssessment": "Incident INC-2026-006 (ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು) at Reported via Voice Assistant. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-006: ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "assignedIncidentId": "INC-2026-006",
+            "assignedIncidentTitle": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "lastUpdated": "2026-10-26T13:29:36.784Z",
+            "liveAssessment": "Incident INC-2026-006 reports 0 casualties at Reported via Voice Assistant. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-006: ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "assignedIncidentId": "INC-2026-006",
+            "assignedIncidentTitle": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "lastUpdated": "2026-10-26T13:29:36.784Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-006 at Reported via Voice Assistant.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-006: ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "assignedIncidentId": "INC-2026-006",
+            "assignedIncidentTitle": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು",
+            "lastUpdated": "2026-10-26T13:29:36.784Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-006 at Reported via Voice Assistant.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T13:29:37.036Z"
+    },
+    {
+      "id": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T13:28:51.849Z",
+      "durationMs": 220,
+      "events": [
+        {
+          "id": "EVT-VAL-1793021331865",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"सार्वजनिक सुरक्षा / पुलिस सहायता\" [PUBLIC_SAFETY]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:28:51.865Z"
+        },
+        {
+          "id": "EVT-ANA-1793021331886",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T13:28:51.886Z"
+        },
+        {
+          "id": "EVT-PRI-1793021331897",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:28:51.897Z"
+        },
+        {
+          "id": "EVT-RES-1793021331936",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+          "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T13:28:51.936Z"
+        },
+        {
+          "id": "EVT-ROU-1793021331953",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Route Planning Agent",
+          "status": "SKIPPED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+          "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:28:51.953Z",
+          "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        {
+          "id": "EVT-COM-1793021332022",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+          "durationMs": 50,
+          "timestamp": "2026-10-26T13:28:52.022Z"
+        },
+        {
+          "id": "EVT-SPEC-1793021332042",
+          "runId": "RUN-MVPALU2X-970",
+          "incidentId": "INC-2026-005",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:28:52.042Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "PUBLIC_SAFETY",
+          "extractedFacts": [
+            "Original reporter statement logged: \"सार्वजनिक सुरक्षा / पुलिस सहायता\""
+          ],
+          "knownUncertainties": [
+            "Exact entrance gate, floor, or cross-street corridor is unverified."
+          ],
+          "missingInformation": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians."
+          ],
+          "resourceNeeds": [
+            "General Emergency Response Assessment Unit"
+          ],
+          "explanation": "Identified 1 verified facts, 1 potential response requirements, and flagged 2 informational gaps."
+        },
+        "priority": {
+          "score": 13,
+          "recommendedPriority": "LOW",
+          "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "evidence": [
+            "Hazard class weight for PUBLIC_SAFETY (+8)"
+          ],
+          "missingInfo": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians.",
+            "Precise location coordinates unverified"
+          ],
+          "confidence": 0.76
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-POL-01",
+            "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13998.87,
+            "estimatedMinutes": 18665.2,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-POL-02",
+            "resourceName": "Patrol Unit 105 (Downtown Sector Squad)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13997.73,
+            "estimatedMinutes": 18663.6,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-SUP-01",
+            "resourceName": "Mobile HazMat & Decontamination Support",
+            "resourceType": "GENERAL_SUPPORT",
+            "distanceKm": 13999.4,
+            "estimatedMinutes": 18665.9,
+            "matchReason": "General incident support and hazardous containment capabilities.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "PREREQUISITE_FAILED",
+          "message": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-005 [LOW]: Review Required",
+            "message": "सार्वजनिक सुरक्षा / पुलिस सहायता — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Unverified Location Alert: INC-2026-005",
+            "message": "Caller gave address \"जानकारी\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Emergency Report Logged: INC-2026-005",
+            "message": "Your report regarding \"सार्वजनिक सुरक्षा / पुलिस सहायता\" has been assigned tracking ID INC-2026-005 and is currently under operator triage.",
+            "recipientRole": "reporter"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793021332042",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T13:28:52.042Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near जानकारी. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793021332042",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T13:28:53.042Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for जानकारी."
+          },
+          {
+            "id": "CNS-03-1793021332042",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T13:28:54.042Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Water infrastructure context reviewed for जानकारी."
+          },
+          {
+            "id": "CNS-04-1793021332042",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T13:28:55.042Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (0 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Voice Agent (HI): \"मंजूनाथ\"",
+            "assignedIncidentId": "INC-2026-005",
+            "assignedIncidentTitle": "सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "lastUpdated": "2026-10-26T13:28:42.836Z",
+            "liveAssessment": "Incident INC-2026-005 (सार्वजनिक सुरक्षा / पुलिस सहायता) at जानकारी. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-005: सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "assignedIncidentId": "INC-2026-005",
+            "assignedIncidentTitle": "सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "lastUpdated": "2026-10-26T13:28:51.811Z",
+            "liveAssessment": "Incident INC-2026-005 reports 0 casualties at जानकारी. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-005: सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "assignedIncidentId": "INC-2026-005",
+            "assignedIncidentTitle": "सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "lastUpdated": "2026-10-26T13:28:51.811Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-005 at जानकारी.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-005: सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "assignedIncidentId": "INC-2026-005",
+            "assignedIncidentTitle": "सार्वजनिक सुरक्षा / पुलिस सहायता",
+            "lastUpdated": "2026-10-26T13:28:51.811Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-005 at जानकारी.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T13:28:52.069Z"
+    },
+    {
+      "id": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T13:27:57.000Z",
+      "durationMs": 195,
+      "events": [
+        {
+          "id": "EVT-VAL-1793021277018",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"Public Safety / Police Assistance\" [PUBLIC_SAFETY]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:27:57.018Z"
+        },
+        {
+          "id": "EVT-ANA-1793021277040",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+          "durationMs": 8,
+          "timestamp": "2026-10-26T13:27:57.040Z"
+        },
+        {
+          "id": "EVT-PRI-1793021277051",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T13:27:57.051Z"
+        },
+        {
+          "id": "EVT-RES-1793021277085",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+          "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 2,
+          "timestamp": "2026-10-26T13:27:57.085Z"
+        },
+        {
+          "id": "EVT-ROU-1793021277102",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Route Planning Agent",
+          "status": "SKIPPED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+          "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:27:57.102Z",
+          "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        {
+          "id": "EVT-COM-1793021277168",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+          "durationMs": 50,
+          "timestamp": "2026-10-26T13:27:57.168Z"
+        },
+        {
+          "id": "EVT-SPEC-1793021277182",
+          "runId": "RUN-MVPAKNRC-655",
+          "incidentId": "INC-2026-004",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T13:27:57.182Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "PUBLIC_SAFETY",
+          "extractedFacts": [
+            "Original reporter statement logged: \"Public Safety / Police Assistance\""
+          ],
+          "knownUncertainties": [
+            "Exact entrance gate, floor, or cross-street corridor is unverified."
+          ],
+          "missingInformation": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians."
+          ],
+          "resourceNeeds": [
+            "General Emergency Response Assessment Unit"
+          ],
+          "explanation": "Identified 1 verified facts, 1 potential response requirements, and flagged 2 informational gaps."
+        },
+        "priority": {
+          "score": 13,
+          "recommendedPriority": "LOW",
+          "explanation": "Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+          "evidence": [
+            "Hazard class weight for PUBLIC_SAFETY (+8)"
+          ],
+          "missingInfo": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians.",
+            "Precise location coordinates unverified"
+          ],
+          "confidence": 0.76
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-POL-01",
+            "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13998.87,
+            "estimatedMinutes": 18665.2,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-POL-02",
+            "resourceName": "Patrol Unit 105 (Downtown Sector Squad)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 13997.73,
+            "estimatedMinutes": 18663.6,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-SUP-01",
+            "resourceName": "Mobile HazMat & Decontamination Support",
+            "resourceType": "GENERAL_SUPPORT",
+            "distanceKm": 13999.4,
+            "estimatedMinutes": 18665.9,
+            "matchReason": "General incident support and hazardous containment capabilities.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "PREREQUISITE_FAILED",
+          "message": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-004 [LOW]: Review Required",
+            "message": "Public Safety / Police Assistance — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Unverified Location Alert: INC-2026-004",
+            "message": "Caller gave address \"me police station\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Emergency Report Logged: INC-2026-004",
+            "message": "Your report regarding \"Public Safety / Police Assistance\" has been assigned tracking ID INC-2026-004 and is currently under operator triage.",
+            "recipientRole": "reporter"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793021277182",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T13:27:57.182Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near me police station. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793021277182",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T13:27:58.182Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for me police station."
+          },
+          {
+            "id": "CNS-03-1793021277182",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T13:27:59.182Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Water infrastructure context reviewed for me police station."
+          },
+          {
+            "id": "CNS-04-1793021277182",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T13:28:00.182Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (0 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Voice Agent (EN): \"near me police station\"",
+            "assignedIncidentId": "INC-2026-004",
+            "assignedIncidentTitle": "Public Safety / Police Assistance",
+            "lastUpdated": "2026-10-26T13:27:37.066Z",
+            "liveAssessment": "Incident INC-2026-004 (Public Safety / Police Assistance) at me police station. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-004: Public Safety / Police Assistance",
+            "assignedIncidentId": "INC-2026-004",
+            "assignedIncidentTitle": "Public Safety / Police Assistance",
+            "lastUpdated": "2026-10-26T13:27:56.935Z",
+            "liveAssessment": "Incident INC-2026-004 reports 0 casualties at me police station. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-004: Public Safety / Police Assistance",
+            "assignedIncidentId": "INC-2026-004",
+            "assignedIncidentTitle": "Public Safety / Police Assistance",
+            "lastUpdated": "2026-10-26T13:27:56.935Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-004 at me police station.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-004: Public Safety / Police Assistance",
+            "assignedIncidentId": "INC-2026-004",
+            "assignedIncidentTitle": "Public Safety / Police Assistance",
+            "lastUpdated": "2026-10-26T13:27:56.935Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-004 at me police station.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T13:27:57.195Z"
+    },
+    {
+      "id": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T11:49:19.020Z",
+      "durationMs": 94,
+      "events": [
+        {
+          "id": "EVT-VAL-1793015359029",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\" [FLOOD]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:49:19.029Z"
+        },
+        {
+          "id": "EVT-ANA-1793015359038",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+          "durationMs": 2,
+          "timestamp": "2026-10-26T11:49:19.038Z"
+        },
+        {
+          "id": "EVT-PRI-1793015359053",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: LOW (Score: 17/100, Confidence: 76%). Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:49:19.053Z"
+        },
+        {
+          "id": "EVT-RES-1793015359066",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category FLOOD",
+          "outputSummary": "Identified 2 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:49:19.066Z"
+        },
+        {
+          "id": "EVT-ROU-1793015359073",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Route Planning Agent",
+          "status": "SKIPPED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Metro Technical Search & Rescue Alpha to incident coordinates",
+          "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:49:19.073Z",
+          "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        {
+          "id": "EVT-COM-1793015359099",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+          "durationMs": 21,
+          "timestamp": "2026-10-26T11:49:19.099Z"
+        },
+        {
+          "id": "EVT-SPEC-1793015359107",
+          "runId": "RUN-MVP71TF0-741",
+          "incidentId": "INC-2026-003",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:49:19.107Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "FLOOD",
+          "extractedFacts": [
+            "Original reporter statement logged: \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\""
+          ],
+          "knownUncertainties": [
+            "Exact entrance gate, floor, or cross-street corridor is unverified."
+          ],
+          "missingInformation": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians."
+          ],
+          "resourceNeeds": [
+            "General Emergency Response Assessment Unit"
+          ],
+          "explanation": "Identified 1 verified facts, 1 potential response requirements, and flagged 2 informational gaps."
+        },
+        "priority": {
+          "score": 17,
+          "recommendedPriority": "LOW",
+          "explanation": "Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk.",
+          "evidence": [
+            "Hazard class weight for FLOOD (+12)"
+          ],
+          "missingInfo": [
+            "Precise GPS coordinates unconfirmed. Location requires operator confirmation.",
+            "Verification of triage status of involved civilians.",
+            "Precise location coordinates unverified"
+          ],
+          "confidence": 0.76
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-RSC-01",
+            "resourceName": "Metro Technical Search & Rescue Alpha",
+            "resourceType": "RESCUE_TEAM",
+            "distanceKm": 13997.96,
+            "estimatedMinutes": 18663.9,
+            "matchReason": "Specialized structural breaching, high-angle rescue, or technical search.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-SUP-01",
+            "resourceName": "Mobile HazMat & Decontamination Support",
+            "resourceType": "GENERAL_SUPPORT",
+            "distanceKm": 13999.4,
+            "estimatedMinutes": 18665.9,
+            "matchReason": "General incident support and hazardous containment capabilities.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "PREREQUISITE_FAILED",
+          "message": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-003 [LOW]: Review Required",
+            "message": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ — Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk. (2 units available)",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Unverified Location Alert: INC-2026-003",
+            "message": "Caller gave address \"Reported via Voice Assistant\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+            "recipientRole": "operator"
+          },
+          {
+            "title": "Emergency Report Logged: INC-2026-003",
+            "message": "Your report regarding \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\" has been assigned tracking ID INC-2026-003 and is currently under operator triage.",
+            "recipientRole": "reporter"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793015359107",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T11:49:19.107Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near Reported via Voice Assistant. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793015359107",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T11:49:20.107Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for Reported via Voice Assistant."
+          },
+          {
+            "id": "CNS-03-1793015359107",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T11:49:21.107Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Drainage and main isolation priorities noted for Reported via Voice Assistant."
+          },
+          {
+            "id": "CNS-04-1793015359107",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T11:49:22.107Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (0 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Voice Agent (HI): \"सड़क पर एक गंभीर दुर्घटना हुई है, दो गाड...\"",
+            "assignedIncidentId": "INC-2026-003",
+            "assignedIncidentTitle": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ",
+            "lastUpdated": "2026-10-26T11:49:18.930Z",
+            "liveAssessment": "Incident INC-2026-003 (ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ) at Reported via Voice Assistant. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Voice Agent (HI): \"मेरे इलाके में आग लग गई है, मरीज झुलस गए...\"",
+            "assignedIncidentId": "INC-2026-003",
+            "assignedIncidentTitle": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ",
+            "lastUpdated": "2026-10-26T11:49:18.967Z",
+            "liveAssessment": "Incident INC-2026-003 reports 0 casualties at Reported via Voice Assistant. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Voice Agent (EN): \"Major pipeline leak flooding the basemen...\"",
+            "assignedIncidentId": "INC-2026-003",
+            "assignedIncidentTitle": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ",
+            "lastUpdated": "2026-10-26T11:49:18.992Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-003 at Reported via Voice Assistant.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Voice Agent (EN): \"There is a power outage in my area and a...\"",
+            "assignedIncidentId": "INC-2026-003",
+            "assignedIncidentTitle": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ",
+            "lastUpdated": "2026-10-26T11:49:18.985Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-003 at Reported via Voice Assistant.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T11:49:19.114Z"
+    },
+    {
+      "id": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T11:48:50.645Z",
+      "durationMs": 71,
+      "events": [
+        {
+          "id": "EVT-VAL-1793015330650",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"Multi-Vehicle Collision on I-80 On-Ramp\" [ROAD_ACCIDENT]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.650Z"
+        },
+        {
+          "id": "EVT-ANA-1793015330659",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 3 facts, flagged 1 uncertainties and 1 missing details.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.659Z"
+        },
+        {
+          "id": "EVT-PRI-1793015330666",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: CRITICAL (Score: 81/100, Confidence: 94%). Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.666Z"
+        },
+        {
+          "id": "EVT-RES-1793015330680",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category ROAD_ACCIDENT",
+          "outputSummary": "Identified 6 candidate resource units across 3 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.680Z"
+        },
+        {
+          "id": "EVT-ROU-1793015330692",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Route Planning Agent",
+          "status": "COMPLETED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Patrol Unit 105 (Downtown Sector Squad) to incident coordinates",
+          "outputSummary": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:48:50.692Z"
+        },
+        {
+          "id": "EVT-COM-1793015330704",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 1 operational notifications across operator and reporter channels.",
+          "durationMs": 5,
+          "timestamp": "2026-10-26T11:48:50.704Z"
+        },
+        {
+          "id": "EVT-SPEC-1793015330710",
+          "runId": "RUN-TEST-ERR",
+          "incidentId": "INC-2026-001",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.710Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "ROAD_ACCIDENT",
+          "extractedFacts": [
+            "2 potential casualties reported by caller.",
+            "Flammable or hazardous material release reported on scene.",
+            "Roadway blockage or crowd perimeter requiring traffic control."
+          ],
+          "knownUncertainties": [
+            "Environmental visibility and building structural stability unconfirmed."
+          ],
+          "missingInformation": [
+            "On-scene command post radio contact frequency."
+          ],
+          "resourceNeeds": [
+            "Paramedic / Ambulance (Advanced Life Support)",
+            "HazMat Spill Containment and Neutralization Unit",
+            "Police Patrol Unit for Traffic and Scene Perimeter Security"
+          ],
+          "explanation": "Identified 3 verified facts, 3 potential response requirements, and flagged 0 informational gaps."
+        },
+        "priority": {
+          "score": 81,
+          "recommendedPriority": "CRITICAL",
+          "explanation": "Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+          "evidence": [
+            "Life threat: Injury confirmed by caller (+15)",
+            "Life threat: Explosive or active fuel propagation hazard (+15)",
+            "Multiple casualties: 2 people affected (+18)",
+            "Hazard class weight for ROAD_ACCIDENT (+18)"
+          ],
+          "missingInfo": [
+            "On-scene command post radio contact frequency."
+          ],
+          "confidence": 0.94
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-POL-02",
+            "resourceName": "Patrol Unit 105 (Downtown Sector Squad)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 0,
+            "estimatedMinutes": 1,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-FIRE-01",
+            "resourceName": "Engine Company 3 (Pumper / 1500 GPM)",
+            "resourceType": "FIRE_UNIT",
+            "distanceKm": 0.92,
+            "estimatedMinutes": 1.2,
+            "matchReason": "Hydraulic extrication tools and active fire suppression pumping.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-POL-01",
+            "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 1.17,
+            "estimatedMinutes": 1.6,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-AMB-02",
+            "resourceName": "Medic Unit 4 (Rapid Response BLS)",
+            "resourceType": "AMBULANCE",
+            "distanceKm": 1.41,
+            "estimatedMinutes": 1.9,
+            "matchReason": "Emergency medical response and trauma transport capabilities.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-AMB-01",
+            "resourceName": "Medic Unit 1 (ALS Advanced Life Support)",
+            "resourceType": "AMBULANCE",
+            "distanceKm": 1.66,
+            "estimatedMinutes": 2.2,
+            "matchReason": "Emergency medical response and trauma transport capabilities.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-FIRE-02",
+            "resourceName": "Ladder Truck 1 (Heavy Extrication)",
+            "resourceType": "FIRE_UNIT",
+            "distanceKm": 2.68,
+            "estimatedMinutes": 3.6,
+            "matchReason": "Hydraulic extrication tools and active fire suppression pumping.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "SUCCESS",
+          "distanceKm": 0,
+          "estimatedMinutes": 1,
+          "steps": [],
+          "polyline": [
+            [
+              37.7858,
+              -122.4065
+            ],
+            [
+              37.7858,
+              -122.4065
+            ],
+            [
+              37.7858,
+              -122.4065
+            ]
+          ],
+          "message": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-001 [CRITICAL]: Review Required",
+            "message": "Multi-Vehicle Collision on I-80 On-Ramp — Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats. (6 units available)",
+            "recipientRole": "operator"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793015330710",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T11:48:50.710Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near I-80 Ramp & 4th St. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793015330710",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T11:48:51.710Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for I-80 Ramp & 4th St."
+          },
+          {
+            "id": "CNS-03-1793015330710",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T11:48:52.710Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Water infrastructure context reviewed for I-80 Ramp & 4th St."
+          },
+          {
+            "id": "CNS-04-1793015330710",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T11:48:53.710Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (2 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.588Z",
+            "liveAssessment": "Incident INC-2026-001 (Multi-Vehicle Collision on I-80 On-Ramp) at I-80 Ramp & 4th St. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.588Z",
+            "liveAssessment": "Incident INC-2026-001 reports 2 casualties at I-80 Ramp & 4th St. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.588Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-001 at I-80 Ramp & 4th St.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.588Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-001 at I-80 Ramp & 4th St.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T11:48:50.716Z"
+    },
+    {
+      "id": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "workflowState": "AWAITING_OPERATOR_APPROVAL",
+      "status": "COMPLETED",
+      "startedAt": "2026-10-26T11:48:50.564Z",
+      "durationMs": 62,
+      "events": [
+        {
+          "id": "EVT-VAL-1793015330570",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Validation Engine",
+          "status": "COMPLETED",
+          "stepOrder": 1,
+          "inputSummary": "Validating incident report schema: \"Multi-Vehicle Collision on I-80 On-Ramp\" [ROAD_ACCIDENT]",
+          "outputSummary": "Input validated. Mandatory fields verified.",
+          "durationMs": 0,
+          "timestamp": "2026-10-26T11:48:50.570Z"
+        },
+        {
+          "id": "EVT-ANA-1793015330577",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Incident Analysis Agent",
+          "status": "COMPLETED",
+          "stepOrder": 2,
+          "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+          "outputSummary": "Extracted 3 facts, flagged 1 uncertainties and 1 missing details.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:48:50.577Z"
+        },
+        {
+          "id": "EVT-PRI-1793015330582",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Priority Assessment Agent",
+          "status": "COMPLETED",
+          "stepOrder": 3,
+          "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+          "outputSummary": "Recommended Priority: CRITICAL (Score: 81/100, Confidence: 94%). Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:48:50.582Z"
+        },
+        {
+          "id": "EVT-RES-1793015330594",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Resource Coordination Agent",
+          "status": "COMPLETED",
+          "stepOrder": 4,
+          "inputSummary": "Evaluating fleet capabilities against incident category ROAD_ACCIDENT",
+          "outputSummary": "Identified 6 candidate resource units across 3 operational categories (0 busy/conflicted units noted).",
+          "durationMs": 1,
+          "timestamp": "2026-10-26T11:48:50.594Z"
+        },
+        {
+          "id": "EVT-ROU-1793015330602",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Route Planning Agent",
+          "status": "COMPLETED",
+          "stepOrder": 5,
+          "inputSummary": "Graph routing from Patrol Unit 105 (Downtown Sector Squad) to incident coordinates",
+          "outputSummary": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes.",
+          "durationMs": 2,
+          "timestamp": "2026-10-26T11:48:50.602Z"
+        },
+        {
+          "id": "EVT-COM-1793015330612",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Communication Agent",
+          "status": "COMPLETED",
+          "stepOrder": 6,
+          "inputSummary": "Formulating operational alerts for operator and reporter channels",
+          "outputSummary": "Generated and dispatched 1 operational notifications across operator and reporter channels.",
+          "durationMs": 5,
+          "timestamp": "2026-10-26T11:48:50.612Z"
+        },
+        {
+          "id": "EVT-SPEC-1793015330619",
+          "runId": "RUN-MVP717GK-398",
+          "incidentId": "INC-2026-001",
+          "agentName": "Multi-Agency Tactical Grid Engine",
+          "status": "COMPLETED",
+          "stepOrder": 7,
+          "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+          "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+          "durationMs": 2,
+          "timestamp": "2026-10-26T11:48:50.619Z"
+        }
+      ],
+      "structuredOutput": {
+        "analysis": {
+          "normalizedCategory": "ROAD_ACCIDENT",
+          "extractedFacts": [
+            "2 potential casualties reported by caller.",
+            "Flammable or hazardous material release reported on scene.",
+            "Roadway blockage or crowd perimeter requiring traffic control."
+          ],
+          "knownUncertainties": [
+            "Environmental visibility and building structural stability unconfirmed."
+          ],
+          "missingInformation": [
+            "On-scene command post radio contact frequency."
+          ],
+          "resourceNeeds": [
+            "Paramedic / Ambulance (Advanced Life Support)",
+            "HazMat Spill Containment and Neutralization Unit",
+            "Police Patrol Unit for Traffic and Scene Perimeter Security"
+          ],
+          "explanation": "Identified 3 verified facts, 3 potential response requirements, and flagged 0 informational gaps."
+        },
+        "priority": {
+          "score": 81,
+          "recommendedPriority": "CRITICAL",
+          "explanation": "Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+          "evidence": [
+            "Life threat: Injury confirmed by caller (+15)",
+            "Life threat: Explosive or active fuel propagation hazard (+15)",
+            "Multiple casualties: 2 people affected (+18)",
+            "Hazard class weight for ROAD_ACCIDENT (+18)"
+          ],
+          "missingInfo": [
+            "On-scene command post radio contact frequency."
+          ],
+          "confidence": 0.94
+        },
+        "candidateResources": [
+          {
+            "resourceId": "RES-POL-02",
+            "resourceName": "Patrol Unit 105 (Downtown Sector Squad)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 0,
+            "estimatedMinutes": 1,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-FIRE-01",
+            "resourceName": "Engine Company 3 (Pumper / 1500 GPM)",
+            "resourceType": "FIRE_UNIT",
+            "distanceKm": 0.92,
+            "estimatedMinutes": 1.2,
+            "matchReason": "Hydraulic extrication tools and active fire suppression pumping.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-POL-01",
+            "resourceName": "Patrol Unit 102 (Tactical Perimeter & Traffic)",
+            "resourceType": "POLICE_PATROL",
+            "distanceKm": 1.17,
+            "estimatedMinutes": 1.6,
+            "matchReason": "Scene perimeter safety, route clearance, and vehicular traffic control.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-AMB-02",
+            "resourceName": "Medic Unit 4 (Rapid Response BLS)",
+            "resourceType": "AMBULANCE",
+            "distanceKm": 1.41,
+            "estimatedMinutes": 1.9,
+            "matchReason": "Emergency medical response and trauma transport capabilities.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-AMB-01",
+            "resourceName": "Medic Unit 1 (ALS Advanced Life Support)",
+            "resourceType": "AMBULANCE",
+            "distanceKm": 1.66,
+            "estimatedMinutes": 2.2,
+            "matchReason": "Emergency medical response and trauma transport capabilities.",
+            "conflictDetected": false
+          },
+          {
+            "resourceId": "RES-FIRE-02",
+            "resourceName": "Ladder Truck 1 (Heavy Extrication)",
+            "resourceType": "FIRE_UNIT",
+            "distanceKm": 2.68,
+            "estimatedMinutes": 3.6,
+            "matchReason": "Hydraulic extrication tools and active fire suppression pumping.",
+            "conflictDetected": false
+          }
+        ],
+        "routePlan": {
+          "status": "SUCCESS",
+          "distanceKm": 0,
+          "estimatedMinutes": 1,
+          "steps": [],
+          "polyline": [
+            [
+              37.7858,
+              -122.4065
+            ],
+            [
+              37.7858,
+              -122.4065
+            ],
+            [
+              37.7858,
+              -122.4065
+            ]
+          ],
+          "message": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes."
+        },
+        "notificationsPrepared": [
+          {
+            "title": "Incident INC-2026-001 [CRITICAL]: Review Required",
+            "message": "Multi-Vehicle Collision on I-80 On-Ramp — Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats. (6 units available)",
+            "recipientRole": "operator"
+          }
+        ],
+        "specializedConsensus": [
+          {
+            "id": "CNS-01-1793015330618",
+            "agentId": "CURRENT_KEB",
+            "agentName": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "timestamp": "2026-10-26T11:48:50.618Z",
+            "phase": "INGEST",
+            "status": "ACTION_REQUIRED",
+            "message": "Evaluated electrical infrastructure near I-80 Ramp & 4th St. Ready for feeder isolation if needed for responder safety."
+          },
+          {
+            "id": "CNS-02-1793015330618",
+            "agentId": "POLICE_TACTICAL",
+            "agentName": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "timestamp": "2026-10-26T11:48:51.618Z",
+            "phase": "ASSESSMENT",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Perimeter control and emergency access corridor assessment completed for I-80 Ramp & 4th St."
+          },
+          {
+            "id": "CNS-03-1793015330618",
+            "agentId": "WATER_HYDRO",
+            "agentName": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "timestamp": "2026-10-26T11:48:52.618Z",
+            "phase": "CROSS_CHECK",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Water infrastructure context reviewed for I-80 Ramp & 4th St."
+          },
+          {
+            "id": "CNS-04-1793015330618",
+            "agentId": "HOSPITAL_EMS",
+            "agentName": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "timestamp": "2026-10-26T11:48:53.618Z",
+            "phase": "ACTION",
+            "status": "INTERVENTION_EXECUTED",
+            "message": "Casualty triage requirements (2 reported) and ambulance staging reviewed."
+          }
+        ],
+        "specializedAgents": [
+          {
+            "id": "POLICE_TACTICAL",
+            "name": "Police Tactical Agent",
+            "code": "POL-TAC-01",
+            "sector": "Security & Law Enforcement",
+            "roleDescription": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "description": "Coordinates perimeter security, public safety precautions, and traffic control.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.557Z",
+            "liveAssessment": "Incident INC-2026-001 (Multi-Vehicle Collision on I-80 On-Ramp) at I-80 Ramp & 4th St. Ready for security and public safety analysis.",
+            "suggestedPrompts": [
+              "Analyze this security incident.",
+              "Suggest public safety precautions.",
+              "Review this incident report."
+            ],
+            "actions": [
+              {
+                "id": "POLICE_LOCKDOWN_500M",
+                "label": "Enact Perimeter Cordon",
+                "description": "Deploy barricades and secure the surrounding perimeter.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "POLICE_TRAFFIC_DIVERSION",
+                "label": "Reroute Traffic Arteries",
+                "description": "Clear emergency transit corridor around the incident.",
+                "category": "CORDON",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "HOSPITAL_EMS",
+            "name": "Hospital & EMS Agent",
+            "code": "EMS-MED-02",
+            "sector": "Emergency Medical Services & Healthcare",
+            "roleDescription": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "description": "Coordinates medical triage, casualty assessment, and ambulance dispatch.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.557Z",
+            "liveAssessment": "Incident INC-2026-001 reports 2 casualties at I-80 Ramp & 4th St. Ready for medical triage evaluation.",
+            "suggestedPrompts": [
+              "Summarize this medical emergency.",
+              "Identify missing casualty information.",
+              "Suggest medical coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "EMS_RESERVE_TRAUMA_BAYS",
+                "label": "Reserve Trauma Bays",
+                "description": "Coordinate trauma intake capacity at nearest medical center.",
+                "category": "TRIAGE",
+                "riskLevel": "LOW",
+                "status": "READY"
+              },
+              {
+                "id": "EMS_DYNAMIC_AMBULANCE_BALANCE",
+                "label": "Coordinate Ambulance Dispatch",
+                "description": "Align paramedic units with reported casualty needs.",
+                "category": "DISPATCH",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "WATER_HYDRO",
+            "name": "Water Supply & Hydro Agent",
+            "code": "HYD-WTR-03",
+            "sector": "Water Infrastructure & Hydrology",
+            "roleDescription": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "description": "Assesses water infrastructure incidents, supply risks, hydrant pressure, and drainage.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.557Z",
+            "liveAssessment": "Monitoring water infrastructure context for INC-2026-001 at I-80 Ramp & 4th St.",
+            "suggestedPrompts": [
+              "Analyze this water infrastructure incident.",
+              "Identify possible water supply risks.",
+              "Suggest inspection priorities."
+            ],
+            "actions": [
+              {
+                "id": "HYDRO_SURGE_PRESSURE",
+                "label": "Boost Hydrant Pressure",
+                "description": "Support fire suppression flow near incident location.",
+                "category": "SURGE",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              },
+              {
+                "id": "HYDRO_ISOLATE_MAIN",
+                "label": "Isolate Water Main Valve",
+                "description": "Isolate damaged water main section to prevent flooding or contamination.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "MEDIUM",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          },
+          {
+            "id": "CURRENT_KEB",
+            "name": "Power Grid / KEB Agent",
+            "code": "KEB-PWR-04",
+            "sector": "Electricity Infrastructure & Grid Safety",
+            "roleDescription": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "description": "Evaluates electrical hazards, feeder line de-energization, and utility coordination.",
+            "status": "Online",
+            "currentTask": "Monitoring INC-2026-001: Multi-Vehicle Collision on I-80 On-Ramp",
+            "assignedIncidentId": "INC-2026-001",
+            "assignedIncidentTitle": "Multi-Vehicle Collision on I-80 On-Ramp",
+            "lastUpdated": "2026-10-26T11:48:50.557Z",
+            "liveAssessment": "Evaluating electrical infrastructure safety for INC-2026-001 at I-80 Ramp & 4th St.",
+            "suggestedPrompts": [
+              "Analyze this electrical infrastructure incident.",
+              "Identify reported electrical hazards.",
+              "Suggest coordination steps."
+            ],
+            "actions": [
+              {
+                "id": "KEB_DE_ENERGIZE_FEEDER",
+                "label": "De-energize Incident Feeder",
+                "description": "Isolate local electrical feeder line to protect responders.",
+                "category": "SAFETY_LOCKOUT",
+                "riskLevel": "HIGH",
+                "status": "READY"
+              },
+              {
+                "id": "KEB_PRIORITY_HOSPITAL_FEEDER",
+                "label": "Verify Priority Medical Power",
+                "description": "Confirm backup feeder stability for emergency facilities.",
+                "category": "TELEMETRY",
+                "riskLevel": "LOW",
+                "status": "READY"
+              }
+            ],
+            "consensusDialogue": []
+          }
+        ]
+      },
+      "completedAt": "2026-10-26T11:48:50.626Z"
+    }
+  ],
+  "agentEvents": [
+    {
+      "id": "EVT-VAL-1793015330570",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"Multi-Vehicle Collision on I-80 On-Ramp\" [ROAD_ACCIDENT]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.570Z"
+    },
+    {
+      "id": "EVT-ANA-1793015330577",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 3 facts, flagged 1 uncertainties and 1 missing details.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:48:50.577Z"
+    },
+    {
+      "id": "EVT-PRI-1793015330582",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: CRITICAL (Score: 81/100, Confidence: 94%). Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:48:50.582Z"
+    },
+    {
+      "id": "EVT-RES-1793015330594",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category ROAD_ACCIDENT",
+      "outputSummary": "Identified 6 candidate resource units across 3 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:48:50.594Z"
+    },
+    {
+      "id": "EVT-ROU-1793015330602",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Route Planning Agent",
+      "status": "COMPLETED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Patrol Unit 105 (Downtown Sector Squad) to incident coordinates",
+      "outputSummary": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes.",
+      "durationMs": 2,
+      "timestamp": "2026-10-26T11:48:50.602Z"
+    },
+    {
+      "id": "EVT-COM-1793015330612",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 1 operational notifications across operator and reporter channels.",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T11:48:50.612Z"
+    },
+    {
+      "id": "EVT-SPEC-1793015330619",
+      "runId": "RUN-MVP717GK-398",
+      "incidentId": "INC-2026-001",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 2,
+      "timestamp": "2026-10-26T11:48:50.619Z"
+    },
+    {
+      "id": "EVT-VAL-1793015330650",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"Multi-Vehicle Collision on I-80 On-Ramp\" [ROAD_ACCIDENT]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.650Z"
+    },
+    {
+      "id": "EVT-ANA-1793015330659",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 3 facts, flagged 1 uncertainties and 1 missing details.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.659Z"
+    },
+    {
+      "id": "EVT-PRI-1793015330666",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: CRITICAL (Score: 81/100, Confidence: 94%). Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.666Z"
+    },
+    {
+      "id": "EVT-RES-1793015330680",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category ROAD_ACCIDENT",
+      "outputSummary": "Identified 6 candidate resource units across 3 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.680Z"
+    },
+    {
+      "id": "EVT-ROU-1793015330692",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Route Planning Agent",
+      "status": "COMPLETED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Patrol Unit 105 (Downtown Sector Squad) to incident coordinates",
+      "outputSummary": "Calculated 0.00 km route via 0 network segments with estimated ETA of 0 minutes.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:48:50.692Z"
+    },
+    {
+      "id": "EVT-COM-1793015330704",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 1 operational notifications across operator and reporter channels.",
+      "durationMs": 5,
+      "timestamp": "2026-10-26T11:48:50.704Z"
+    },
+    {
+      "id": "EVT-SPEC-1793015330710",
+      "runId": "RUN-TEST-ERR",
+      "incidentId": "INC-2026-001",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:48:50.710Z"
+    },
+    {
+      "id": "EVT-VAL-1793015359029",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\" [FLOOD]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:49:19.029Z"
+    },
+    {
+      "id": "EVT-ANA-1793015359038",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+      "durationMs": 2,
+      "timestamp": "2026-10-26T11:49:19.038Z"
+    },
+    {
+      "id": "EVT-PRI-1793015359053",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: LOW (Score: 17/100, Confidence: 76%). Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T11:49:19.053Z"
+    },
+    {
+      "id": "EVT-RES-1793015359066",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category FLOOD",
+      "outputSummary": "Identified 2 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:49:19.066Z"
+    },
+    {
+      "id": "EVT-ROU-1793015359073",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Route Planning Agent",
+      "status": "SKIPPED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Metro Technical Search & Rescue Alpha to incident coordinates",
+      "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:49:19.073Z",
+      "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+    },
+    {
+      "id": "EVT-COM-1793015359099",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+      "durationMs": 21,
+      "timestamp": "2026-10-26T11:49:19.099Z"
+    },
+    {
+      "id": "EVT-SPEC-1793015359107",
+      "runId": "RUN-MVP71TF0-741",
+      "incidentId": "INC-2026-003",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T11:49:19.107Z"
+    },
+    {
+      "id": "EVT-VAL-1793021277018",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"Public Safety / Police Assistance\" [PUBLIC_SAFETY]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:27:57.018Z"
+    },
+    {
+      "id": "EVT-ANA-1793021277040",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+      "durationMs": 8,
+      "timestamp": "2026-10-26T13:27:57.040Z"
+    },
+    {
+      "id": "EVT-PRI-1793021277051",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:27:57.051Z"
+    },
+    {
+      "id": "EVT-RES-1793021277085",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+      "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 2,
+      "timestamp": "2026-10-26T13:27:57.085Z"
+    },
+    {
+      "id": "EVT-ROU-1793021277102",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Route Planning Agent",
+      "status": "SKIPPED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+      "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:27:57.102Z",
+      "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+    },
+    {
+      "id": "EVT-COM-1793021277168",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+      "durationMs": 50,
+      "timestamp": "2026-10-26T13:27:57.168Z"
+    },
+    {
+      "id": "EVT-SPEC-1793021277182",
+      "runId": "RUN-MVPAKNRC-655",
+      "incidentId": "INC-2026-004",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:27:57.182Z"
+    },
+    {
+      "id": "EVT-VAL-1793021331865",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"सार्वजनिक सुरक्षा / पुलिस सहायता\" [PUBLIC_SAFETY]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:28:51.865Z"
+    },
+    {
+      "id": "EVT-ANA-1793021331886",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:28:51.886Z"
+    },
+    {
+      "id": "EVT-PRI-1793021331897",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:28:51.897Z"
+    },
+    {
+      "id": "EVT-RES-1793021331936",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+      "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:28:51.936Z"
+    },
+    {
+      "id": "EVT-ROU-1793021331953",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Route Planning Agent",
+      "status": "SKIPPED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+      "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:28:51.953Z",
+      "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+    },
+    {
+      "id": "EVT-COM-1793021332022",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+      "durationMs": 50,
+      "timestamp": "2026-10-26T13:28:52.022Z"
+    },
+    {
+      "id": "EVT-SPEC-1793021332042",
+      "runId": "RUN-MVPALU2X-970",
+      "incidentId": "INC-2026-005",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:28:52.042Z"
+    },
+    {
+      "id": "EVT-VAL-1793021376845",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Validation Engine",
+      "status": "COMPLETED",
+      "stepOrder": 1,
+      "inputSummary": "Validating incident report schema: \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\" [PUBLIC_SAFETY]",
+      "outputSummary": "Input validated. Mandatory fields verified.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:29:36.845Z"
+    },
+    {
+      "id": "EVT-ANA-1793021376866",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Incident Analysis Agent",
+      "status": "COMPLETED",
+      "stepOrder": 2,
+      "inputSummary": "Analyzing report text via RULE_BASED_ENGINE",
+      "outputSummary": "Extracted 1 facts, flagged 1 uncertainties and 2 missing details.",
+      "durationMs": 2,
+      "timestamp": "2026-10-26T13:29:36.867Z"
+    },
+    {
+      "id": "EVT-PRI-1793021376885",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Priority Assessment Agent",
+      "status": "COMPLETED",
+      "stepOrder": 3,
+      "inputSummary": "Scoring severity based on life danger, casualty scale, and hazard factors.",
+      "outputSummary": "Recommended Priority: LOW (Score: 13/100, Confidence: 76%). Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:29:36.885Z"
+    },
+    {
+      "id": "EVT-RES-1793021376915",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Resource Coordination Agent",
+      "status": "COMPLETED",
+      "stepOrder": 4,
+      "inputSummary": "Evaluating fleet capabilities against incident category PUBLIC_SAFETY",
+      "outputSummary": "Identified 3 candidate resource units across 2 operational categories (0 busy/conflicted units noted).",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:29:36.915Z"
+    },
+    {
+      "id": "EVT-ROU-1793021376933",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Route Planning Agent",
+      "status": "SKIPPED",
+      "stepOrder": 5,
+      "inputSummary": "Graph routing from Patrol Unit 102 (Tactical Perimeter & Traffic) to incident coordinates",
+      "outputSummary": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates.",
+      "durationMs": 0,
+      "timestamp": "2026-10-26T13:29:36.933Z",
+      "error": "Prerequisite check failed: Incident location is unverified. Cannot calculate road dispatch routes without confirmed coordinates."
+    },
+    {
+      "id": "EVT-COM-1793021377011",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Communication Agent",
+      "status": "COMPLETED",
+      "stepOrder": 6,
+      "inputSummary": "Formulating operational alerts for operator and reporter channels",
+      "outputSummary": "Generated and dispatched 3 operational notifications across operator and reporter channels.",
+      "durationMs": 61,
+      "timestamp": "2026-10-26T13:29:37.011Z"
+    },
+    {
+      "id": "EVT-SPEC-1793021377025",
+      "runId": "RUN-MVPAMSSF-899",
+      "incidentId": "INC-2026-006",
+      "agentName": "Multi-Agency Tactical Grid Engine",
+      "status": "COMPLETED",
+      "stepOrder": 7,
+      "inputSummary": "Cross-domain consensus between Police Tactical, Hospital/EMS, Water Hydro, and Current/KEB Power Grid",
+      "outputSummary": "Synchronized 4 domain directives. High-voltage lockout verified, hydrant pressure staged, perimeter cordoned, trauma bays reserved.",
+      "durationMs": 1,
+      "timestamp": "2026-10-26T13:29:37.025Z"
+    }
+  ],
   "incidentNotes": [],
-  "notifications": [],
+  "notifications": [
+    {
+      "targetRole": "reporter",
+      "title": "Emergency Report Logged: INC-2026-006",
+      "message": "Your report regarding \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\" has been assigned tracking ID INC-2026-006 and is currently under operator triage.",
+      "incidentId": "INC-2026-006",
+      "priority": "LOW",
+      "id": "NTF-MVPAMSWS-829",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:29:36.988Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Unverified Location Alert: INC-2026-006",
+      "message": "Caller gave address \"Reported via Voice Assistant\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+      "incidentId": "INC-2026-006",
+      "priority": "HIGH",
+      "id": "NTF-MVPAMSWB-276",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:29:36.971Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-006 [LOW]: Review Required",
+      "message": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+      "incidentId": "INC-2026-006",
+      "priority": "MEDIUM",
+      "id": "NTF-MVPAMSVQ-391",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:29:36.950Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Voice Emergency Report: INC-2026-006",
+      "message": "ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು logged at Reported via Voice Assistant. Reviewing queue.",
+      "incidentId": "INC-2026-006",
+      "priority": "HIGH",
+      "id": "NTF-MVPAMSS1-769",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:29:36.817Z"
+    },
+    {
+      "targetRole": "reporter",
+      "title": "Emergency Report Logged: INC-2026-005",
+      "message": "Your report regarding \"सार्वजनिक सुरक्षा / पुलिस सहायता\" has been assigned tracking ID INC-2026-005 and is currently under operator triage.",
+      "incidentId": "INC-2026-005",
+      "priority": "LOW",
+      "id": "NTF-MVPALU79-124",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:28:52.006Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Unverified Location Alert: INC-2026-005",
+      "message": "Caller gave address \"जानकारी\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+      "incidentId": "INC-2026-005",
+      "priority": "HIGH",
+      "id": "NTF-MVPALU6T-652",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:28:51.989Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-005 [LOW]: Review Required",
+      "message": "सार्वजनिक सुरक्षा / पुलिस सहायता — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+      "incidentId": "INC-2026-005",
+      "priority": "MEDIUM",
+      "id": "NTF-MVPALU6C-424",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:28:51.972Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Voice Emergency Report: INC-2026-005",
+      "message": "सार्वजनिक सुरक्षा / पुलिस सहायता logged at जानकारी. Reviewing queue.",
+      "incidentId": "INC-2026-005",
+      "priority": "HIGH",
+      "id": "NTF-MVPALU2J-128",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:28:51.835Z"
+    },
+    {
+      "targetRole": "reporter",
+      "title": "Emergency Report Logged: INC-2026-004",
+      "message": "Your report regarding \"Public Safety / Police Assistance\" has been assigned tracking ID INC-2026-004 and is currently under operator triage.",
+      "incidentId": "INC-2026-004",
+      "priority": "LOW",
+      "id": "NTF-MVPAKNVH-891",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:27:57.149Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Unverified Location Alert: INC-2026-004",
+      "message": "Caller gave address \"me police station\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+      "incidentId": "INC-2026-004",
+      "priority": "HIGH",
+      "id": "NTF-MVPAKNV2-616",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:27:57.134Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-004 [LOW]: Review Required",
+      "message": "Public Safety / Police Assistance — Assessed as LOW (Score: 13/100) representing manageable property or traffic impact with low life safety risk. (3 units available)",
+      "incidentId": "INC-2026-004",
+      "priority": "MEDIUM",
+      "id": "NTF-MVPAKNUM-495",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:27:57.118Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Voice Emergency Report: INC-2026-004",
+      "message": "Public Safety / Police Assistance logged at me police station. Reviewing queue.",
+      "incidentId": "INC-2026-004",
+      "priority": "HIGH",
+      "id": "NTF-MVPAKNQU-592",
+      "isRead": false,
+      "createdAt": "2026-10-26T13:27:56.982Z"
+    },
+    {
+      "targetRole": "reporter",
+      "title": "Emergency Report Logged: INC-2026-003",
+      "message": "Your report regarding \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\" has been assigned tracking ID INC-2026-003 and is currently under operator triage.",
+      "incidentId": "INC-2026-003",
+      "priority": "LOW",
+      "id": "NTF-MVP71TGZ-871",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:49:19.091Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Unverified Location Alert: INC-2026-003",
+      "message": "Caller gave address \"Reported via Voice Assistant\" without GPS coordinates. Routing is suspended pending coordinate verification.",
+      "incidentId": "INC-2026-003",
+      "priority": "HIGH",
+      "id": "NTF-MVP71TGS-233",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:49:19.085Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-003 [LOW]: Review Required",
+      "message": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ — Assessed as LOW (Score: 17/100) representing manageable property or traffic impact with low life safety risk. (2 units available)",
+      "incidentId": "INC-2026-003",
+      "priority": "MEDIUM",
+      "id": "NTF-MVP71TGN-319",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:49:19.079Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Voice Emergency Report: INC-2026-003",
+      "message": "ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ logged at Reported via Voice Assistant. Reviewing queue.",
+      "incidentId": "INC-2026-003",
+      "priority": "HIGH",
+      "id": "NTF-MVP71TET-461",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:49:19.013Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-001 [CRITICAL]: Review Required",
+      "message": "Multi-Vehicle Collision on I-80 On-Ramp — Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats. (6 units available)",
+      "incidentId": "INC-2026-001",
+      "priority": "CRITICAL",
+      "id": "NTF-MVP717KB-169",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:48:50.699Z"
+    },
+    {
+      "targetRole": "operator",
+      "title": "Incident INC-2026-001 [CRITICAL]: Review Required",
+      "message": "Multi-Vehicle Collision on I-80 On-Ramp — Assessed as CRITICAL (Score: 81/100) due to acute danger to human life, active trapped victims, or expanding hazardous threats. (6 units available)",
+      "incidentId": "INC-2026-001",
+      "priority": "CRITICAL",
+      "id": "NTF-MVP717HR-145",
+      "isRead": false,
+      "createdAt": "2026-10-26T11:48:50.607Z"
+    }
+  ],
   "auditLogs": [
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "USER_LOGIN",
+      "entityType": "USER",
+      "entityId": "USR-REPORTER-01",
+      "details": "User logged in from 127.0.0.1",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPCWWCV-236",
+      "createdAt": "2026-10-26T14:33:27.247Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "USER_LOGOUT",
+      "entityType": "USER",
+      "entityId": "USR-REPORTER-01",
+      "details": "User logged out",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPCWUUG-792",
+      "createdAt": "2026-10-26T14:33:25.288Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "USER_LOGIN",
+      "entityType": "USER",
+      "entityId": "USR-REPORTER-01",
+      "details": "User logged in from 127.0.0.1",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPCWKXZ-550",
+      "createdAt": "2026-10-26T14:33:12.455Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "SPECIALIZED_AGENT_ACTION",
+      "entityType": "AGENT_ACTION",
+      "entityId": "POLICE_TACTICAL:POLICE_LOCKDOWN_500M",
+      "details": "Citizen Jane Doe triggered POLICE_LOCKDOWN_500M on POLICE_TACTICAL for incident INC-2026-006",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPCVYSV-143",
+      "createdAt": "2026-10-26T14:32:43.759Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "AGENT_DIRECTIVE_EXECUTED",
+      "entityType": "AGENT",
+      "entityId": "POLICE_TACTICAL:POLICE_LOCKDOWN_500M",
+      "details": "Directive \"Enact Perimeter Cordon\" executed by Citizen Jane Doe for INC-2026-006",
+      "id": "AUD-MVPCVYSM-571",
+      "createdAt": "2026-10-26T14:32:43.750Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "SPECIALIZED_AGENT_ACTION",
+      "entityType": "AGENT_ACTION",
+      "entityId": "POLICE_TACTICAL:POLICE_LOCKDOWN_500M",
+      "details": "Citizen Jane Doe triggered POLICE_LOCKDOWN_500M on POLICE_TACTICAL for incident INC-2026-006",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPCVXK6-311",
+      "createdAt": "2026-10-26T14:32:42.150Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "AGENT_DIRECTIVE_EXECUTED",
+      "entityType": "AGENT",
+      "entityId": "POLICE_TACTICAL:POLICE_LOCKDOWN_500M",
+      "details": "Directive \"Enact Perimeter Cordon\" executed by Citizen Jane Doe for INC-2026-006",
+      "id": "AUD-MVPCVXJS-790",
+      "createdAt": "2026-10-26T14:32:42.136Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "INCIDENT_CREATED",
+      "entityType": "INCIDENT",
+      "entityId": "INC-2026-006",
+      "details": "Voice incident reported: \"ಸಾರ್ವಜನಿಕ ಭದ್ರತೆ / ಪೊಲೀಸ್ ನೆರವು\" [PUBLIC_SAFETY] in KN",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPAMSRK-851",
+      "createdAt": "2026-10-26T13:29:36.800Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "INCIDENT_CREATED",
+      "entityType": "INCIDENT",
+      "entityId": "INC-2026-005",
+      "details": "Voice incident reported: \"सार्वजनिक सुरक्षा / पुलिस सहायता\" [PUBLIC_SAFETY] in HI",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPALU28-867",
+      "createdAt": "2026-10-26T13:28:51.825Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "operator",
+      "action": "INCIDENT_CREATED",
+      "entityType": "INCIDENT",
+      "entityId": "INC-2026-004",
+      "details": "Voice incident reported: \"Public Safety / Police Assistance\" [PUBLIC_SAFETY] in EN",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVPAKNQC-783",
+      "createdAt": "2026-10-26T13:27:56.964Z"
+    },
+    {
+      "userId": "USR-REPORTER-01",
+      "userEmail": "citizen@metro.org",
+      "userRole": "reporter",
+      "action": "USER_LOGIN",
+      "entityType": "USER",
+      "entityId": "USR-REPORTER-01",
+      "details": "User logged in from 127.0.0.1",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVP74HVH-977",
+      "createdAt": "2026-10-26T11:51:24.029Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "USER_LOGOUT",
+      "entityType": "USER",
+      "entityId": "USR-OPERATOR-01",
+      "details": "User logged out",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVP74G9A-166",
+      "createdAt": "2026-10-26T11:51:21.934Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "USER_LOGIN",
+      "entityType": "USER",
+      "entityId": "USR-OPERATOR-01",
+      "details": "User logged in from 127.0.0.1",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVP7460Z-297",
+      "createdAt": "2026-10-26T11:51:08.675Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "INCIDENT_CREATED",
+      "entityType": "INCIDENT",
+      "entityId": "INC-2026-003",
+      "details": "Voice incident reported: \"ನೀರು ಸರಬರಾಜು ಮತ್ತು ಸೋರಿಕೆ ಸಮಸ್ಯೆ\" [FLOOD] in KN",
+      "ipAddress": "127.0.0.1",
+      "id": "AUD-MVP71TEO-489",
+      "createdAt": "2026-10-26T11:49:19.008Z"
+    },
+    {
+      "userId": "USR-OPERATOR-01",
+      "userEmail": "operator@emergency.gov",
+      "userRole": "operator",
+      "action": "INCIDENT_STATUS_CHANGE",
+      "entityType": "INCIDENT",
+      "entityId": "INC-2026-001",
+      "details": "Status transitioned to ON_SCENE by primary dispatch operator",
+      "id": "AUD-MVP717LN-951",
+      "createdAt": "2026-10-26T11:48:50.747Z"
+    },
     {
       "id": "AUD-001",
       "userId": "USR-ADMIN-01",
@@ -166,8 +3574,166 @@
       "action": "SYSTEM_STARTUP",
       "entityType": "SYSTEM",
       "entityId": "ROOT",
-      "details": "AegisAI Grid command center initialized. Fleet and multi-agent coordination ready.",
-      "createdAt": "2026-10-25T00:00:00.000Z"
+      "details": "AegisAI Grid command center initialized. Emergency response fleet ready.",
+      "createdAt": "2026-10-26T11:48:50.542Z"
+    }
+  ],
+  "facilities": [
+    {
+      "id": "FAC-POL-01",
+      "name": "Metro Central Police Headquarters",
+      "type": "POLICE_STATION",
+      "address": "850 Bryant St, San Francisco, CA",
+      "latitude": 37.7755,
+      "longitude": -122.404,
+      "contactPhone": "(415) 553-0123",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "POLICE_TACTICAL",
+      "details": "24/7 Tactical dispatch headquarters, perimeter security control, and incident command post.",
+      "verified": true
+    },
+    {
+      "id": "FAC-POL-02",
+      "name": "Downtown Police Precinct Sector 1",
+      "type": "POLICE_STATION",
+      "address": "766 Vallejo St, San Francisco, CA",
+      "latitude": 37.798,
+      "longitude": -122.4098,
+      "contactPhone": "(415) 553-1563",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "POLICE_TACTICAL",
+      "details": "High-density urban safety watch, traffic rerouting division, and public order operations.",
+      "verified": true
+    },
+    {
+      "id": "FAC-POL-03",
+      "name": "Southern Waterfront Patrol Post",
+      "type": "POLICE_STATION",
+      "address": "1251 3rd St, San Francisco, CA",
+      "latitude": 37.7725,
+      "longitude": -122.389,
+      "contactPhone": "(415) 671-2300",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "POLICE_TACTICAL",
+      "details": "Bay corridor security, transit cordon support, and harbor tactical staging.",
+      "verified": true
+    },
+    {
+      "id": "FAC-HOS-01",
+      "name": "Metro General Hospital & Trauma Center",
+      "type": "HOSPITAL",
+      "address": "1001 Potrero Ave, San Francisco, CA",
+      "latitude": 37.756,
+      "longitude": -122.406,
+      "contactPhone": "(415) 206-8000",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "HOSPITAL_EMS",
+      "details": "Level 1 Comprehensive Trauma Center with helipad, burn critical unit, and 450 bed capacity.",
+      "verified": true
+    },
+    {
+      "id": "FAC-HOS-02",
+      "name": "St. Jude Emergency Medical Center",
+      "type": "HOSPITAL",
+      "address": "900 Hyde St, San Francisco, CA",
+      "latitude": 37.7895,
+      "longitude": -122.417,
+      "contactPhone": "(415) 353-6000",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "HOSPITAL_EMS",
+      "details": "Cardiac & Stroke Emergency Receiving Center, 24/7 Pediatric Emergency Resuscitation Unit.",
+      "verified": true
+    },
+    {
+      "id": "FAC-HOS-03",
+      "name": "Westside Urgent Care & Surgical Bay",
+      "type": "HOSPITAL",
+      "address": "1600 Divisadero St, San Francisco, CA",
+      "latitude": 37.785,
+      "longitude": -122.4395,
+      "contactPhone": "(415) 567-6600",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "HOSPITAL_EMS",
+      "details": "Rapid triage clinic, acute stabilization beds, and mobile medical dispatch support.",
+      "verified": true
+    },
+    {
+      "id": "FAC-WAT-01",
+      "name": "Central Municipal Water Treatment Plant",
+      "type": "WATER_FACILITY",
+      "address": "525 Golden Gate Ave, San Francisco, CA",
+      "latitude": 37.781,
+      "longitude": -122.419,
+      "contactPhone": "(415) 554-3155",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "WATER_HYDRO",
+      "details": "Main reservoir intake, 120 MGD filtration facility, high-pressure emergency fire mains monitoring.",
+      "verified": true
+    },
+    {
+      "id": "FAC-WAT-02",
+      "name": "North Basin Hydro Pumping & Surge Station",
+      "type": "WATER_FACILITY",
+      "address": "2090 Marina Blvd, San Francisco, CA",
+      "latitude": 37.804,
+      "longitude": -122.436,
+      "contactPhone": "(415) 554-3200",
+      "operationalStatus": "OPERATIONAL",
+      "agentDomain": "WATER_HYDRO",
+      "details": "High-volume urban flood runoff diversion station and emergency auxiliary water supply pumps.",
+      "verified": true
+    },
+    {
+      "id": "FAC-WAT-03",
+      "name": "East District Water Storage & Main Gate",
+      "type": "WATER_FACILITY",
+      "address": "1300 Evans Ave, San Francisco, CA",
+      "latitude": 37.747,
+      "longitude": -122.385,
+      "contactPhone": "(415) 554-3320",
+      "operationalStatus": "STANDBY",
+      "agentDomain": "WATER_HYDRO",
+      "details": "15-million gallon underground reservoir and automated pressure telemetry station.",
+      "verified": true
+    },
+    {
+      "id": "FAC-PWR-01",
+      "name": "KEB / Metro Grid Primary 230kV Substation",
+      "type": "POWER_SUBSTATION",
+      "address": "450 8th St, San Francisco, CA",
+      "latitude": 37.774,
+      "longitude": -122.408,
+      "contactPhone": "(415) 558-4500",
+      "agentDomain": "CURRENT_KEB",
+      "operationalStatus": "OPERATIONAL",
+      "details": "High-voltage bulk transmission step-down substation with automated SCADA isolation switches.",
+      "verified": true
+    },
+    {
+      "id": "FAC-PWR-02",
+      "name": "Downtown Electrical Distribution Substation",
+      "type": "POWER_SUBSTATION",
+      "address": "222 Jessie St, San Francisco, CA",
+      "latitude": 37.7875,
+      "longitude": -122.403,
+      "contactPhone": "(415) 558-4520",
+      "agentDomain": "CURRENT_KEB",
+      "operationalStatus": "OPERATIONAL",
+      "details": "Underground grid network transformers serving financial core with automatic fault isolation.",
+      "verified": true
+    },
+    {
+      "id": "FAC-PWR-03",
+      "name": "Potrero Grid Switching & BESS Substation",
+      "type": "POWER_SUBSTATION",
+      "address": "1201 Illinois St, San Francisco, CA",
+      "latitude": 37.759,
+      "longitude": -122.3865,
+      "contactPhone": "(415) 558-4540",
+      "agentDomain": "CURRENT_KEB",
+      "operationalStatus": "OPERATIONAL",
+      "details": "50MW Battery Energy Storage System (BESS) and black-start contingency grid interconnect.",
+      "verified": true
     }
   ]
 }

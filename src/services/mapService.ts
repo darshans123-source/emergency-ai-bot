@@ -22,20 +22,37 @@ export interface OsrmRouteResult {
   message?: string;
 }
 
+// In-memory cache to prevent redundant requests to Nominatim
+const geocodeCache = new Map<string, GeocodeResult[]>();
+let lastRequestTime = 0;
+
 /**
  * Searches for places or street addresses using public OpenStreetMap Nominatim.
- * Respects usage policy by including user-agent and limiting results.
+ * Implements in-memory caching and request throttling to respect usage policies.
  */
 export async function searchLocations(query: string): Promise<GeocodeResult[]> {
-  const trimmed = query.trim();
+  const trimmed = query.trim().toLowerCase();
   if (!trimmed || trimmed.length < 2) return [];
 
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&limit=5&addressdetails=1`;
+  if (geocodeCache.has(trimmed)) {
+    return geocodeCache.get(trimmed)!;
+  }
+
+  // Throttle to respect OpenStreetMap Nominatim usage guidelines (max 1 req/sec)
+  const now = Date.now();
+  const timeSinceLast = now - lastRequestTime;
+  if (timeSinceLast < 1000) {
+    await new Promise((resolve) => setTimeout(resolve, 1000 - timeSinceLast));
+  }
+  lastRequestTime = Date.now();
+
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&limit=6&addressdetails=1`;
 
   try {
     const res = await fetch(url, {
       headers: {
-        'Accept-Language': 'en'
+        'Accept-Language': 'en',
+        'User-Agent': 'AegisAI-EmergencyGrid/2.0'
       }
     });
 
@@ -46,13 +63,16 @@ export async function searchLocations(query: string): Promise<GeocodeResult[]> {
     const data = await res.json();
     if (!Array.isArray(data)) return [];
 
-    return data.map((item: any, idx: number) => ({
+    const mapped: GeocodeResult[] = data.map((item: any, idx: number) => ({
       id: String(item.place_id || idx),
       displayName: item.display_name,
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
       type: item.type || item.class
     }));
+
+    geocodeCache.set(trimmed, mapped);
+    return mapped;
   } catch (err: any) {
     console.warn('Nominatim location search notice:', err);
     return [];

@@ -15,8 +15,11 @@ import {
   Navigation,
   Search,
   X,
-  RefreshCw
+  RefreshCw,
+  Mic,
+  Sparkles
 } from 'lucide-react';
+import { MultilingualVoiceModal } from '../components/common/MultilingualVoiceModal';
 
 export const ReportIncidentPage: React.FC = () => {
   const { user } = useAuth();
@@ -45,6 +48,7 @@ export const ReportIncidentPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdIncidentId, setCreatedIncidentId] = useState<string | null>(null);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   // Leaflet Mini Map Ref
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -354,6 +358,34 @@ export const ReportIncidentPage: React.FC = () => {
           </span>
         </div>
 
+        {/* Voice Reporting Quick Banner */}
+        <div className="mx-6 mt-6 p-4 rounded-xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/30 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-600/30 border border-blue-400/30 text-blue-300 shrink-0">
+              <Mic className="w-5 h-5 animate-pulse text-blue-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-white">Voice Emergency Reporting</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                  Multilingual AI
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-1">
+                Speak naturally in <strong>Hindi (हिन्दी)</strong>, <strong>English</strong>, or <strong>Kannada (ಕನ್ನಡ)</strong>. The AI agent will draft, read back, and log the incident directly to the emergency grid.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsVoiceModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-md shadow-blue-600/30 whitespace-nowrap shrink-0"
+          >
+            <Mic className="w-4 h-4" />
+            <span>Speak to Report / बोलकर दर्ज करें</span>
+          </button>
+        </div>
+
         {error && (
           <div className="m-6 p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -634,6 +666,13 @@ export const ReportIncidentPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Multilingual Voice AI Assistant Modal */}
+      <MultilingualVoiceModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+        initialAgentId="POLICE_TACTICAL"
+      />
     </div>
   );
 };

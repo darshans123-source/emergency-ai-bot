@@ -15,7 +15,9 @@ import {
   SpecializedAgentChatResponse,
   GridEfficiencySummary,
   AICommandResponse,
-  MultiAgentConsensusMessage
+  MultiAgentConsensusMessage,
+  EmergencyFacility,
+  UserLocationContext
 } from '../types';
 
 const API_BASE = '/api';
@@ -140,13 +142,63 @@ export const api = {
       body: JSON.stringify({ incidentId })
     }),
 
-  chatWithSpecializedAgent: (data: {
-    agentId: SpecializedAgentId;
-    message: string;
-    history?: SpecializedAgentChatMessage[];
-    incidentId?: string | null;
-  }) =>
+  chatWithSpecializedAgent: (
+    data: {
+      agentId: SpecializedAgentId;
+      message: string;
+      history?: SpecializedAgentChatMessage[];
+      incidentId?: string | null;
+      language?: 'en' | 'hi' | 'kn';
+      userLocation?: UserLocationContext | null;
+    },
+    signal?: AbortSignal
+  ) =>
     request<SpecializedAgentChatResponse>('/agents/specialized/chat', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      signal
+    }),
+
+  sendAIChat: (
+    data: {
+      agentId?: SpecializedAgentId;
+      message: string;
+      history?: SpecializedAgentChatMessage[];
+      incidentId?: string | null;
+      language?: 'en' | 'hi' | 'kn';
+      userLocation?: UserLocationContext | null;
+    },
+    signal?: AbortSignal
+  ) =>
+    request<SpecializedAgentChatResponse>('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      signal
+    }),
+
+  getAIStatus: () =>
+    request<{
+      provider: string;
+      model: string;
+      isExternalConfigured: boolean;
+      status: string;
+      message: string;
+      supportedLanguages: Array<{ code: 'en' | 'hi' | 'kn'; name: string; nativeName: string; speechCode: string }>;
+    }>('/ai/status'),
+
+  submitVoiceReport: (data: {
+    title?: string;
+    category?: string;
+    description: string;
+    address?: string;
+    casualtiesCount?: number;
+    priority?: string;
+    language?: 'en' | 'hi' | 'kn';
+    userLocation?: UserLocationContext | null;
+    latitude?: number;
+    longitude?: number;
+  }) =>
+    request<{ success: boolean; incidentId: string; incident: Incident }>('/ai/voice-report', {
       method: 'POST',
       body: JSON.stringify(data)
     }),
@@ -160,11 +212,30 @@ export const api = {
       body: JSON.stringify({ incidentId: incidentId || null })
     }),
 
-  executeAICommand: (command: string, incidentId?: string | null) =>
+  executeAICommand: (
+    command: string,
+    incidentId?: string | null,
+    userLocation?: UserLocationContext | null,
+    language?: 'en' | 'hi' | 'kn'
+  ) =>
     request<AICommandResponse>('/agents/command', {
       method: 'POST',
-      body: JSON.stringify({ command, incidentId: incidentId || null })
+      body: JSON.stringify({
+        command,
+        incidentId: incidentId || null,
+        userLocation: userLocation || null,
+        language: language || 'en'
+      })
     }),
+
+  // Verified Facilities
+  getFacilities: (params?: { type?: string; agentDomain?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.type) query.set('type', params.type);
+    if (params?.agentDomain) query.set('agentDomain', params.agentDomain);
+    const qs = query.toString();
+    return request<EmergencyFacility[]>(`/facilities${qs ? `?${qs}` : ''}`);
+  },
 
   // Resources
   getResources: (params?: { type?: string; status?: string }) => {

@@ -3,7 +3,16 @@ import { dbService, hashPassword } from './db';
 import { generateToken, AuthenticatedRequest, requireAuth, requireRole } from './auth';
 import { orchestrator } from './agents/orchestrator';
 import { calculateRoadRoute } from './roadGraph';
-import { IncidentCategory, IncidentPriority, IncidentStatus, ResourceType, ResourceStatus, SpecializedAgentId } from './types';
+import {
+  IncidentCategory,
+  IncidentPriority,
+  IncidentStatus,
+  ResourceType,
+  ResourceStatus,
+  SpecializedAgentId,
+  EmergencyFacility,
+  FacilityType
+} from './types';
 import {
   getSpecializedAgentsList,
   executeSpecializedAgentAction,
@@ -13,7 +22,7 @@ import {
   runGridReadinessBenchmark,
   routeOperatorCommand
 } from './agents/specializedAgents';
-
+import { checkAIProviderStatus, SupportedLanguage, extractIncidentParameters } from './aiProviderAdapter';
 
 export const apiRouter = Router();
 
@@ -505,7 +514,7 @@ apiRouter.post('/agents/specialized/consensus', (req: AuthenticatedRequest, res:
 });
 
 apiRouter.post('/agents/specialized/chat', async (req: AuthenticatedRequest, res: Response) => {
-  const { agentId, message, history, incidentId } = req.body;
+  const { agentId, message, history, incidentId, language, userLocation } = req.body || {};
   if (!agentId || !message || typeof message !== 'string' || !message.trim()) {
     res.status(400).json({ error: 'Validation Error', message: 'agentId and a non-empty message are required.' });
     return;
@@ -516,13 +525,162 @@ apiRouter.post('/agents/specialized/chat', async (req: AuthenticatedRequest, res
       agentId as SpecializedAgentId,
       message,
       Array.isArray(history) ? history : [],
-      incidentId || null
+      incidentId || null,
+      (language || 'en') as SupportedLanguage,
+      userLocation || null
     );
     res.json(result);
   } catch (err: any) {
     res.status(500).json({
       error: 'Agent Chat Error',
       message: err?.message || 'Failed to generate agent response.'
+    });
+  }
+});
+
+// Dedicated Multilingual Voice AI Chat Endpoint (POST /api/ai/chat)
+apiRouter.post('/ai/chat', async (req: AuthenticatedRequest, res: Response) => {
+  const { agentId = 'POLICE_TACTICAL', message, history, incidentId, language = 'en', userLocation } = req.body || {};
+  if (!message || typeof message !== 'string' || !message.trim()) {
+    res.status(400).json({
+      error: 'Validation Error',
+      message: 'A non-empty message string is required.'
+    });
+    return;
+  }
+
+  const validIds: SpecializedAgentId[] = ['POLICE_TACTICAL', 'HOSPITAL_EMS', 'WATER_HYDRO', 'CURRENT_KEB'];
+  const targetAgentId: SpecializedAgentId = validIds.includes(agentId) ? agentId : 'POLICE_TACTICAL';
+
+  try {
+    const result = await chatWithSpecializedAgent(
+      targetAgentId,
+      message.trim(),
+      Array.isArray(history) ? history : [],
+      incidentId || null,
+      (language || 'en') as SupportedLanguage,
+      userLocation || null
+    );
+    res.json(result);
+  } catch (err: any) {
+    console.error('[API /ai/chat Error]:', err);
+    res.status(500).json({
+      error: 'AI Chat Error',
+      message: err?.message || 'Internal AI service error encountered. Please retry.'
+    });
+  }
+});
+
+// AI Provider Status Endpoint (GET /api/ai/status)
+apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) => {
+  try {
+    const status = await checkAIProviderStatus();
+    res.json(status);
+  } catch (err: any) {
+    res.status(500).json({
+      error: 'Status Check Error',
+      message: err?.message || 'Could not verify AI provider status.'
+    });
+  }
+});
+
+// Voice-based incident report creation (POST /api/ai/voice-report)
+apiRouter.post('/ai/voice-report', async (req: AuthenticatedRequest, res: Response) => {
+  let { title, category, description, address, casualtiesCount, priority, language = 'en', transcript, agentId, userLocation, latitude, longitude } = req.body || {};
+
+  const effectiveText = (description || transcript || '').trim();
+  if (!effectiveText) {
+    res.status(400).json({ error: 'Validation Error', message: 'Description or speech transcript is required to file a report.' });
+    return;
+  }
+
+  if (!category || !title || !address) {
+    const extracted = extractIncidentParameters(effectiveText, agentId || 'POLICE_TACTICAL', language);
+    if (extracted) {
+      if (!category && extracted.category) category = extracted.category;
+      if (!title && extracted.title) title = extracted.title;
+      if (!address && extracted.address) address = extracted.address;
+      if (!priority && extracted.priority) priority = extracted.priority;
+    }
+  }
+  description = effectiveText;
+
+  const validCategories: IncidentCategory[] = [
+    'ROAD_ACCIDENT',
+    'MEDICAL_EMERGENCY',
+    'FIRE_INCIDENT',
+    'FLOOD',
+    'NATURAL_DISASTER',
+    'PUBLIC_SAFETY',
+    'OTHER'
+  ];
+
+  const cat: IncidentCategory = validCategories.includes(category) ? category : 'OTHER';
+  const cleanTitle = title?.trim() || `${cat.replace(/_/g, ' ')} Reported via Voice`;
+  const cleanAddress = userLocation?.address?.trim() || address?.trim() || 'Address Reported via Voice Assistant';
+
+  const realLat = typeof userLocation?.latitude === 'number'
+    ? userLocation.latitude
+    : (typeof latitude === 'number' ? latitude : null);
+  const realLng = typeof userLocation?.longitude === 'number'
+    ? userLocation.longitude
+    : (typeof longitude === 'number' ? longitude : null);
+
+  try {
+    const newIncident = dbService.createIncident({
+      title: cleanTitle,
+      category: cat,
+      description: description.trim(),
+      status: 'RECEIVED',
+      priority: priority || 'UNASSESSED',
+      location: {
+        address: cleanAddress,
+        latitude: realLat,
+        longitude: realLng,
+        verified: realLat !== null && realLng !== null,
+        notes: `Voice Assistant intake in ${String(language).toUpperCase()}${userLocation?.accuracy ? ` (GPS accuracy: ±${userLocation.accuracy}m)` : ''}`
+      },
+      casualtiesCount: typeof casualtiesCount === 'number' ? Math.max(0, casualtiesCount) : 0,
+      reporterId: req.user?.id,
+      reporterName: req.user?.name || 'Voice Assistant User',
+      reporterContact: req.user?.email || 'Voice Dispatch Intake',
+      isDemo: false
+    });
+
+    dbService.logAudit({
+      userId: req.user?.id || 'VOICE_USER',
+      userEmail: req.user?.email || 'voice@reporter.io',
+      userRole: req.user?.role || 'reporter',
+      action: 'INCIDENT_CREATED',
+      entityType: 'INCIDENT',
+      entityId: newIncident.id,
+      details: `Voice incident reported: "${newIncident.title}" [${newIncident.category}] in ${String(language).toUpperCase()}`,
+      ipAddress: req.ip
+    });
+
+    dbService.addNotification({
+      targetRole: 'operator',
+      title: `Voice Emergency Report: ${newIncident.id}`,
+      message: `${newIncident.title} logged at ${newIncident.location.address}. Reviewing queue.`,
+      incidentId: newIncident.id,
+      priority: 'HIGH'
+    });
+
+    broadcastFn('INCIDENT_CREATED', newIncident);
+
+    orchestrator.runWorkflow(newIncident.id).catch((err) => {
+      console.error(`[Orchestrator] Auto workflow error for voice report ${newIncident.id}:`, err);
+    });
+
+    res.status(201).json({
+      success: true,
+      incidentId: newIncident.id,
+      incident: newIncident
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      error: 'Submission Error',
+      message: err?.message || 'Failed to submit voice report into database.'
     });
   }
 });
@@ -546,14 +704,19 @@ apiRouter.post('/agents/specialized/benchmark', async (req: AuthenticatedRequest
 });
 
 apiRouter.post('/agents/command', async (req: AuthenticatedRequest, res: Response) => {
-  const { command, incidentId } = req.body || {};
+  const { command, incidentId, userLocation, language } = req.body || {};
   if (!command || typeof command !== 'string' || !command.trim()) {
     res.status(400).json({ error: 'Validation Error', message: 'A non-empty command is required.' });
     return;
   }
 
   try {
-    const response = await routeOperatorCommand(command, incidentId || null);
+    const response = await routeOperatorCommand(
+      command,
+      incidentId || null,
+      userLocation || null,
+      (language || 'en') as SupportedLanguage
+    );
     res.json(response);
   } catch (err: any) {
     res.status(500).json({
@@ -563,6 +726,19 @@ apiRouter.post('/agents/command', async (req: AuthenticatedRequest, res: Respons
   }
 });
 
+
+// -------------------------------------------------------------
+// VERIFIED FACILITIES ENDPOINTS
+// -------------------------------------------------------------
+
+apiRouter.get('/facilities', (req: AuthenticatedRequest, res: Response) => {
+  const { type, agentDomain } = req.query;
+  const list = dbService.getFacilities({
+    type: type as string,
+    agentDomain: agentDomain as string
+  });
+  res.json(list);
+});
 
 // -------------------------------------------------------------
 // RESOURCES ENDPOINTS

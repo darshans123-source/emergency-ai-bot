@@ -14,13 +14,18 @@ import {
   ArrowRight,
   Mic,
   MicOff,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { MultilingualVoiceModal } from '../common/MultilingualVoiceModal';
 
 export const Navbar: React.FC = () => {
   const { notifications, unreadCount, isConnected, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
+
+  // Multilingual Voice Assistant Modal State
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   // Notifications State
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -445,8 +450,20 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Right: Notifications */}
+      {/* Right: Voice AI Assistant & Notifications */}
       <div className="flex items-center gap-2 shrink-0">
+        {/* Multilingual Voice AI Assistant Trigger Button */}
+        <button
+          type="button"
+          onClick={() => setIsVoiceModalOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer ring-1 ring-blue-400/30"
+          title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ)"
+        >
+          <Mic className="w-3.5 h-3.5 text-blue-200 animate-pulse" />
+          <span className="hidden md:inline">Mitra AI (Voice)</span>
+          <span className="md:hidden">Mitra AI</span>
+        </button>
+
         {/* Notifications Button */}
         <div className="relative" ref={notifRef}>
           <button
@@ -534,6 +551,12 @@ export const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Multilingual Voice Assistant Modal */}
+      <MultilingualVoiceModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+      />
     </header>
   );
 };

@@ -51,8 +51,18 @@ import {
   Terminal,
   RotateCcw,
   Clock,
-  Check
+  Check,
+  Mic,
+  Volume2,
+  VolumeX,
+  Square,
+  Navigation
 } from 'lucide-react';
+import { InlineVoiceBar } from '../components/common/InlineVoiceBar';
+import { MultilingualVoiceModal } from '../components/common/MultilingualVoiceModal';
+import { SoundWaveVisualizer } from '../components/common/SoundWaveVisualizer';
+import { useVoiceAssistant, VoiceLanguage } from '../hooks/useVoiceAssistant';
+import { locationService } from '../services/locationService';
 
 interface AgentConfig {
   id: SpecializedAgentId;
@@ -73,14 +83,16 @@ const AGENT_CONFIGS: AgentConfig[] = [
   {
     id: 'POLICE_TACTICAL',
     codeLabel: 'AGENT 01',
-    name: 'Police Tactical AI',
-    shortName: 'Police Tactical',
-    oneLineDescription: 'Incident assessment, perimeter security, traffic coordination, and tactical dispatch.',
+    name: 'Rakshak AI 🚔',
+    shortName: 'Rakshak AI',
+    oneLineDescription: 'Police & Public Safety: accident reporting, perimeter security, and tactical dispatch.',
     capabilities: [
-      'Incident assessment & priority classification',
-      'Police response recommendations',
-      'Perimeter security & traffic coordination',
-      'Incident location & response status tracking'
+      'Understand police-related emergency reports',
+      'Help report accidents and public safety incidents',
+      'Display actual incident locations on the live map',
+      'Retrieve relevant police stations from places-data provider',
+      'Provide response recommendations',
+      'Track incident status using actual backend data'
     ],
     icon: Shield,
     accentBadge: 'text-blue-300 border-blue-400/40 bg-blue-950/60',
@@ -96,14 +108,16 @@ const AGENT_CONFIGS: AgentConfig[] = [
   {
     id: 'HOSPITAL_EMS',
     codeLabel: 'AGENT 02',
-    name: 'Hospital & EMS AI',
-    shortName: 'Hospital & EMS',
-    oneLineDescription: 'Emergency severity triage, ambulance dispatch recommendations, and hospital coordination.',
+    name: 'Jeevan AI 🏥',
+    shortName: 'Jeevan AI',
+    oneLineDescription: 'Hospital & EMS: medical emergency requests, nearby hospital location, and ambulance coordination.',
     capabilities: [
-      'Emergency severity & casualty assessment',
-      'Ambulance dispatch recommendations',
-      'Hospital emergency trauma coordination',
-      'Patient transport & staging status'
+      'Understand medical emergency requests',
+      'Help users locate nearby hospitals',
+      'Retrieve actual hospital information from places-data provider',
+      'Assist with ambulance request workflows',
+      'Track requests only when supported by the backend',
+      'Never claim an ambulance has been dispatched without confirmation'
     ],
     icon: HeartPulse,
     accentBadge: 'text-rose-300 border-rose-400/40 bg-rose-950/60',
@@ -119,14 +133,15 @@ const AGENT_CONFIGS: AgentConfig[] = [
   {
     id: 'WATER_HYDRO',
     codeLabel: 'AGENT 03',
-    name: 'Water Supply & Hydro AI',
-    shortName: 'Water & Hydro',
-    oneLineDescription: 'Water supply disruption monitoring, pipeline assessment, and hydro crew coordination.',
+    name: 'JalRakshak AI 💧',
+    shortName: 'JalRakshak AI',
+    oneLineDescription: 'Water Supply & Hydro: water shortages, pipeline leaks, and repair progress tracking.',
     capabilities: [
-      'Water supply disruption monitoring',
-      'Pipeline & infrastructure incident assessment',
-      'Water shortage, hydrant & leakage reports',
-      'Repair team coordination recommendations'
+      'Report water shortages and pipeline leaks',
+      'Help locate water supply incidents on the live map',
+      'Display actual reported incidents on the live map',
+      'Organize complaints and repair requests',
+      'Track progress using backend records'
     ],
     icon: Droplets,
     accentBadge: 'text-cyan-300 border-cyan-400/40 bg-cyan-950/60',
@@ -142,14 +157,15 @@ const AGENT_CONFIGS: AgentConfig[] = [
   {
     id: 'CURRENT_KEB',
     codeLabel: 'AGENT 04',
-    name: 'Power Grid / KEB AI',
-    shortName: 'Power Grid / KEB',
-    oneLineDescription: 'Power outage analysis, electrical hazard assessment, and substation feeder tracking.',
+    name: 'Shakti AI ⚡',
+    shortName: 'Shakti AI',
+    oneLineDescription: 'Power Grid & Electricity: power outages, electrical hazards, and complaint registration.',
     capabilities: [
-      'Power outage reporting & grid analysis',
-      'Electrical hazard & downed line assessment',
-      'Feeder & substation incident tracking',
-      'Maintenance team coordination steps'
+      'Report electricity outages',
+      'Help identify electrical hazards',
+      'Display actual reported power incidents on the live map',
+      'Assist with electricity complaint registration',
+      'Track maintenance requests using backend records'
     ],
     icon: Zap,
     accentBadge: 'text-amber-300 border-amber-400/40 bg-amber-950/60',
@@ -219,6 +235,28 @@ export const DashboardPage: React.FC = () => {
   const [commandResult, setCommandResult] = useState<AICommandResponse | null>(null);
   const [commandError, setCommandError] = useState<string | null>(null);
 
+  // Multilingual Voice Assistant State
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [modalTargetAgentId, setModalTargetAgentId] = useState<SpecializedAgentId>('POLICE_TACTICAL');
+
+  // Active voice assistant for dedicated agent views
+  const {
+    language: activeVoiceLanguage,
+    setLanguage: setActiveVoiceLanguage,
+    currentLanguageOption: voiceLangOption,
+    isSpeaking,
+    speakingAgentId,
+    speakResponse,
+    stopSpeaking,
+    replayLastResponse,
+    autoSpeakEnabled,
+    setAutoSpeakEnabled,
+    voiceNotice: activeVoiceNotice
+  } = useVoiceAssistant({
+    initialLanguage: 'en',
+    autoSpeak: true
+  });
+
   // Active dedicated agent view state
   const [activeAgentId, setActiveAgentId] = useState<SpecializedAgentId | null>(null);
 
@@ -232,14 +270,24 @@ export const DashboardPage: React.FC = () => {
   const [chatError, setChatError] = useState<string | null>(null);
   const [providerNotice, setProviderNotice] = useState<string | null>(null);
 
+  // AbortController ref to cancel in-flight requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // Directive Execution State inside dedicated agent view
   const [executingDirectiveId, setExecutingDirectiveId] = useState<string | null>(null);
   const [directiveFeedback, setDirectiveFeedback] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Sync route param with activeAgentId
+  // Sync route param with activeAgentId and abort obsolete requests/speech
   useEffect(() => {
+    // Abort in-flight requests and stop any existing speech playback when switching agents
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    stopSpeaking();
+
     if (routeAgentId) {
       const normalized = routeAgentId.toUpperCase() as SpecializedAgentId;
       const exists = AGENT_CONFIGS.some((c) => c.id === normalized);
@@ -254,7 +302,7 @@ export const DashboardPage: React.FC = () => {
     } else {
       setActiveAgentId(null);
     }
-  }, [routeAgentId, navigate]);
+  }, [routeAgentId, navigate, stopSpeaking]);
 
   // Persist conversations in sessionStorage
   useEffect(() => {
@@ -362,7 +410,22 @@ export const DashboardPage: React.FC = () => {
     setIsRunningCommand(true);
 
     try {
-      const result = await api.executeAICommand(cmd, selectedIncidentId || null);
+      const confirmedLoc = locationService.getConfirmedLocation();
+      const locCtx = confirmedLoc
+        ? {
+            latitude: confirmedLoc.coordinates.latitude,
+            longitude: confirmedLoc.coordinates.longitude,
+            address: confirmedLoc.address,
+            accuracy: confirmedLoc.coordinates.accuracy
+          }
+        : null;
+
+      const result = await api.executeAICommand(
+        cmd,
+        selectedIncidentId || null,
+        locCtx,
+        activeVoiceLanguage || 'en'
+      );
       setCommandResult(result);
       // Also append the exchange to that routed agent's conversation history so opening that agent preserves context
       const userEntry: SpecializedAgentChatMessage = {
@@ -427,16 +490,24 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleSendMessage = async (promptOverride?: string) => {
+  const handleSendMessage = async (promptOverride?: string, customLanguage?: VoiceLanguage) => {
     if (!activeAgentId || isSending) return;
     const textToSend = (promptOverride !== undefined ? promptOverride : inputText).trim();
     if (!textToSend) return;
 
+    const chosenLang = customLanguage || activeVoiceLanguage;
     setChatError(null);
     setLastFailedPrompt(null);
     if (promptOverride === undefined) {
       setInputText('');
     }
+
+    // Cancel any previous in-flight AI request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortCtrl = new AbortController();
+    abortControllerRef.current = abortCtrl;
 
     const userMsg: SpecializedAgentChatMessage = {
       id: `USR-${Date.now()}`,
@@ -457,12 +528,29 @@ export const DashboardPage: React.FC = () => {
     setIsSending(true);
 
     try {
-      const response = await api.chatWithSpecializedAgent({
-        agentId: activeAgentId,
-        message: textToSend,
-        history: currentHistory,
-        incidentId: selectedIncidentId || null
-      });
+      // Send only recent conversation history (last 4 messages) to avoid latency & bloated context
+      const recentContext = currentHistory.slice(-4);
+      const confirmedLoc = locationService.getConfirmedLocation();
+      const locCtx = confirmedLoc
+        ? {
+            latitude: confirmedLoc.coordinates.latitude,
+            longitude: confirmedLoc.coordinates.longitude,
+            address: confirmedLoc.address,
+            accuracy: confirmedLoc.coordinates.accuracy
+          }
+        : null;
+
+      const response = await api.chatWithSpecializedAgent(
+        {
+          agentId: activeAgentId,
+          message: textToSend,
+          history: recentContext,
+          incidentId: selectedIncidentId || null,
+          language: chosenLang,
+          userLocation: locCtx
+        },
+        abortCtrl.signal
+      );
 
       const agentMsg: SpecializedAgentChatMessage = {
         id: `AGT-${Date.now()}`,
@@ -491,18 +579,34 @@ export const DashboardPage: React.FC = () => {
 
       api.getGridEfficiencyMetrics().then(setEfficiency).catch(() => {});
       setConnectionState('Online');
+
+      // Auto-speak response aloud if voice output is enabled
+      if (autoSpeakEnabled && response.reply) {
+        speakResponse(response.reply, chosenLang, activeAgentId);
+      }
     } catch (err: any) {
+      if (err?.name === 'AbortError') {
+        return; // Request was aborted cleanly
+      }
       setLastFailedPrompt(textToSend);
       setChatError(
         err?.message || 'Unable to reach the AI agent service. Please check your connection and retry.'
       );
     } finally {
+      if (abortControllerRef.current === abortCtrl) {
+        abortControllerRef.current = null;
+      }
       setIsSending(false);
     }
   };
 
   const handleClearChat = () => {
     if (!activeAgentId) return;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    stopSpeaking();
     setConversations((prev) => ({
       ...prev,
       [activeAgentId]: []
@@ -606,7 +710,41 @@ export const DashboardPage: React.FC = () => {
                 <span>Back to Command Center</span>
               </button>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                {locationService.getConfirmedLocation() ? (
+                  <div
+                    className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/80 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-300"
+                    title={`GPS Accuracy: ±${locationService.getConfirmedLocation()?.coordinates.accuracy}m | ${locationService.getConfirmedLocation()?.address}`}
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>GPS: {locationService.getConfirmedLocation()?.coordinates.latitude.toFixed(4)}, {locationService.getConfirmedLocation()?.coordinates.longitude.toFixed(4)}</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const coords = await locationService.getCurrentPosition();
+                        const addr = await locationService.reverseGeocode(coords.latitude, coords.longitude);
+                        locationService.setConfirmedLocation({
+                          coordinates: coords,
+                          address: addr || `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+                          timestamp: Date.now(),
+                          verified: true,
+                          source: 'GPS_LIVE'
+                        });
+                        setChatError(null);
+                      } catch (err: any) {
+                        setChatError(err?.message || 'Could not access GPS.');
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-blue-950/80 hover:bg-blue-900 border border-blue-500/40 rounded-lg text-xs font-medium text-blue-300 transition cursor-pointer"
+                    title="Allow live GPS location for this agent"
+                  >
+                    <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Share GPS</span>
+                  </button>
+                )}
                 {renderStatusIndicator(agentStatus, true)}
                 <span className="text-slate-400" aria-hidden="true">·</span>
                 <span className="text-xs font-mono text-slate-300 tabular-nums">
@@ -649,26 +787,59 @@ export const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Left 2 Columns: Dedicated Agent Chat Console */}
           <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col h-[620px]">
-            {/* Chat Header & Clear Button */}
-            <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
+            {/* Chat Header, Voice Controls & Clear Button */}
+            <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
                 <MessageSquare className="w-4 h-4 text-blue-600" />
                 <span>Dedicated {config.name} Command Channel</span>
               </div>
 
-              <button
-                type="button"
-                onClick={handleClearChat}
-                disabled={agentMessages.length === 0}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 bg-white transition disabled:opacity-40 disabled:pointer-events-none whitespace-nowrap shrink-0"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear Chat</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Voice Auto-Speak Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setAutoSpeakEnabled(!autoSpeakEnabled)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
+                    autoSpeakEnabled
+                      ? 'text-blue-700 bg-blue-50 border-blue-300'
+                      : 'text-slate-500 bg-white border-slate-200 hover:bg-slate-100'
+                  }`}
+                  title="Toggle Automatic Voice Reading for this Agent"
+                >
+                  {autoSpeakEnabled ? (
+                    <Volume2 className="w-3.5 h-3.5 text-blue-600" />
+                  ) : (
+                    <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                  )}
+                  <span>Voice: {autoSpeakEnabled ? 'ON' : 'MUTED'}</span>
+                </button>
+
+                {/* Replay Voice Response */}
+                <button
+                  type="button"
+                  onClick={() => replayLastResponse(config.id)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer"
+                  title="Replay Last Agent Voice Answer"
+                >
+                  <RotateCcw className="w-3 h-3 text-slate-500" />
+                  <span>Replay</span>
+                </button>
+
+                {/* Clear Chat */}
+                <button
+                  type="button"
+                  onClick={handleClearChat}
+                  disabled={agentMessages.length === 0}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 bg-white transition disabled:opacity-40 disabled:pointer-events-none whitespace-nowrap shrink-0 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Chat</span>
+                </button>
+              </div>
             </div>
 
             {/* Quick Command Buttons */}
-            <div className="px-5 py-2.5 bg-white border-b border-slate-100 flex items-center gap-2 overflow-x-auto shrink-0">
+            <div className="px-5 py-2 bg-white border-b border-slate-100 flex items-center gap-2 overflow-x-auto shrink-0">
               <span className="text-xs font-semibold text-slate-500 shrink-0">
                 Quick Commands:
               </span>
@@ -678,7 +849,7 @@ export const DashboardPage: React.FC = () => {
                   type="button"
                   disabled={isSending}
                   onClick={() => handleSendMessage(prompt)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition whitespace-nowrap shrink-0 disabled:opacity-50"
+                  className="px-3 py-1 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition whitespace-nowrap shrink-0 disabled:opacity-50 cursor-pointer"
                 >
                   {prompt}
                 </button>
@@ -695,7 +866,7 @@ export const DashboardPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setProviderNotice(null)}
-                  className="text-amber-700 hover:underline text-xs font-medium whitespace-nowrap shrink-0"
+                  className="text-amber-700 hover:underline text-xs font-medium whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   Dismiss
                 </button>
@@ -713,7 +884,7 @@ export const DashboardPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleSendMessage(lastFailedPrompt)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-rose-600 text-white font-semibold hover:bg-rose-700 transition whitespace-nowrap"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-rose-600 text-white font-semibold hover:bg-rose-700 transition whitespace-nowrap cursor-pointer"
                     >
                       <RotateCcw className="w-3 h-3" />
                       <span>Retry</span>
@@ -722,9 +893,59 @@ export const DashboardPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setChatError(null)}
-                    className="text-rose-700 hover:underline text-xs font-semibold whitespace-nowrap"
+                    className="text-rose-700 hover:underline text-xs font-semibold whitespace-nowrap cursor-pointer"
                   >
                     Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Multilingual Voice AI Controls for this Agent */}
+            <div className="p-3 bg-slate-900 border-b border-slate-800 shrink-0">
+              <InlineVoiceBar
+                agentId={config.id}
+                agentName={config.name}
+                accentColor={config.chartColor}
+                isProcessing={isSending}
+                onSendSpeech={(transcript, lang) => {
+                  handleSendMessage(transcript, lang);
+                }}
+                onOpenFullModal={() => {
+                  setModalTargetAgentId(config.id);
+                  setIsVoiceModalOpen(true);
+                }}
+                language={activeVoiceLanguage}
+                onLanguageChange={setActiveVoiceLanguage}
+                isSpeaking={isSpeaking && speakingAgentId === config.id}
+                speakingAgentId={speakingAgentId}
+                onStopSpeaking={stopSpeaking}
+                onReplay={() => replayLastResponse(config.id)}
+                autoSpeakEnabled={autoSpeakEnabled}
+                onToggleAutoSpeak={setAutoSpeakEnabled}
+                voiceNotice={activeVoiceNotice}
+              />
+            </div>
+
+            {/* Visible Active Speaking Indicator Banner with Stop Speaking Control */}
+            {isSpeaking && speakingAgentId === config.id && (
+              <div className="px-5 py-2.5 bg-emerald-950/90 border-b border-emerald-800 text-emerald-200 text-xs flex items-center justify-between gap-3 shrink-0 animate-fadeIn">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="font-semibold text-emerald-300">
+                    {config.name} is speaking response aloud ({voiceLangOption.nativeName})...
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <SoundWaveVisualizer isActive={true} color="#34d399" barCount={12} className="h-6 py-0 px-1" />
+                  <button
+                    type="button"
+                    onClick={stopSpeaking}
+                    className="flex items-center gap-1 px-3 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition shadow-sm cursor-pointer"
+                    title="Stop Speaking Immediately"
+                  >
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span>Stop Speaking</span>
                   </button>
                 </div>
               </div>
@@ -739,12 +960,14 @@ export const DashboardPage: React.FC = () => {
                   </div>
                   <h2 className="text-base font-bold text-slate-900">{config.name} Ready</h2>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Enter a command below, submit incident coordinates or observations, or click any Quick Command button above to receive domain-specific recommendations.
+                    Ask a question in English, Hindi, or Kannada using voice or text. Click any Quick Command above or speak directly into the microphone.
                   </p>
                 </div>
               ) : (
                 agentMessages.map((msg) => {
                   const isUser = msg.role === 'user';
+                  const isAgentSpeakingThis = isSpeaking && speakingAgentId === config.id;
+
                   return (
                     <div
                       key={msg.id}
@@ -760,12 +983,42 @@ export const DashboardPage: React.FC = () => {
                             minute: '2-digit'
                           })}
                         </span>
+                        {!isUser && (
+                          <button
+                            type="button"
+                            title={isAgentSpeakingThis ? 'Stop voice playback' : 'Speak message aloud'}
+                            onClick={() => {
+                              if (isAgentSpeakingThis) {
+                                stopSpeaking();
+                              } else {
+                                speakResponse(msg.content, activeVoiceLanguage, config.id);
+                              }
+                            }}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs transition cursor-pointer ${
+                              isAgentSpeakingThis
+                                ? 'text-rose-600 bg-rose-50 hover:bg-rose-100 font-semibold border border-rose-200'
+                                : 'text-slate-500 hover:text-blue-600 hover:bg-slate-200/60'
+                            }`}
+                          >
+                            {isAgentSpeakingThis ? (
+                              <>
+                                <VolumeX className="w-3.5 h-3.5 text-rose-600" />
+                                <span className="text-[10px]">Stop</span>
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 className="w-3.5 h-3.5" />
+                                <span className="text-[10px]">Listen</span>
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                       <div
                         className={`max-w-2xl rounded-xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
                           isUser
                             ? 'bg-blue-600 text-white'
-                            : 'bg-white text-slate-800 border border-slate-200'
+                            : 'bg-white text-slate-800 border border-slate-200 shadow-xs'
                         }`}
                       >
                         {msg.content}
@@ -775,14 +1028,33 @@ export const DashboardPage: React.FC = () => {
                 })
               )}
 
+              {/* Immediate Thinking Indicator with Abort Capability */}
               {isSending && (
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-semibold text-slate-600 mb-1 px-1">
-                    {config.name}
-                  </span>
-                  <div className="bg-white text-slate-600 border border-slate-200 rounded-xl px-4 py-3 text-xs flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                    <span>Processing telemetry and generating domain assessment...</span>
+                <div className="flex flex-col items-start space-y-1">
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="text-xs font-semibold text-slate-600">{config.name}</span>
+                    <span className="text-[10px] font-mono text-blue-600 font-bold animate-pulse">
+                      Thinking...
+                    </span>
+                  </div>
+                  <div className="bg-white text-slate-700 border border-blue-200 shadow-xs rounded-xl px-4 py-3 text-xs flex items-center justify-between gap-3 w-full max-w-md">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-blue-600 shrink-0" />
+                      <span>{config.name} is assessing telemetry & formulating response...</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (abortControllerRef.current) {
+                          abortControllerRef.current.abort();
+                          abortControllerRef.current = null;
+                        }
+                        setIsSending(false);
+                      }}
+                      className="text-[11px] text-rose-600 hover:underline font-semibold shrink-0 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               )}
@@ -1003,12 +1275,15 @@ export const DashboardPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold tracking-tight text-white">
-                AegisAI Emergency Command Center
+                AegisAI
               </h1>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-600/40 font-mono font-medium">
+                GRID
+              </span>
               {renderStatusIndicator(connectionState, true)}
             </div>
             <p className="text-sm text-slate-300 mt-1">
-              Autonomous multi-agent emergency coordination, real-time incident assessment, and municipal infrastructure dispatch.
+              One Voice. Four Agents. Faster Emergency Response.
             </p>
           </div>
 
@@ -1049,6 +1324,17 @@ export const DashboardPage: React.FC = () => {
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-400' : 'text-slate-400'}`} />
               <span>Sync</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setModalTargetAgentId('POLICE_TACTICAL');
+                setIsVoiceModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-blue-400/40 shadow-sm shadow-blue-500/20 transition whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              <Mic className="w-3.5 h-3.5 text-blue-200 animate-pulse" />
+              <span>Mitra AI (Voice)</span>
             </button>
             <button
               type="button"
@@ -1361,14 +1647,37 @@ export const DashboardPage: React.FC = () => {
                       : 'Dedicated agent channel ready'}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => handleOpenAgent(spec.id)}
-                    className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap shrink-0 ${spec.accentButton}`}
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Open Agent</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/map?agent=${spec.id}`)}
+                      className="inline-flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs transition whitespace-nowrap shrink-0"
+                      title="Filter Live Map for this Agent"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="hidden sm:inline">Map</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalTargetAgentId(spec.id);
+                        setIsVoiceModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs transition whitespace-nowrap shrink-0"
+                      title="Speak with this AI Agent"
+                    >
+                      <Mic className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Voice</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenAgent(spec.id)}
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap shrink-0 ${spec.accentButton}`}
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Open Agent</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -1687,6 +1996,14 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Multilingual Voice AI Assistant Modal */}
+      <MultilingualVoiceModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+        initialAgentId={modalTargetAgentId}
+        initialIncidentId={selectedIncidentId || null}
+      />
     </div>
   );
 };

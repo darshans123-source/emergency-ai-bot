@@ -33,11 +33,61 @@
 
 /* Clean Map Styling */
 .leaflet-container {
-  background: #f8fafc !important;
+  background: #0b1120 !important;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
 }
 
-/* Subtle clean dark styling only when explicitly requested */
+/* Subtle clean dark styling for tactical street tiles */
 .tactical-dark-tiles .leaflet-tile {
-  filter: brightness(0.9) contrast(1.05);
+  filter: brightness(0.85) contrast(1.15) saturate(0.9);
 }
+
+/* Leaflet Dark Command Popups */
+.leaflet-popup-content-wrapper {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 6px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+}
+
+/* Radar pulse animation for live location and active emergencies */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 14px rgba(59, 130, 246, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.radar-pulse-effect {
+  animation: radar-pulse 2s infinite;
+}
+

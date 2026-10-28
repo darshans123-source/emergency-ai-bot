@@ -397,14 +397,14 @@ export const AgentControlCenterPage: React.FC = () => {
                 }`}
               >
                 {fid === 'ALL'
-                  ? 'All 4'
+                  ? 'All 4 Agents'
                   : fid === 'POLICE_TACTICAL'
-                  ? 'Police'
+                  ? 'Rakshak AI'
                   : fid === 'HOSPITAL_EMS'
-                  ? 'EMS'
+                  ? 'Jeevan AI'
                   : fid === 'WATER_HYDRO'
-                  ? 'Hydro'
-                  : 'KEB'}
+                  ? 'JalRakshak AI'
+                  : 'Shakti AI'}
               </button>
             ))}
           </div>

@@ -116,7 +116,7 @@ export const LoginPage: React.FC = () => {
             <span className="text-[10px] font-normal px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">v4.8</span>
           </h2>
           <p className="text-xs text-slate-300 mt-1 font-mono tracking-wide font-medium">
-            Autonomous Emergency Grid
+            One Voice. Four Agents. Faster Emergency Response.
           </p>
 
           <div className="mt-3 flex items-center justify-center gap-2">

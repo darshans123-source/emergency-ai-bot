@@ -44,7 +44,9 @@ export const Sidebar: React.FC = () => {
               GRID
             </span>
           </div>
-          <p className="text-xs text-slate-400 truncate">Autonomous Emergency Grid</p>
+          <p className="text-[11px] text-slate-400 truncate" title="One Voice. Four Agents. Faster Emergency Response.">
+            One Voice. Four Agents.
+          </p>
         </div>
       </div>
 
