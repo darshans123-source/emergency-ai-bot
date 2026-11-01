@@ -158,13 +158,13 @@ export const SplashPage: React.FC = () => {
   }, [isAutoLaunchPaused, isLaunching, selectedRole]);
 
   return (
-    <div className="relative min-h-screen bg-[#050811] text-slate-100 flex flex-col justify-between overflow-x-hidden select-none font-sans">
+    <div className="splash-page relative min-h-screen min-h-[100dvh] bg-[#050811] text-slate-100 flex flex-col justify-between overflow-x-hidden select-none font-sans">
       {/* Background Ambience: High-Tech Cyber Grid & Glowing Orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Glowing atmospheric gradients */}
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[140px] animate-pulse" />
-        <div className="absolute top-1/3 -right-40 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[140px]" />
-        <div className="absolute -bottom-40 left-1/3 w-[650px] h-[650px] bg-indigo-600/15 rounded-full blur-[150px]" />
+        <div className="absolute -top-40 -left-40 w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] bg-cyan-600/15 rounded-full blur-[80px] sm:blur-[140px]" />
+        <div className="hidden sm:block absolute top-1/3 -right-40 w-[550px] h-[550px] bg-blue-600/15 rounded-full blur-[140px]" />
+        <div className="hidden lg:block absolute -bottom-40 left-1/3 w-[650px] h-[650px] bg-indigo-600/15 rounded-full blur-[150px]" />
 
         {/* Tactical Matrix Grid Lines */}
         <div
@@ -177,17 +177,17 @@ export const SplashPage: React.FC = () => {
         />
 
         {/* Subtle Horizontal Scanning Line Effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.03] to-transparent h-48 w-full animate-bounce pointer-events-none opacity-40" />
+        <div className="hidden sm:block absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.03] to-transparent h-48 w-full pointer-events-none opacity-40" />
       </div>
 
       {/* Top Bar: System Status & Controls */}
-      <header className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-6 pb-2 flex items-center justify-between">
+      <header className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 p-0.5 shadow-lg shadow-cyan-500/25 flex items-center justify-center">
             <div className="w-full h-full bg-[#0a0f1d] rounded-[10px] flex items-center justify-center">
               <ShieldAlert className="w-5 h-5 text-cyan-400 stroke-[2.2]" />
             </div>
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#050811] animate-ping" />
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#050811]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -196,7 +196,7 @@ export const SplashPage: React.FC = () => {
                 v4.8
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-mono tracking-tight">AUTONOMOUS EMERGENCY GRID</p>
+            <p className="hidden sm:block text-[11px] text-slate-400 font-mono tracking-tight">AUTONOMOUS EMERGENCY GRID</p>
           </div>
         </div>
 
@@ -210,7 +210,7 @@ export const SplashPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white transition"
+            className="min-w-11 min-h-11 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white transition flex items-center justify-center" aria-label={soundEnabled ? 'Mute tactical audio cues' : 'Enable tactical audio cues'}
             title={soundEnabled ? 'Mute tactical audio cues' : 'Enable tactical audio cues'}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4" />}
@@ -219,19 +219,19 @@ export const SplashPage: React.FC = () => {
       </header>
 
       {/* Main Hero & Mission Command Section */}
-      <main className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex-1 flex flex-col justify-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex-1 flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start lg:items-center">
           {/* Left Column: Mission Overview & Launch Portal */}
           <div className="lg:col-span-7 space-y-6">
             {/* Holographic Mission Chip */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '6s' }} />
+            <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] sm:text-xs font-mono tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
               <span>SYNCHRONIZED MULTI-AGENT EMERGENCY RESPONSE</span>
             </div>
 
             {/* Main Headline */}
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
+              <h1 className="text-[2rem] leading-[1.15] sm:text-5xl lg:text-6xl sm:leading-[1.1] font-black tracking-tight text-white">
                 One Voice.{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
                   Four Agents.
@@ -239,14 +239,14 @@ export const SplashPage: React.FC = () => {
                 <br className="hidden sm:block" />
                 Faster Emergency Response.
               </h1>
-              <p className="mt-4 text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
+              <p className="mt-3 sm:mt-4 text-slate-300 text-[15px] sm:text-base max-w-2xl leading-relaxed">
                 Welcome to AegisAI Command Center. When seconds count, our specialized AI agents triage calls,
                 detect hazards, coordinate law enforcement containment, and mobilize disaster logistics simultaneously.
               </p>
             </div>
 
             {/* Quick Profile Selection */}
-            <div className="bg-slate-900/70 backdrop-blur-md border border-slate-800/90 rounded-2xl p-4 sm:p-5 shadow-xl">
+            <div className="bg-slate-900/90 sm:bg-slate-900/70 sm:backdrop-blur-md border border-slate-800/90 rounded-2xl p-4 sm:p-5 shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-cyan-400" />
@@ -263,7 +263,7 @@ export const SplashPage: React.FC = () => {
                     setSelectedRole('operator');
                     playTacticalSound(520, 'sine', 0.1);
                   }}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`min-h-[68px] p-2.5 sm:p-3 rounded-xl border text-left transition-all ${
                     selectedRole === 'operator'
                       ? 'bg-cyan-500/15 border-cyan-400/80 ring-2 ring-cyan-500/30 shadow-lg shadow-cyan-500/10'
                       : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200'
@@ -284,7 +284,7 @@ export const SplashPage: React.FC = () => {
                     setSelectedRole('admin');
                     playTacticalSound(660, 'sine', 0.1);
                   }}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`min-h-[68px] p-2.5 sm:p-3 rounded-xl border text-left transition-all ${
                     selectedRole === 'admin'
                       ? 'bg-purple-500/15 border-purple-400/80 ring-2 ring-purple-500/30 shadow-lg shadow-purple-500/10'
                       : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200'
@@ -305,7 +305,7 @@ export const SplashPage: React.FC = () => {
                     setSelectedRole('reporter');
                     playTacticalSound(440, 'sine', 0.1);
                   }}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`min-h-[68px] p-2.5 sm:p-3 rounded-xl border text-left transition-all ${
                     selectedRole === 'reporter'
                       ? 'bg-emerald-500/15 border-emerald-400/80 ring-2 ring-emerald-500/30 shadow-lg shadow-emerald-500/10'
                       : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200'
@@ -315,7 +315,7 @@ export const SplashPage: React.FC = () => {
                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
                     {selectedRole === 'reporter' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                   </div>
-                  <p className="text-xs font-bold text-white font-mono">Field Citizen</p>
+                  <p className="text-xs font-bold text-white font-mono"><span className="sm:hidden">Citizen</span><span className="hidden sm:inline">Field Citizen</span></p>
                   <p className="text-[10px] text-slate-400 mt-0.5">Report Incident</p>
                 </button>
               </div>
@@ -326,7 +326,7 @@ export const SplashPage: React.FC = () => {
                   type="button"
                   onClick={() => handleLaunch('/')}
                   disabled={isLaunching}
-                  className="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 text-white font-bold text-sm font-mono tracking-wider uppercase shadow-xl shadow-cyan-500/25 transition-all duration-200 flex items-center justify-center gap-3 group relative overflow-hidden disabled:opacity-50 cursor-pointer"
+                  className="w-full sm:flex-1 min-h-[52px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:via-blue-500 hover:to-indigo-500 text-white font-bold text-sm font-mono tracking-wider uppercase shadow-xl shadow-cyan-500/25 transition-all duration-200 flex items-center justify-center gap-3 group relative overflow-hidden disabled:opacity-50 cursor-pointer"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     {isLaunching ? (
@@ -345,7 +345,7 @@ export const SplashPage: React.FC = () => {
                 </button>
 
                 {/* Auto-launch Countdown Indicator */}
-                <div className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between sm:justify-center gap-3 text-xs font-mono">
+                <div className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between sm:justify-center gap-3 text-xs font-mono">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                     <span className="text-slate-300">
@@ -358,7 +358,7 @@ export const SplashPage: React.FC = () => {
                       setIsAutoLaunchPaused(!isAutoLaunchPaused);
                       playTacticalSound(400, 'sine', 0.08);
                     }}
-                    className="p-1 rounded text-slate-400 hover:text-white transition"
+                    className="min-w-9 min-h-9 p-2 rounded text-slate-400 hover:text-white transition flex items-center justify-center"
                     title={isAutoLaunchPaused ? 'Resume countdown' : 'Pause countdown'}
                   >
                     {isAutoLaunchPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
@@ -372,11 +372,11 @@ export const SplashPage: React.FC = () => {
               <p className="text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-2.5">
                 Quick Jump to Specialized Operations:
               </p>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleLaunch('/map')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-xs text-slate-300 hover:text-cyan-300 flex items-center gap-1.5 transition"
+                  className="min-h-11 px-3 py-2.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-xs text-slate-300 hover:text-cyan-300 flex items-center gap-1.5 transition"
                 >
                   <MapPin className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Live Geospatial Map</span>
@@ -384,7 +384,7 @@ export const SplashPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleLaunch('/tactical-3d')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/40 text-xs text-slate-300 hover:text-purple-300 flex items-center gap-1.5 transition"
+                  className="min-h-11 px-3 py-2.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/40 text-xs text-slate-300 hover:text-purple-300 flex items-center gap-1.5 transition"
                 >
                   <Box className="w-3.5 h-3.5 text-purple-400" />
                   <span>3D Tactical Twin</span>
@@ -392,7 +392,7 @@ export const SplashPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleLaunch('/report')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-xs text-slate-300 hover:text-emerald-300 flex items-center gap-1.5 transition"
+                  className="min-h-11 px-3 py-2.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/40 text-xs text-slate-300 hover:text-emerald-300 flex items-center gap-1.5 transition"
                 >
                   <FilePlus2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Report Incident</span>
@@ -400,7 +400,7 @@ export const SplashPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleLaunch('/resources')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/40 text-xs text-slate-300 hover:text-blue-300 flex items-center gap-1.5 transition"
+                  className="min-h-11 px-3 py-2.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/40 text-xs text-slate-300 hover:text-blue-300 flex items-center gap-1.5 transition"
                 >
                   <Ambulance className="w-3.5 h-3.5 text-blue-400" />
                   <span>Fleet & Resources</span>
@@ -411,7 +411,7 @@ export const SplashPage: React.FC = () => {
 
           {/* Right Column: Holographic AI Dispatch Squad Matrix */}
           <div className="lg:col-span-5">
-            <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-800/90 rounded-2xl p-5 shadow-2xl overflow-hidden">
+            <div className="relative bg-slate-900/90 sm:bg-slate-900/80 sm:backdrop-blur-xl border border-slate-800/90 rounded-2xl p-4 sm:p-5 shadow-2xl overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
                 <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ export const SplashPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('agents')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
+                    className={`min-h-9 px-3 py-2 rounded text-[11px] font-mono transition ${
                       activeTab === 'agents' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400'
                     }`}
                   >
@@ -433,7 +433,7 @@ export const SplashPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('telemetry')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
+                    className={`min-h-9 px-3 py-2 rounded text-[11px] font-mono transition ${
                       activeTab === 'telemetry' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400'
                     }`}
                   >
@@ -535,11 +535,11 @@ export const SplashPage: React.FC = () => {
       </main>
 
       {/* Footer Tactical Status Strip */}
-      <footer className="relative z-20 w-full max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-900 text-[11px] font-mono text-slate-400">
+      <footer className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-900 text-[11px] font-mono text-slate-400">
         <div className="flex items-center gap-4">
           <span className="text-slate-300">AEGIS-OS DISPATCH GRID</span>
           <span>•</span>
-          <span>ENTERPRISE GRADE EMERGENCY ORCHESTRATION</span>
+          <span className="hidden md:inline">ENTERPRISE GRADE EMERGENCY ORCHESTRATION</span>
         </div>
         <div className="text-center sm:text-right text-slate-400">
           FOR LIFE-THREATENING EMERGENCIES ALWAYS CALL 911 / 112 DIRECTLY

@@ -5,6 +5,7 @@ import { searchLocations, fetchOsrmRoute, GeocodeResult, OsrmRouteResult } from 
 import { locationService } from '../services/locationService';
 import { useNotifications } from '../context/NotificationContext';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css'; // moved here from index.html so /splash does not load map CSS
 import {
   MapPin,
   RefreshCw,
