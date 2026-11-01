@@ -91,3 +91,23 @@
   animation: radar-pulse 2s infinite;
 }
 
+
+/* Splash performance: on phones (and for reduced motion) turn off the costly
+   ping / pulse / bounce / spin animations and backdrop blur. The desktop
+   command-center look is unchanged. */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .splash-page .animate-ping,
+  .splash-page .animate-pulse,
+  .splash-page .animate-bounce,
+  .splash-page .animate-spin {
+    animation: none !important;
+  }
+  .splash-page .backdrop-blur-md,
+  .splash-page .backdrop-blur-xl {
+    backdrop-filter: none !important;
+  }
+}
+
+.splash-page {
+  -webkit-tap-highlight-color: transparent;
+}
