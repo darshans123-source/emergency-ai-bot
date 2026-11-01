@@ -5,6 +5,7 @@ import { Incident } from '../types';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { CategoryBadge } from '../components/common/CategoryBadge';
+import { Skeleton, ErrorState } from '../components/common/UiBits';
 import {
   Search,
   Filter,
@@ -25,6 +26,7 @@ export const IncidentsPage: React.FC = () => {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Filters
   const [category, setCategory] = useState('ALL');
@@ -40,6 +42,7 @@ export const IncidentsPage: React.FC = () => {
 
   const loadIncidents = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const res = await api.getIncidents({
         category: category !== 'ALL' ? category : undefined,
@@ -49,8 +52,8 @@ export const IncidentsPage: React.FC = () => {
       });
       setIncidents(res.incidents);
       setTotal(res.total);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setLoadError(err?.message || 'Could not load incidents.');
     } finally {
       setIsLoading(false);
     }
@@ -184,12 +187,15 @@ export const IncidentsPage: React.FC = () => {
         </div>
       </div>
 
+      {loadError && <ErrorState message={loadError} onRetry={loadIncidents} />}
+
       {/* Incidents Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         {isLoading ? (
-          <div className="p-16 text-center text-sm text-slate-500">
-            <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
-            Loading incidents...
+          <div className="p-5 space-y-3">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-14" />
+            ))}
           </div>
         ) : incidents.length === 0 ? (
           <div className="p-16 text-center text-sm text-slate-500">

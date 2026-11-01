@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNotifications } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { Incident } from '../../types';
 import { PriorityBadge } from '../common/PriorityBadge';
 import { StatusBadge } from '../common/StatusBadge';
 import {
   Bell,
+  Menu,
+  ShieldCheck,
+  LogOut,
+  User as UserIcon,
+  RefreshCw,
   Search,
   X,
   ExternalLink,
@@ -20,8 +26,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { MultilingualVoiceModal } from '../common/MultilingualVoiceModal';
 
-export const Navbar: React.FC = () => {
-  const { notifications, unreadCount, isConnected, markAsRead, markAllAsRead } = useNotifications();
+export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobileMenu }) => {
+  const { notifications, unreadCount, isConnected, wsStatus, wsAttempts, retryConnection, markAsRead, markAllAsRead } = useNotifications();
+  const { localProfile, user, logout, logoutLocal } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // Multilingual Voice Assistant Modal State
@@ -55,6 +64,9 @@ export const Navbar: React.FC = () => {
       }
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -285,26 +297,55 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-20 gap-4">
-      {/* Left: Connection Status */}
-      <div className="flex items-center gap-3 shrink-0">
+    <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 gap-2 sm:gap-4">
+      {/* Left: menu (mobile) + brand + live-link status */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-11 min-h-11 flex items-center justify-center"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="hidden sm:flex items-center gap-2 shrink-0"
+          title="AegisAI Command Center"
+        >
+          <span className="w-8 h-8 rounded-lg bg-[#101C35] flex items-center justify-center text-white">
+            <ShieldCheck className="w-4 h-4" />
+          </span>
+          <span className="font-bold text-[#172033] tracking-tight">AegisAI</span>
+        </button>
         <div className="flex items-center gap-2">
           {isConnected ? (
             <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>System Online</span>
+              <span className="hidden sm:inline">System Online</span>
+              <span className="sm:hidden">Online</span>
+            </span>
+          ) : wsStatus === 'unavailable' ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span className="hidden sm:inline">Live link unavailable</span>
+              <span className="sm:hidden">Offline</span>
+              <button type="button" onClick={retryConnection} className="ml-1 inline-flex items-center gap-1 text-[#2563EB] font-semibold" title="Retry live link">
+                <RefreshCw className="w-3 h-3" /> Retry
+              </button>
             </span>
           ) : (
             <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>Reconnecting...</span>
+              <span>Reconnecting{wsAttempts > 0 ? ` (${wsAttempts}/5)` : ''}…</span>
             </span>
           )}
         </div>
       </div>
 
       {/* Center: Global Search Bar */}
-      <div className="relative flex-1 max-w-lg mx-auto" ref={searchContainerRef}>
+      <div className="relative flex-1 max-w-lg mx-auto min-w-0" ref={searchContainerRef}>
         <div className="relative flex items-center">
           <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
           <input
@@ -551,6 +592,51 @@ export const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+
+        {/* Profile + Logout */}
+        <div className="relative" ref={profileRef}>
+          <button
+            type="button"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-2 p-1.5 pr-2 rounded-lg text-slate-700 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-11"
+            aria-label="Profile menu"
+          >
+            <span className="w-8 h-8 rounded-full bg-[#101C35] text-white flex items-center justify-center shrink-0">
+              <UserIcon className="w-4 h-4" />
+            </span>
+            <span className="hidden md:block text-left leading-tight">
+              <span className="block text-xs font-semibold truncate max-w-[120px]">{localProfile?.name || user?.name || 'Command User'}</span>
+              <span className="block text-[11px] text-slate-500">Profile</span>
+            </span>
+          </button>
+          {isProfileOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-slate-800">
+              <div className="px-4 py-3 border-b border-slate-100">
+                <p className="text-sm font-semibold text-[#172033] truncate">{localProfile?.name || user?.name}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{localProfile ? 'Local prototype profile' : user?.organization}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setIsProfileOpen(false); navigate('/settings'); }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
+              >
+                Settings
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try { await logout(); } catch { /* best-effort */ }
+                  logoutLocal();
+                  setIsProfileOpen(false);
+                  navigate('/login', { replace: true });
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
+            </div>
+          )}
+        </div>
 
       {/* Multilingual Voice Assistant Modal */}
       <MultilingualVoiceModal

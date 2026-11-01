@@ -33,9 +33,35 @@ function getAuthHeaders(): HeadersInit {
   return headers;
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const headers = { ...getAuthHeaders(), ...(options.headers || {}) };
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+/**
+ * All API calls time out instead of hanging forever. A timeout used to leave
+ * pages on "Loading..." with no way out; now callers get a real error they
+ * can show with a Retry button. Default 15s; callers may pass a longer
+ * timeout via options (not part of the fetch spec, so it is stripped here).
+ */
+async function request<T>(
+  endpoint: string,
+  options: RequestInit & { timeoutMs?: number } = {}
+): Promise<T> {
+  const { timeoutMs = 15000, signal: callerSignal, ...rest } = options;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  if (callerSignal) {
+    if (callerSignal.aborted) controller.abort();
+    else callerSignal.addEventListener('abort', () => controller.abort(), { once: true });
+  }
+  const headers = { ...getAuthHeaders(), ...(rest.headers || {}) };
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, { ...rest, headers, signal: controller.signal });
+  } catch (err: any) {
+    clearTimeout(timer);
+    if (err?.name === 'AbortError' && !callerSignal?.aborted) {
+      throw new Error('Request timed out. Check your connection and retry.');
+    }
+    throw err;
+  }
+  clearTimeout(timer);
 
   if (!res.ok) {
     let errorMsg = `API Error ${res.status}: ${res.statusText}`;

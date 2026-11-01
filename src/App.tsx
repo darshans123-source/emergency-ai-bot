@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { SplashPage } from './pages/SplashPage';
+import { LocalLoginPage } from './pages/LocalLoginPage';
+import { CommandCenterPage } from './pages/CommandCenterPage';
+import { MissionHistoryPage } from './pages/MissionHistoryPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 // Heavy pages are lazy-loaded so the splash screen's first load stays small
 // and fast on mobile. They are only downloaded when the user actually opens them.
@@ -33,10 +37,12 @@ const Tactical3DPage = lazy(() =>
 );
 
 const PageLoading: React.FC = () => (
-  <div className="h-screen w-screen flex items-center justify-center bg-[#111827] text-slate-300 font-mono text-xs">
-    <div className="flex items-center gap-2">
-      <div className="w-3 h-3 rounded-full bg-cyan-500 animate-ping" />
-      <span>INITIALIZING DISPATCH CONSOLE...</span>
+  <div className="min-h-[100dvh] w-full flex items-center justify-center bg-[#F5F7FB] text-[#64748B] text-sm">
+    <div className="flex flex-col items-center gap-3 px-4 text-center">
+      <div className="w-10 h-10 rounded-2xl bg-[#101C35] text-white flex items-center justify-center animate-pulse">
+        <span className="font-bold">A</span>
+      </div>
+      <span>Loading AegisAI…</span>
     </div>
   </div>
 );
@@ -58,10 +64,16 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRoles?: stri
   return <>{children}</>;
 };
 
+/**
+ * The shell is gated on the local prototype profile, not on the old
+ * always-present default backend user. Without a local session the user
+ * is sent to /login; the splash is only an initial-load route, never a
+ * gate that reappears on every navigation.
+ */
 const RootLayout: React.FC = () => {
-  const hasSeenSplash = sessionStorage.getItem('aegis_splash_dismissed') === 'true';
-  if (!hasSeenSplash) {
-    return <Navigate to="/splash" replace />;
+  const { localProfile } = useAuth();
+  if (!localProfile) {
+    return <Navigate to="/login" replace />;
   }
   return <AppLayout />;
 };
@@ -73,18 +85,20 @@ export default function App() {
         <NotificationProvider>
           <Suspense fallback={<PageLoading />}>
             <Routes>
-              {/* High-Tech Tactical Splash Screen */}
+              {/* Premium splash — initial load only */}
               <Route path="/splash" element={<SplashPage />} />
 
-              {/* Seamless redirects for legacy login and register URLs */}
-              <Route path="/login" element={<Navigate to="/splash" replace />} />
-              <Route path="/register" element={<Navigate to="/splash" replace />} />
+              {/* Local prototype login: Full Name + 4-digit PIN */}
+              <Route path="/login" element={<LocalLoginPage />} />
+              <Route path="/register" element={<Navigate to="/login" replace />} />
 
               {/* Main Application Layout */}
               <Route path="/" element={<RootLayout />}>
-                <Route index element={<DashboardPage />} />
+                <Route index element={<CommandCenterPage />} />
                 <Route path="dashboard" element={<Navigate to="/" replace />} />
-                <Route path="agents" element={<Navigate to="/" replace />} />
+                {/* AI Agents: the full existing agent hub (chat, charts, voice)
+                    is preserved here, reached from the new agent cards. */}
+                <Route path="agents" element={<DashboardPage />} />
                 <Route path="agents/:agentId" element={<DashboardPage />} />
                 <Route path="incidents" element={<IncidentsPage />} />
                 <Route path="incidents/:id" element={<IncidentDetailsPage />} />
@@ -92,6 +106,8 @@ export default function App() {
                 <Route path="map" element={<LiveMapPage />} />
                 <Route path="tactical-3d" element={<Tactical3DPage />} />
                 <Route path="resources" element={<ResourcesPage />} />
+                <Route path="history" element={<MissionHistoryPage />} />
+                <Route path="settings" element={<SettingsPage />} />
                 <Route
                   path="admin"
                   element={
