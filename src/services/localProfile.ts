@@ -150,3 +150,41 @@ export async function verifyLocalProfile(name: string, pin: string): Promise<Loc
   if (hash !== profile.pinHash) throw new Error('Incorrect PIN for this profile.');
   return profile;
 }
+
+export async function renameLocalProfile(profileId: string, newName: string): Promise<LocalProfile> {
+  const nameError = validateName(newName);
+  if (nameError) throw new Error(nameError);
+  const profiles = readProfiles();
+  const profile = profiles.find((p) => p.id === profileId);
+  if (!profile) throw new Error('Profile not found.');
+  if (profiles.some((p) => p.id !== profileId && p.name.toLowerCase() === newName.trim().toLowerCase())) {
+    throw new Error('Another profile already uses this name.');
+  }
+  profile.name = newName.trim();
+  writeProfiles(profiles);
+  const session = readSession();
+  if (session?.profileId === profileId) {
+    writeSession({ ...session, name: profile.name });
+  }
+  return profile;
+}
+
+export async function changeLocalPin(
+  profileId: string,
+  oldPin: string,
+  newPin: string,
+  confirmPin: string
+): Promise<void> {
+  const pinError = validatePin(newPin);
+  if (pinError) throw new Error(pinError);
+  if (newPin !== confirmPin) throw new Error('New PINs do not match.');
+  const profiles = readProfiles();
+  const profile = profiles.find((p) => p.id === profileId);
+  if (!profile) throw new Error('Profile not found.');
+  const oldHash = await hashPin(oldPin, profile.salt);
+  if (oldHash !== profile.pinHash) throw new Error('Current PIN is incorrect.');
+  const salt = newSalt();
+  profile.salt = salt;
+  profile.pinHash = await hashPin(newPin, salt);
+  writeProfiles(profiles);
+}

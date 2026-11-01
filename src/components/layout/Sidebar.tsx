@@ -11,6 +11,7 @@ import {
   Bot,
   History,
   Settings,
+  User,
   Box,
   LogOut,
   ChevronsLeft,
@@ -36,7 +37,8 @@ const NAV_ITEMS = [
   { to: '/resources', label: 'Fleet & Resources', icon: Ambulance, end: false },
   { to: '/agents', label: 'AI Agents', icon: Bot, end: false },
   { to: '/history', label: 'Mission History', icon: History, end: false },
-  { to: '/settings', label: 'Settings', icon: Settings, end: false }
+  { to: '/settings', label: 'Settings', icon: Settings, end: false },
+  { to: '/profile', label: 'User Profile', icon: User, end: false }
 ];
 
 interface SidebarProps {
@@ -67,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const renderBody = (isDrawer: boolean) => (
-    <div className="flex flex-col h-full bg-[#101C35] text-slate-300">
+    <div className="flex flex-col h-full bg-[#101B33] text-slate-300">
       <div className="p-4 border-b border-white/10 flex items-center gap-3">
         <NavLink to="/" onClick={onCloseMobile} title="Command Center" className="shrink-0">
           <AegisEmblem size="md" />

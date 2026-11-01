@@ -851,8 +851,9 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     const openAiKey = process.env.OPENAI_API_KEY?.trim();
 
-    // 1. Try Gemini API with supported model and strict 5-second timeout
-    if (geminiKey) {
+    // 1. OpenAI takes precedence when configured (see OpenAI block below).
+    //    Gemini is only tried when no OpenAI key is set.
+    if (geminiKey && !openAiKey) {
       const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
       try {
         const ai = new GoogleGenAI({

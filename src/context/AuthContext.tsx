@@ -9,7 +9,9 @@ import {
   writeSession,
   clearSession,
   createLocalProfile,
-  verifyLocalProfile
+  verifyLocalProfile,
+  renameLocalProfile,
+  changeLocalPin
 } from '../services/localProfile';
 import {
   auth,
@@ -75,6 +77,8 @@ interface AuthContextType {
   loginLocal: (name: string, pin: string, rememberMe: boolean) => Promise<void>;
   createLocal: (name: string, pin: string, confirmPin: string, rememberMe: boolean) => Promise<void>;
   logoutLocal: () => void;
+  renameLocal: (newName: string) => Promise<void>;
+  changeLocalPin: (oldPin: string, newPin: string, confirmPin: string) => Promise<void>;
   refreshLocalProfiles: () => void;
 }
 
@@ -249,6 +253,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logoutLocal = () => {
     clearSession();
     setLocalSession(null);
+  };
+
+  const renameLocal = async (newName: string) => {
+    if (!localProfile) throw new Error('No active local profile.');
+    const updated = await renameLocalProfile(localProfile.id, newName);
+    setLocalProfiles(readProfiles());
+    setLocalSession(readSession());
+    setUser((prev) => ({ ...prev, name: updated.name }));
+  };
+
+  const changeLocalPinFn = async (oldPin: string, newPin: string, confirmPin: string) => {
+    if (!localProfile) throw new Error('No active local profile.');
+    await changeLocalPin(localProfile.id, oldPin, newPin, confirmPin);
   };
 
   const hasRole = (allowedRoles: UserRole[]): boolean => {

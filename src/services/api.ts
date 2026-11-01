@@ -322,6 +322,48 @@ export const api = {
   markAllNotificationsRead: () =>
     request<{ success: boolean }>('/notifications/read-all', { method: 'POST' }),
 
+  // Health — lightweight, used to tell a real backend failure apart from a blank page
+  getHealth: () => request<{ status: string; system?: string; timestamp?: string }>('/health'),
+
+  // OpenAI (server-side only — no key ever reaches the frontend)
+  openaiChat: (data: { agent: string; message: string; history?: Array<{ role: 'user' | 'agent'; content: string }>; incidentId?: string | null }) =>
+    request<{ agent: string; agentName: string; reply: string; provider: string; timestamp: string }>('/ai/openai', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  summarize: (data: { incidentId?: string; text?: string; task?: 'summary' | 'analysis' | 'recommendations' }) =>
+    request<{ task: string; summary: string; incidentId: string | null; provider: string }>('/ai/summarize', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  searchAI: (query: string) =>
+    request<{ query: string; total: number; incidents: Incident[]; summary: string | null; summaryNotice: string | null }>('/ai/search', {
+      method: 'POST',
+      body: JSON.stringify({ query })
+    }),
+
+  speak: async (text: string): Promise<Blob> => {
+    const token = localStorage.getItem('er_token');
+    const res = await fetch('/api/ai/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) {
+      let msg = `Speech failed (${res.status})`;
+      try {
+        const j = await res.json();
+        if (j.message) msg = j.message;
+      } catch {
+        // ignore
+      }
+      throw new Error(msg);
+    }
+    return res.blob();
+  },
+
   // Dashboard
   getDashboardSummary: () => request<DashboardSummary>('/dashboard/summary'),
 

@@ -8,6 +8,9 @@ import { LocalLoginPage } from './pages/LocalLoginPage';
 import { CommandCenterPage } from './pages/CommandCenterPage';
 import { MissionHistoryPage } from './pages/MissionHistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { AgentsPage } from './pages/AgentsPage';
+import { AgentChatPage } from './pages/AgentChatPage';
 
 // Heavy pages are lazy-loaded so the splash screen's first load stays small
 // and fast on mobile. They are only downloaded when the user actually opens them.
@@ -96,10 +99,11 @@ export default function App() {
               <Route path="/" element={<RootLayout />}>
                 <Route index element={<CommandCenterPage />} />
                 <Route path="dashboard" element={<Navigate to="/" replace />} />
-                {/* AI Agents: the full existing agent hub (chat, charts, voice)
-                    is preserved here, reached from the new agent cards. */}
-                <Route path="agents" element={<DashboardPage />} />
-                <Route path="agents/:agentId" element={<DashboardPage />} />
+                {/* AI Agents: new Rakshak / Jeevan / Agni / Sanrakshak hub + chat.
+                    The older specialised-agent hub is preserved at /agents/legacy/:agentId. */}
+                <Route path="agents" element={<AgentsPage />} />
+                <Route path="agents/:slug" element={<AgentChatPage />} />
+                <Route path="agents/legacy/:agentId" element={<DashboardPage />} />
                 <Route path="incidents" element={<IncidentsPage />} />
                 <Route path="incidents/:id" element={<IncidentDetailsPage />} />
                 <Route path="report" element={<ReportIncidentPage />} />
@@ -108,6 +112,7 @@ export default function App() {
                 <Route path="resources" element={<ResourcesPage />} />
                 <Route path="history" element={<MissionHistoryPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="profile" element={<ProfilePage />} />
                 <Route
                   path="admin"
                   element={

@@ -64,18 +64,7 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
 
-  if (geminiKey) {
-    const configuredModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
-    return {
-      provider: 'gemini',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `Gemini AI Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
+  // OpenAI takes precedence when OPENAI_API_KEY is set (user-requested provider).
   if (openAiKey) {
     const configuredModel = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
     return {
@@ -84,6 +73,18 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
       isExternalConfigured: true,
       status: 'Online',
       message: `OpenAI Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
+
+  if (geminiKey) {
+    const configuredModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
+    return {
+      provider: 'gemini',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `Gemini AI Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
       supportedLanguages: SUPPORTED_LANGUAGES
     };
   }

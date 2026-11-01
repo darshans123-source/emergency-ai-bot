@@ -75,6 +75,13 @@ export const SettingsPage: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => navigate('/profile')}
+            className="min-h-11 px-4 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-[#172033] hover:bg-slate-50"
+          >
+            Edit Profile
+          </button>
+          <button
+            type="button"
             onClick={handleLogout}
             className="min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 inline-flex items-center gap-2"
           >

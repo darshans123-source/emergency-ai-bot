@@ -314,7 +314,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           className="hidden sm:flex items-center gap-2 shrink-0"
           title="AegisAI Command Center"
         >
-          <span className="w-8 h-8 rounded-lg bg-[#101C35] flex items-center justify-center text-white">
+          <span className="w-8 h-8 rounded-lg bg-[#101B33] flex items-center justify-center text-white">
             <ShieldCheck className="w-4 h-4" />
           </span>
           <span className="font-bold text-[#172033] tracking-tight">AegisAI</span>
@@ -601,7 +601,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             className="flex items-center gap-2 p-1.5 pr-2 rounded-lg text-slate-700 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-11"
             aria-label="Profile menu"
           >
-            <span className="w-8 h-8 rounded-full bg-[#101C35] text-white flex items-center justify-center shrink-0">
+            <span className="w-8 h-8 rounded-full bg-[#101B33] text-white flex items-center justify-center shrink-0">
               <UserIcon className="w-4 h-4" />
             </span>
             <span className="hidden md:block text-left leading-tight">
@@ -615,6 +615,13 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                 <p className="text-sm font-semibold text-[#172033] truncate">{localProfile?.name || user?.name}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{localProfile ? 'Local prototype profile' : user?.organization}</p>
               </div>
+              <button
+                type="button"
+                onClick={() => { setIsProfileOpen(false); navigate('/profile'); }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
+              >
+                User Profile
+              </button>
               <button
                 type="button"
                 onClick={() => { setIsProfileOpen(false); navigate('/settings'); }}
