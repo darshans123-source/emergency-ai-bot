@@ -584,6 +584,218 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
+// -------------------------------------------------------------
+// OPENAI-ONLY ENDPOINTS (server-side only)
+// -------------------------------------------------------------
+// The OpenAI key is read only from process.env.OPENAI_API_KEY on the
+// server. It is never sent to, or read from, the frontend, never put in
+// a VITE_ variable, and never committed. When the key is missing the
+// endpoints return a clear 503 — never a fake success and never a
+// response pretending to be OpenAI.
+
+const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
+  rakshak: {
+    name: 'Rakshak AI',
+    system:
+      'You are Rakshak AI, a police and public safety assistant. Give calm, practical, lawful guidance for police incidents, accident reporting, public safety and response recommendations. Never claim a unit has been dispatched unless the incident context says so. For life-threatening emergencies, always advise calling 112 / 911 immediately.'
+  },
+  jeevan: {
+    name: 'Jeevan AI',
+    system:
+      'You are Jeevan AI, a medical and ambulance assistance assistant. Give first-aid and medical emergency guidance, help the caller find nearby hospitals, and explain what information dispatch needs. This is decision support only, not a diagnosis. For life-threatening emergencies, always advise calling 112 / 911 immediately.'
+  },
+  agni: {
+    name: 'Agni AI',
+    system:
+      'You are Agni AI, a fire and rescue operations assistant. Give fire safety, evacuation, fire incident reporting and rescue coordination guidance. Never claim a fire unit has been dispatched unless the incident context says so. For an active fire, always advise leaving the building, calling 112 / 911, and not re-entering.'
+  },
+  sanrakshak: {
+    name: 'Sanrakshak AI',
+    system:
+      'You are Sanrakshak AI, a disaster management assistant for floods, natural disasters, water and power disruptions and mass safety. Give preparedness, evacuation, shelter and public safety guidance based on the incident context. For life-threatening situations, always advise calling 112 / 911 immediately.'
+  }
+};
+
+async function callOpenAIChat(
+  system: string,
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+): Promise<string> {
+  const key = process.env.OPENAI_API_KEY?.trim();
+  if (!key) {
+    const err: any = new Error('OpenAI is not configured on the server. Set OPENAI_API_KEY in the server environment.');
+    err.status = 503;
+    throw err;
+  }
+  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'system', content: system }, ...messages],
+        temperature: 0.3
+      })
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      const err: any = new Error(`OpenAI request failed (${response.status}). ${body.slice(0, 200)}`);
+      err.status = 502;
+      throw err;
+    }
+    const data: any = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content || !content.trim()) throw new Error('OpenAI returned an empty response.');
+    return content.trim();
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function openaiError(res: Response, err: any) {
+  const status = err?.status || 502;
+  res.status(status).json({
+    error: status === 503 ? 'OpenAI Not Configured' : 'OpenAI Error',
+    message: err?.message || 'OpenAI request failed.'
+  });
+}
+
+// Dedicated OpenAI chat for the four named agents (Rakshak / Jeevan / Agni / Sanrakshak)
+apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) => {
+  const { agent, message, history, incidentId } = req.body || {};
+  const key = (typeof agent === 'string' ? agent.toLowerCase() : '') as keyof typeof OPENAI_AGENTS;
+  const agentDef = OPENAI_AGENTS[key];
+  if (!agentDef || !message || typeof message !== 'string' || !message.trim()) {
+    res.status(400).json({ error: 'Validation Error', message: 'A valid agent (rakshak, jeevan, agni, sanrakshak) and a non-empty message are required.' });
+    return;
+  }
+  try {
+    const incident = incidentId ? dbService.getIncidentById(incidentId) : null;
+    const context = incident
+      ? `Live incident context from the database (do not invent details beyond this): ${incident.id}, ${incident.title}, category ${incident.category}, priority ${incident.priority}, status ${incident.status}, location ${incident.location.address}, description: ${incident.description}.`
+      : 'No specific incident is selected. Answer generally and ask for location/category if needed to help.';
+    const reply = await callOpenAIChat(agentDef.system, [
+      ...(Array.isArray(history) ? history.slice(-6).map((m: any) => ({ role: m.role === 'user' ? ('user' as const) : ('assistant' as const), content: String(m.content || '').slice(0, 500) })) : []),
+      { role: 'user' as const, content: `${context}\n\nUser message: ${message.trim()}` }
+    ]);
+    res.json({ agent: key, agentName: agentDef.name, reply, provider: 'openai', timestamp: new Date().toISOString() });
+  } catch (err: any) {
+    openaiError(res, err);
+  }
+});
+
+// Emergency report summarization / incident analysis / recommendations (OpenAI only)
+apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response) => {
+  const { incidentId, text, task } = req.body || {};
+  const input = incidentId ? dbService.getIncidentById(incidentId) : null;
+  const sourceText = input
+    ? `${input.title}. Category: ${input.category}. Priority: ${input.priority}. Status: ${input.status}. Location: ${input.location.address}. Description: ${input.description}.`
+    : typeof text === 'string' && text.trim()
+      ? text.trim()
+      : '';
+  if (!sourceText) {
+    res.status(400).json({ error: 'Validation Error', message: 'An incidentId or text to summarize is required.' });
+    return;
+  }
+  const taskText =
+    task === 'analysis'
+      ? 'Analyse this emergency report: list the key facts, risks, missing information and what a dispatcher should verify next.'
+      : task === 'recommendations'
+        ? 'Give practical emergency response recommendations for this report: which response units and facilities are relevant, and what the caller should do now. Do not claim any unit has been dispatched.'
+        : 'Summarize this emergency report in 3-5 short, clear sentences for a dispatcher.';
+  try {
+    const reply = await callOpenAIChat(
+      'You are an emergency dispatch assistant. Be concise, factual and calm. Never invent locations, units, times or outcomes. State when information is missing.',
+      [{ role: 'user', content: `${taskText}\n\nReport: ${sourceText.slice(0, 4000)}` }]
+    );
+    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: 'openai' });
+  } catch (err: any) {
+    openaiError(res, err);
+  }
+});
+
+// Natural-language incident search: real DB search + optional OpenAI summary
+apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) => {
+  const { query } = req.body || {};
+  if (!query || typeof query !== 'string' || !query.trim()) {
+    res.status(400).json({ error: 'Validation Error', message: 'A search query is required.' });
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  const matches = dbService
+    .getIncidents()
+    .filter((inc) =>
+      [inc.id, inc.title, inc.description, inc.location.address, inc.category, inc.priority, inc.status]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    )
+    .slice(0, 20);
+  let summary: string | null = null;
+  let summaryNotice: string | null = null;
+  if (matches.length > 0 && process.env.OPENAI_API_KEY?.trim()) {
+    try {
+      summary = await callOpenAIChat(
+        'You are an emergency dispatch assistant. Summarize search results factually, without inventing incidents.',
+        [
+          {
+            role: 'user',
+            content: `Summarize these ${matches.length} matching incidents in 2-3 sentences, noting the most urgent one first if any: ${matches
+              .map((m) => `${m.id}: ${m.title} (${m.category}, ${m.priority}, ${m.status}, ${m.location.address})`)
+              .join('; ')}`
+          }
+        ]
+      );
+    } catch {
+      summaryNotice = 'AI summary unavailable: OpenAI request failed. Matches below are from the live database.';
+    }
+  } else if (!process.env.OPENAI_API_KEY?.trim()) {
+    summaryNotice = 'AI summary unavailable: OpenAI is not configured on the server. Matches below are from the live database.';
+  }
+  res.json({ query: query.trim(), total: matches.length, incidents: matches, summary, summaryNotice });
+});
+
+// OpenAI text-to-speech (server-side only, returns audio/mpeg)
+apiRouter.post('/ai/tts', async (req: AuthenticatedRequest, res: Response) => {
+  const { text, voice } = req.body || {};
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    res.status(400).json({ error: 'Validation Error', message: 'Text to speak is required.' });
+    return;
+  }
+  const key = process.env.OPENAI_API_KEY?.trim();
+  if (!key) {
+    res.status(503).json({ error: 'OpenAI Not Configured', message: 'OpenAI is not configured on the server. Set OPENAI_API_KEY in the server environment.' });
+    return;
+  }
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: process.env.OPENAI_TTS_MODEL?.trim() || 'tts-1',
+        input: text.trim().slice(0, 4000),
+        voice: typeof voice === 'string' && voice ? voice : 'alloy'
+      })
+    });
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      res.status(502).json({ error: 'OpenAI Error', message: `OpenAI speech request failed (${response.status}).` });
+      return;
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.send(buffer);
+  } catch (err: any) {
+    openaiError(res, err);
+  }
+});
+
 // Voice-based incident report creation (POST /api/ai/voice-report)
 apiRouter.post('/ai/voice-report', async (req: AuthenticatedRequest, res: Response) => {
   let { title, category, description, address, casualtiesCount, priority, language = 'en', transcript, agentId, userLocation, latitude, longitude } = req.body || {};

@@ -27,6 +27,12 @@ export const IncidentsPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiResults, setAiResults] = useState<Incident[] | null>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [aiSearching, setAiSearching] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Filters
   const [category, setCategory] = useState('ALL');
@@ -188,6 +194,60 @@ export const IncidentsPage: React.FC = () => {
       </div>
 
       {loadError && <ErrorState message={loadError} onRetry={loadIncidents} />}
+
+      {/* Natural-language AI search (server-side OpenAI summary, real DB matches) */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!aiQuery.trim()) return;
+            setAiSearching(true);
+            setAiError(null);
+            setAiSummary(null);
+            setAiNotice(null);
+            try {
+              const res = await api.searchAI(aiQuery.trim());
+              setAiResults(res.incidents);
+              setAiSummary(res.summary);
+              setAiNotice(res.summaryNotice);
+            } catch (err: any) {
+              setAiError(err?.message || 'AI search failed.');
+              setAiResults(null);
+            } finally {
+              setAiSearching(false);
+            }
+          }}
+          className="flex flex-col sm:flex-row gap-2"
+        >
+          <input
+            type="text"
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            placeholder="Ask in plain words, e.g. “fire incidents in downtown” or “critical accidents”"
+            className="flex-1 min-w-0 min-h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-sm text-[#172033] placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100"
+          />
+          <button type="submit" disabled={aiSearching} className="min-h-11 px-5 rounded-xl bg-[#101B33] text-white text-sm font-semibold hover:bg-[#2563EB] disabled:opacity-50 shrink-0">
+            {aiSearching ? 'Searching…' : 'AI Search'}
+          </button>
+        </form>
+        {aiError && <p className="mt-2 text-sm text-red-600">{aiError}</p>}
+        {aiNotice && <p className="mt-2 text-xs text-amber-700">{aiNotice}</p>}
+        {aiSummary && <p className="mt-2 text-sm text-[#172033] bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-3">{aiSummary}</p>}
+        {aiResults !== null && (
+          <div className="mt-3">
+            <p className="text-xs font-semibold text-[#64748B] mb-2">{aiResults.length} match(es) from the live database</p>
+            <ul className="space-y-1">
+              {aiResults.map((inc) => (
+                <li key={inc.id}>
+                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left text-sm text-[#2563EB] hover:underline">
+                    {inc.id} — {inc.title} ({inc.category}, {inc.priority})
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* Incidents Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">

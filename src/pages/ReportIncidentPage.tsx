@@ -48,6 +48,9 @@ export const ReportIncidentPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdIncidentId, setCreatedIncidentId] = useState<string | null>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiSummaryError, setAiSummaryError] = useState<string | null>(null);
+  const [aiSummarizing, setAiSummarizing] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   // Leaflet Mini Map Ref
@@ -643,6 +646,36 @@ export const ReportIncidentPage: React.FC = () => {
                 className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-900"
               />
             </div>
+          </div>
+
+          {/* AI summarization (server-side OpenAI, optional, before submit) */}
+          <div className="border-t border-slate-200 pt-6">
+            <button
+              type="button"
+              disabled={aiSummarizing || !description.trim()}
+              onClick={async () => {
+                setAiSummarizing(true);
+                setAiSummaryError(null);
+                try {
+                  const res = await api.summarize({ text: `${title}. ${description}. Location: ${address || 'not provided'}.`, task: 'summary' });
+                  setAiSummary(res.summary);
+                } catch (err: any) {
+                  setAiSummaryError(err?.message || 'AI summarization failed.');
+                } finally {
+                  setAiSummarizing(false);
+                }
+              }}
+              className="min-h-11 px-4 rounded-xl bg-[#101B33] text-white text-sm font-semibold hover:bg-[#2563EB] disabled:opacity-50 transition"
+            >
+              {aiSummarizing ? 'Summarizing…' : 'Summarize Report with AI'}
+            </button>
+            {aiSummaryError && <p className="mt-2 text-sm text-red-600">{aiSummaryError}</p>}
+            {aiSummary && (
+              <div className="mt-3 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-[#172033]">
+                <p className="font-semibold mb-1">AI Summary (for review — not submitted automatically)</p>
+                <p>{aiSummary}</p>
+              </div>
+            )}
           </div>
 
           {/* Submit Action */}

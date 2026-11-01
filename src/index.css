@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Premium AegisAI theme: Primary Navy #101C35, Deep Navy #091426,
+/* Premium AegisAI theme: Primary Navy #101B33, Deep Navy #101B33,
    Primary Blue #2563EB, Accent Cyan #06B6D4, Background #F5F7FB,
    Text #172033, Secondary Text #64748B. Typography: Inter. */
 @layer base {
@@ -118,4 +118,9 @@
 
 .splash-page {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile-first helpers for this redesign */
+@media (max-width: 640px) {
+  .overflow-x-auto table { min-width: 640px; }
 }

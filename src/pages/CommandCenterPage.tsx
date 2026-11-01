@@ -43,17 +43,30 @@ export const CommandCenterPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [backendHealth, setBackendHealth] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [backendError, setBackendError] = useState<string | null>(null);
+  const [activityIncidents, setActivityIncidents] = useState<Incident[]>([]);
 
   const load = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [sumRes, agentRes, incRes, resRes] = await Promise.allSettled([
+      const [sumRes, agentRes, incRes, resRes, healthRes, actRes] = await Promise.allSettled([
         api.getDashboardSummary(),
         api.getSpecializedAgents(),
         api.getIncidents({ limit: 8 }),
-        api.getResources()
+        api.getResources(),
+        api.getHealth(),
+        api.getDashboardActivity()
       ]);
+      if (healthRes.status === 'fulfilled') {
+        setBackendHealth('online');
+        setBackendError(null);
+      } else {
+        setBackendHealth('offline');
+        setBackendError(healthRes.reason?.message || 'Backend health check failed.');
+      }
+      if (actRes.status === 'fulfilled') setActivityIncidents(actRes.value.recentIncidents || []);
       if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
       if (agentRes.status === 'fulfilled') setAgents(agentRes.value || []);
       if (incRes.status === 'fulfilled') setIncidents(incRes.value.incidents || []);
@@ -89,7 +102,7 @@ export const CommandCenterPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Hero */}
-      <section className="bg-[#101C35] rounded-2xl p-6 sm:p-8 text-white shadow-sm overflow-hidden">
+      <section className="bg-[#101B33] rounded-2xl p-6 sm:p-8 text-white shadow-sm overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
@@ -106,7 +119,7 @@ export const CommandCenterPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/report')}
-            className="shrink-0 min-h-12 px-5 rounded-xl bg-[#DC2626] hover:bg-red-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+            className="shrink-0 min-h-12 px-5 rounded-xl bg-[#E53935] hover:bg-red-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
           >
             <FilePlus2 className="w-4 h-4" />
             Report Emergency
@@ -205,6 +218,66 @@ export const CommandCenterPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Backend health — separate from the WebSocket live link */}
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[#172033]">
+              Backend API: {backendHealth === 'checking' ? 'Checking…' : backendHealth === 'online' ? 'Online' : 'Unavailable'}
+            </p>
+            <p className="text-xs text-[#64748B] mt-0.5">
+              {backendHealth === 'offline'
+                ? `The live API did not answer the health check${backendError ? `: ${backendError}` : ''}. This is a deployment/backend issue, not an empty dashboard — check the Vercel function logs for the /api function.`
+                : 'Checked against /api/health. Live incident data below comes from the same backend.'}
+            </p>
+          </div>
+          {backendHealth === 'offline' && (
+            <button type="button" onClick={load} className="min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold shrink-0">
+              Retry Backend
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* Emergency category distribution — real summary counts only */}
+      {summary && (
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h2 className="font-bold text-[#172033]">Emergency Category Distribution</h2>
+          <p className="text-sm text-[#64748B] mt-1">Counts from the live dashboard summary, by incident category.</p>
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+            {Object.entries(summary.categoryCounts).map(([cat, count]) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => navigate(`/incidents?category=${cat}`)}
+                className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-left hover:border-[#2563EB] transition"
+              >
+                <p className="text-2xl font-extrabold text-[#172033]">{count}</p>
+                <p className="text-[11px] font-medium text-[#64748B] break-words mt-0.5">{cat.replace(/_/g, ' ')}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Live incident activity — real recent incidents from /dashboard/activity */}
+      {activityIncidents.length > 0 && (
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h2 className="font-bold text-[#172033]">Live Incident Activity</h2>
+          <ul className="mt-3 space-y-2">
+            {activityIncidents.map((inc) => (
+              <li key={inc.id} className="flex items-center justify-between gap-3 text-sm">
+                <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
+                  <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
+                  <span className="ml-2 font-medium text-[#172033] truncate">{inc.title}</span>
+                </button>
+                <StatusBadge status={inc.status} size="sm" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* AI Response Agents */}
       <section>
         <div className="flex items-center justify-between gap-3 mb-4">
@@ -239,7 +312,7 @@ export const CommandCenterPage: React.FC = () => {
                   {agentById('POLICE_TACTICAL')?.status || 'Status Unavailable'}
                 </span>
               </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Police Response Agent</h3>
+              <h3 className="mt-4 font-bold text-[#172033]">Rakshak AI — Police Response</h3>
               <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
                 Police incident assistance, police station information, incident reporting and response
                 recommendations.
@@ -252,7 +325,7 @@ export const CommandCenterPage: React.FC = () => {
               </p>
               <button
                 type="button"
-                onClick={() => navigate('/agents/POLICE_TACTICAL')}
+                onClick={() => navigate('/agents/rakshak')}
                 className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
               >
                 Open Agent
@@ -269,7 +342,7 @@ export const CommandCenterPage: React.FC = () => {
                   {agentById('HOSPITAL_EMS')?.status || 'Status Unavailable'}
                 </span>
               </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Medical Response Agent</h3>
+              <h3 className="mt-4 font-bold text-[#172033]">Jeevan AI — Medical Response</h3>
               <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
                 Medical emergency guidance, nearby hospital information and emergency request assistance.
               </p>
@@ -281,7 +354,7 @@ export const CommandCenterPage: React.FC = () => {
               </p>
               <button
                 type="button"
-                onClick={() => navigate('/agents/HOSPITAL_EMS')}
+                onClick={() => navigate('/agents/jeevan')}
                 className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
               >
                 Open Agent
@@ -300,7 +373,7 @@ export const CommandCenterPage: React.FC = () => {
                   {fireUnits.length > 0 ? `${fireAvailable} of ${fireUnits.length} units available` : 'No unit data'}
                 </span>
               </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Fire &amp; Rescue Agent</h3>
+              <h3 className="mt-4 font-bold text-[#172033]">Agni AI — Fire & Rescue</h3>
               <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
                 Fire incident reporting, fire unit coordination and rescue support — via live fire units
                 and fire incidents.
@@ -311,10 +384,10 @@ export const CommandCenterPage: React.FC = () => {
               </p>
               <button
                 type="button"
-                onClick={() => navigate('/incidents?category=FIRE_INCIDENT')}
+                onClick={() => navigate('/agents/agni')}
                 className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
               >
-                Open Fire Response
+                Open Agent
               </button>
             </article>
 
@@ -328,7 +401,7 @@ export const CommandCenterPage: React.FC = () => {
                   {agentById('WATER_HYDRO')?.status || 'Status Unavailable'}
                 </span>
               </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Civil &amp; Public Services Agent</h3>
+              <h3 className="mt-4 font-bold text-[#172033]">Sanrakshak AI — Disaster & Public Services</h3>
               <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
                 Water supply disruptions, electricity complaints, road and infrastructure issues and
                 public safety reporting.
@@ -341,14 +414,14 @@ export const CommandCenterPage: React.FC = () => {
               </p>
               <button
                 type="button"
-                onClick={() => navigate('/agents/WATER_HYDRO')}
+                onClick={() => navigate('/agents/sanrakshak')}
                 className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
               >
                 Open Agent
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/agents/CURRENT_KEB')}
+                onClick={() => navigate('/agents/sanrakshak')}
                 className="mt-2 text-xs font-semibold text-[#2563EB] hover:underline text-left"
               >
                 Also: Power agent (Shakti AI) →

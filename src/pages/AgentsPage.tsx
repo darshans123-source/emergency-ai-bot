@@ -1,0 +1,144 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Shield, HeartPulse, Flame, CloudLightning, ArrowRight, Bot } from 'lucide-react';
+import { api } from '../services/api';
+import { Skeleton, ErrorState } from '../components/common/UiBits';
+
+export interface AgentCardDef {
+  slug: string;
+  name: string;
+  sector: string;
+  description: string;
+  icon: React.ReactNode;
+  accent: string;
+  gradient: string;
+  prompts: string[];
+}
+
+export const AGENT_CARDS: AgentCardDef[] = [
+  {
+    slug: 'rakshak',
+    name: 'Rakshak AI',
+    sector: 'Police & Public Safety',
+    description: 'Police incident assistance, police station information, incident reporting and response recommendations.',
+    icon: <Shield className="w-6 h-6" />,
+    accent: 'text-blue-700',
+    gradient: 'from-blue-600 to-blue-800',
+    prompts: ['Report a road accident near me.', 'What should I do after a theft?', 'Find the nearest police station.']
+  },
+  {
+    slug: 'jeevan',
+    name: 'Jeevan AI',
+    sector: 'Medical & Ambulance Assistance',
+    description: 'Medical emergency guidance, nearby hospital information and emergency request assistance.',
+    icon: <HeartPulse className="w-6 h-6" />,
+    accent: 'text-rose-700',
+    gradient: 'from-rose-600 to-rose-800',
+    prompts: ['Someone is injured — what first aid do I give?', 'Find the nearest hospital.', 'How do I request an ambulance?']
+  },
+  {
+    slug: 'agni',
+    name: 'Agni AI',
+    sector: 'Fire & Rescue Operations',
+    description: 'Fire incident reporting, fire safety and evacuation guidance, and rescue coordination support.',
+    icon: <Flame className="w-6 h-6" />,
+    accent: 'text-red-700',
+    gradient: 'from-red-600 to-orange-700',
+    prompts: ['There is a fire in my building — what do I do?', 'Report a fire incident.', 'How do I evacuate safely during a fire?']
+  },
+  {
+    slug: 'sanrakshak',
+    name: 'Sanrakshak AI',
+    sector: 'Disaster Management',
+    description: 'Flood, natural disaster, water and power disruption guidance, shelter and public safety support.',
+    icon: <CloudLightning className="w-6 h-6" />,
+    accent: 'text-cyan-700',
+    gradient: 'from-cyan-600 to-teal-700',
+    prompts: ['My area is flooding — what should I do?', 'Report a water supply disruption.', 'Report a power outage in my area.']
+  }
+];
+
+export const AgentsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [aiStatus, setAiStatus] = useState<{ provider: string; model: string; isExternalConfigured: boolean; status: string } | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api
+      .getAIStatus()
+      .then((s) => setAiStatus(s))
+      .catch((err: any) => setAiError(err?.message || 'Could not check AI status.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="bg-[#101B33] rounded-2xl p-6 sm:p-8 text-white shadow-sm">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
+          <Bot className="w-7 h-7 text-[#06B6D4]" /> AI Agents
+        </h1>
+        <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
+          Four dedicated agents for police, medical, fire and disaster response. Each opens its own
+          chat with text and voice.
+        </p>
+        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
+          <span className={`w-2 h-2 rounded-full ${aiStatus?.isExternalConfigured ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+          {loading
+            ? 'Checking AI provider…'
+            : aiStatus
+              ? aiStatus.isExternalConfigured
+                ? `AI provider: ${aiStatus.provider} (${aiStatus.model})`
+                : 'AI provider: Built-in engine (OpenAI not configured on the server)'
+              : 'AI provider status unavailable'}
+        </div>
+        {aiError && <p className="mt-2 text-xs text-amber-300">{aiError}</p>}
+        <p className="mt-2 text-xs text-slate-400">
+          Status above reflects the real /ai/status response. It is never shown as “Online” when the
+          provider is not configured.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {loading
+          ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
+          : AGENT_CARDS.map((agent) => (
+              <article key={agent.slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                <div className={`h-24 bg-gradient-to-br ${agent.gradient} flex items-end p-4`}>
+                  <span className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm">
+                    {agent.icon}
+                  </span>
+                </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="font-bold text-[#172033]">{agent.name}</h2>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 shrink-0">
+                      {aiStatus?.isExternalConfigured ? 'AI Ready' : 'Built-in'}
+                    </span>
+                  </div>
+                  <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agent.sector}</p>
+                  <p className="mt-2 text-sm text-[#64748B] leading-relaxed flex-1">{agent.description}</p>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/agents/${agent.slug}`)}
+                    className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition inline-flex items-center justify-center gap-1.5"
+                  >
+                    Open Agent <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </article>
+            ))}
+      </div>
+
+      {aiError && <ErrorState message={aiError} onRetry={() => window.location.reload()} />}
+
+      <p className="text-xs text-[#64748B]">
+        The older specialised-agent hub (police, hospital, water, power) is still available at{' '}
+        <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-[#2563EB] hover:underline">
+          Legacy agent hub
+        </button>
+        . Nothing was deleted.
+      </p>
+    </div>
+  );
+};
