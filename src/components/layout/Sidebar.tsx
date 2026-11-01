@@ -1,162 +1,179 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types';
 import {
   AlertCircle,
   FilePlus2,
   MapPin,
   Ambulance,
-  Cpu,
-  ShieldAlert,
-  User as UserIcon,
-  Sparkles,
-  RotateCcw,
-  Box
+  LayoutDashboard,
+  ShieldCheck,
+  Bot,
+  History,
+  Settings,
+  Box,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+  X
 } from 'lucide-react';
 
 export const AegisEmblem: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const dim = size === 'lg' ? 'w-10 h-10' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8';
   return (
-    <div className={`${dim} shrink-0 flex items-center justify-center rounded-lg bg-cyan-600 text-white shadow-xs`}>
-      <ShieldAlert className="w-5 h-5 stroke-[2.2]" />
+    <div className={`${dim} shrink-0 flex items-center justify-center rounded-xl bg-[#2563EB] text-white shadow-sm`}>
+      <ShieldCheck className="w-5 h-5" />
     </div>
   );
 };
 
-export const Sidebar: React.FC = () => {
-  const { user, firebaseUser, switchRole, logout } = useAuth();
+const NAV_ITEMS = [
+  { to: '/', label: 'Command Center', icon: LayoutDashboard, end: true },
+  { to: '/incidents', label: 'Incidents', icon: AlertCircle, end: false },
+  { to: '/report', label: 'Report Emergency', icon: FilePlus2, end: false },
+  { to: '/map', label: 'Live Map', icon: MapPin, end: false },
+  { to: '/tactical-3d', label: '3D Tactical View', icon: Box, end: false },
+  { to: '/resources', label: 'Fleet & Resources', icon: Ambulance, end: false },
+  { to: '/agents', label: 'AI Agents', icon: Bot, end: false },
+  { to: '/history', label: 'Mission History', icon: History, end: false },
+  { to: '/settings', label: 'Settings', icon: Settings, end: false }
+];
+
+interface SidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({
+  collapsed,
+  onToggleCollapse,
+  mobileOpen,
+  onCloseMobile
+}) => {
+  const { localProfile, user, logout, logoutLocal } = useAuth();
   const navigate = useNavigate();
 
-  const navItems = [
-    { to: '/', label: 'Command Center', icon: Cpu },
-    { to: '/incidents', label: 'Incidents', icon: AlertCircle },
-    { to: '/report', label: 'Report Emergency', icon: FilePlus2 },
-    { to: '/map', label: 'Live Map', icon: MapPin },
-    { to: '/tactical-3d', label: '3D Tactical Twin', icon: Box },
-    { to: '/resources', label: 'Fleet & Resources', icon: Ambulance },
-    { to: '/splash', label: 'Mission Splash', icon: Sparkles }
-  ];
-
-  const handleResetSession = async () => {
-    await logout();
-    navigate('/splash');
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // backend logout is best-effort; the local gate is what controls access
+    }
+    logoutLocal();
+    onCloseMobile();
+    navigate('/login', { replace: true });
   };
 
-  return (
-    <aside className="w-64 bg-[#0a0f1d] text-slate-300 flex flex-col shrink-0 h-screen border-r border-slate-800 select-none">
-      {/* Brand Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center gap-3">
-        <NavLink to="/splash" title="View Splash Briefing" className="hover:opacity-90 transition">
+  const renderBody = (isDrawer: boolean) => (
+    <div className="flex flex-col h-full bg-[#101C35] text-slate-300">
+      <div className="p-4 border-b border-white/10 flex items-center gap-3">
+        <NavLink to="/" onClick={onCloseMobile} title="Command Center" className="shrink-0">
           <AegisEmblem size="md" />
         </NavLink>
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
+        {(!collapsed || isDrawer) && (
+          <div className="min-w-0 flex-1">
             <h1 className="text-base font-bold text-white tracking-tight">AegisAI</h1>
-            <span className="text-[10px] px-1.5 py-0.5 bg-cyan-950 text-cyan-300 font-semibold rounded border border-cyan-800/50">
-              v4.8
-            </span>
+            <p className="text-[11px] text-slate-400 truncate">One Voice. Four Agents. One Mission.</p>
           </div>
-          <p className="text-[11px] text-slate-400 truncate" title="One Voice. Four Agents. Faster Emergency Response.">
-            One Voice. Four Agents.
-          </p>
-        </div>
+        )}
+        <button
+          type="button"
+          onClick={onCloseMobile}
+          className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 min-w-11 min-h-11 flex items-center justify-center"
+          aria-label="Close menu"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Main Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <p className="px-3 pb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-          Operations
-        </p>
-        {navItems.map((item) => {
+        {(!collapsed || isDrawer) && (
+          <p className="px-3 pb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            Operations
+          </p>
+        )}
+        {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           return (
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
+              end={item.end}
+              onClick={onCloseMobile}
+              title={item.label}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors min-h-11 ${
                   isActive
-                    ? 'bg-cyan-600 text-white font-semibold shadow-xs'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                }`
+                    ? 'bg-[#2563EB] text-white font-semibold'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                } ${!isDrawer && collapsed ? 'justify-center' : ''}`
               }
             >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <Icon className="w-5 h-5 shrink-0" />
+              {(!collapsed || isDrawer) && <span className="truncate">{item.label}</span>}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Operator Session Info & Quick Role Switcher */}
-      <div className="p-3 border-t border-slate-800 bg-[#070b14]">
-        <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800/80 mb-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              {firebaseUser?.photoURL ? (
-                <img
-                  src={firebaseUser.photoURL}
-                  alt="Profile"
-                  className="w-7 h-7 rounded-full border border-cyan-400/40 shrink-0"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 shrink-0">
-                  <UserIcon className="w-4 h-4 text-cyan-400" />
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-200 truncate">{user?.name || 'Commander Marcus'}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user?.organization || 'Incident Dispatch Hub'}</p>
-              </div>
-            </div>
-            <span
-              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded font-mono ${
-                user?.role === 'admin'
-                  ? 'bg-purple-900/60 text-purple-200 border border-purple-500/30'
-                  : user?.role === 'operator'
-                  ? 'bg-cyan-900/60 text-cyan-200 border border-cyan-500/30'
-                  : 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/30'
-              }`}
-            >
-              {user?.role || 'OPERATOR'}
-            </span>
-          </div>
-
-          {/* Quick Role Switcher Pills */}
-          <div className="mt-2.5 pt-2 border-t border-slate-800/80">
-            <p className="text-[10px] text-slate-400 uppercase font-mono tracking-wider mb-1.5">
-              Active Role Preset:
+      <div className="p-3 border-t border-white/10">
+        {(!collapsed || isDrawer) && (
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 mb-2">
+            <p className="text-xs font-semibold text-white truncate">{localProfile?.name || user?.name || 'Command User'}</p>
+            <p className="text-[11px] text-slate-400 truncate mt-0.5">
+              {localProfile ? 'Local prototype profile' : user?.organization || 'Command centre'}
             </p>
-            <div className="grid grid-cols-3 gap-1">
-              {(['operator', 'admin', 'reporter'] as UserRole[]).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => switchRole(r)}
-                  className={`py-1 px-1.5 rounded text-[10px] font-mono uppercase tracking-wider text-center transition ${
-                    user?.role === r
-                      ? 'bg-cyan-600 text-white font-bold'
-                      : 'bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  {r === 'operator' ? 'Op' : r === 'admin' ? 'Admin' : 'Field'}
-                </button>
-              ))}
-            </div>
           </div>
-        </div>
-
+        )}
         <button
           type="button"
-          onClick={handleResetSession}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-cyan-400 hover:bg-slate-900 transition font-mono"
+          onClick={handleLogout}
+          title="Logout"
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition min-h-11 ${
+            collapsed ? 'justify-center' : ''
+          }`}
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Return to Splash</span>
+          <LogOut className="w-5 h-5 shrink-0" />
+          {(!collapsed || isDrawer) && <span>Logout</span>}
+        </button>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="hidden lg:flex w-full items-center justify-center gap-2 mt-1 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition min-h-10"
+        >
+          {collapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+          {!collapsed && <span>Collapse</span>}
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop: collapsible */}
+      <aside
+        className={`hidden lg:flex shrink-0 h-screen sticky top-0 transition-all duration-200 ${
+          collapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        {renderBody(false)}
+      </aside>
+
+      {/* Mobile: drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={onCloseMobile}
+            className="absolute inset-0 bg-black/50"
+          />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl">{renderBody(true)}</aside>
+        </div>
+      )}
+    </>
   );
 };

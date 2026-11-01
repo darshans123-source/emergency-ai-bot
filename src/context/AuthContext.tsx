@@ -2,6 +2,16 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
 import { api } from '../services/api';
 import {
+  LocalProfile,
+  LocalSession,
+  readProfiles,
+  readSession,
+  writeSession,
+  clearSession,
+  createLocalProfile,
+  verifyLocalProfile
+} from '../services/localProfile';
+import {
   auth,
   onAuthStateChanged,
   signInWithGooglePopup,
@@ -58,6 +68,14 @@ interface AuthContextType {
   hasRole: (allowedRoles: UserRole[]) => boolean;
   quickDemoLogin: (role: UserRole) => Promise<void>;
   switchRole: (role: UserRole) => void;
+  // Local prototype profile (Name + 4-digit PIN, browser-only — see localProfile.ts)
+  localProfile: LocalProfile | null;
+  localProfiles: LocalProfile[];
+  localSession: LocalSession | null;
+  loginLocal: (name: string, pin: string, rememberMe: boolean) => Promise<void>;
+  createLocal: (name: string, pin: string, confirmPin: string, rememberMe: boolean) => Promise<void>;
+  logoutLocal: () => void;
+  refreshLocalProfiles: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,6 +92,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('er_token'));
+  const [localProfiles, setLocalProfiles] = useState<LocalProfile[]>(() => readProfiles());
+  const [localSession, setLocalSession] = useState<LocalSession | null>(() => readSession());
+  const localProfile: LocalProfile | null =
+    localSession ? readProfiles().find((p) => p.id === localSession.profileId) || null : null;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
 
@@ -197,6 +219,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshLocalProfiles = () => {
+    setLocalProfiles(readProfiles());
+    const session = readSession();
+    setLocalSession(session);
+  };
+
+  const loginLocal = async (name: string, pin: string, rememberMe: boolean) => {
+    const profile = await verifyLocalProfile(name, pin);
+    const session: LocalSession = { profileId: profile.id, name: profile.name, rememberMe };
+    writeSession(session);
+    setLocalSession(session);
+    setLocalProfiles(readProfiles());
+    // The local profile is the display identity for the command centre.
+    // Backend API calls still use the existing backend token/user when present;
+    // this PIN gate alone does not authorise real operations (see localProfile.ts).
+    setUser((prev) => ({ ...prev, name: profile.name }));
+  };
+
+  const createLocal = async (name: string, pin: string, confirmPin: string, rememberMe: boolean) => {
+    const profile = await createLocalProfile(name, pin, confirmPin);
+    const session: LocalSession = { profileId: profile.id, name: profile.name, rememberMe };
+    writeSession(session);
+    setLocalSession(session);
+    setLocalProfiles(readProfiles());
+    setUser((prev) => ({ ...prev, name: profile.name }));
+  };
+
+  const logoutLocal = () => {
+    clearSession();
+    setLocalSession(null);
+  };
+
   const hasRole = (allowedRoles: UserRole[]): boolean => {
     if (!user) return false;
     return allowedRoles.includes(user.role);
@@ -233,7 +287,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         hasRole,
         quickDemoLogin,
-        switchRole
+        switchRole,
+        localProfile,
+        localProfiles,
+        localSession,
+        loginLocal,
+        createLocal,
+        logoutLocal,
+        refreshLocalProfiles
       }}
     >
       {children}

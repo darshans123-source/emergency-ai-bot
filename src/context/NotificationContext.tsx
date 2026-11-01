@@ -2,11 +2,17 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { Notification } from '../types';
 import { api } from '../services/api';
 import { useAuth } from './AuthContext';
+import { readSession } from '../services/localProfile';
+
+export type WsStatus = 'connected' | 'reconnecting' | 'unavailable';
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
   isConnected: boolean;
+  wsStatus: WsStatus;
+  wsAttempts: number;
+  retryConnection: () => void;
   refreshNotifications: () => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
@@ -19,11 +25,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [wsStatus, setWsStatus] = useState<WsStatus>('reconnecting');
+  const [wsAttempts, setWsAttempts] = useState(0);
+  const [wsRetryTick, setWsRetryTick] = useState(0);
+  const retryConnection = () => setWsRetryTick((t) => t + 1);
   const [latestEvent, setLatestEvent] = useState<{ type: string; data: any; timestamp: string } | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   const refreshNotifications = useCallback(async () => {
-    if (!user) {
+    if (!user || !readSession()) {
       setNotifications([]);
       return;
     }
@@ -41,20 +51,27 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => clearInterval(timer);
   }, [refreshNotifications]);
 
-  // WebSocket Connection
+  // WebSocket Connection — capped, so a dead /ws endpoint (for example on
+  // Vercel, where /ws rewrites to /api) can never leave the UI stuck on
+  // "Reconnecting..." forever. After 5 attempts it reports "unavailable"
+  // and waits for a manual retry instead of reconnecting in the background.
   useEffect(() => {
-    if (!user) {
+    if (!user || !readSession()) {
       if (wsRef.current) {
         wsRef.current.close();
       }
+      setWsStatus('reconnecting');
       return;
     }
 
-    let socket: WebSocket;
+    let socket: WebSocket | null = null;
     let reconnectTimeout: any;
-
+    let stopped = false;
     let attempt = 0;
+    const MAX_ATTEMPTS = 5;
+
     function connect() {
+      if (stopped) return;
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws`;
 
@@ -64,6 +81,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         socket.onopen = () => {
           setIsConnected(true);
+          setWsStatus('connected');
+          setWsAttempts(0);
           attempt = 0;
         };
 
@@ -71,8 +90,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           try {
             const parsed = JSON.parse(event.data);
             setLatestEvent(parsed);
-
-            // If an incident or notification changed, refresh notifications list
             if (
               parsed.type === 'INCIDENT_CREATED' ||
               parsed.type === 'AGENT_COMPLETED' ||
@@ -89,6 +106,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         socket.onclose = () => {
           setIsConnected(false);
           attempt++;
+          setWsAttempts(attempt);
+          if (attempt >= MAX_ATTEMPTS) {
+            setWsStatus('unavailable');
+            return;
+          }
+          setWsStatus('reconnecting');
           const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
           reconnectTimeout = setTimeout(connect, delay);
         };
@@ -99,6 +122,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       } catch {
         setIsConnected(false);
         attempt++;
+        setWsAttempts(attempt);
+        if (attempt >= MAX_ATTEMPTS) {
+          setWsStatus('unavailable');
+          return;
+        }
+        setWsStatus('reconnecting');
         const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
         reconnectTimeout = setTimeout(connect, delay);
       }
@@ -107,10 +136,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     connect();
 
     return () => {
+      stopped = true;
       clearTimeout(reconnectTimeout);
       if (socket) socket.close();
     };
-  }, [user, refreshNotifications]);
+  }, [user, refreshNotifications, wsRetryTick]);
 
   const markAsRead = async (id: string) => {
     try {
@@ -140,6 +170,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         notifications,
         unreadCount,
         isConnected,
+        wsStatus,
+        wsAttempts,
+        retryConnection,
         refreshNotifications,
         markAsRead,
         markAllAsRead,
