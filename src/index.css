@@ -204,3 +204,100 @@
 .demo-typing span:nth-child(2) { animation-delay: 0.15s; }
 .demo-typing span:nth-child(3) { animation-delay: 0.3s; }
 @keyframes demo-typing { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+
+/* ---- Aurora Flow + Liquid Glass (2026-11-02) ---- */
+/* Palette: Midnight Navy #080F25, Deep Blue #102B65, Electric Blue #286BFF,
+   Cyan #22D3EE, Violet #7956E8. CSS gradients only, no libraries, no video.
+   Animation uses transform/opacity only (no background-position) to avoid
+   flicker and keep scrolling smooth. */
+.aurora-flow {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 15% -10%, rgba(40, 107, 255, 0.35), transparent 60%),
+    radial-gradient(1000px 600px at 85% 10%, rgba(121, 86, 232, 0.32), transparent 60%),
+    radial-gradient(900px 600px at 50% 110%, rgba(34, 211, 238, 0.22), transparent 60%),
+    linear-gradient(180deg, #080F25 0%, #0A1836 45%, #102B65 100%);
+}
+.aurora-blob { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: 0.55; will-change: transform; }
+.aurora-blob-blue { width: 55vw; height: 55vw; left: -12vw; top: -18vw; background: radial-gradient(circle at 50% 50%, rgba(40,107,255,0.75), transparent 65%); animation: aurora-drift 22s ease-in-out infinite alternate; }
+.aurora-blob-cyan { width: 45vw; height: 45vw; right: -10vw; top: 12vh; background: radial-gradient(circle at 50% 50%, rgba(34,211,238,0.6), transparent 65%); animation: aurora-drift 26s ease-in-out infinite alternate-reverse; }
+.aurora-blob-violet { width: 50vw; height: 50vw; left: 25vw; bottom: -20vw; background: radial-gradient(circle at 50% 50%, rgba(121,86,232,0.6), transparent 65%); animation: aurora-mesh 28s ease-in-out infinite alternate; }
+.aurora-texture { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
+@keyframes aurora-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(6vw, 4vh, 0) scale(1.12) rotate(12deg); }
+  100% { transform: translate3d(-4vw, -3vh, 0) scale(0.95) rotate(-8deg); }
+}
+@keyframes aurora-mesh {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.45; }
+  50% { transform: translate3d(-5vw, -4vh, 0) scale(1.15); opacity: 0.65; }
+  100% { transform: translate3d(4vw, 3vh, 0) scale(1.02); opacity: 0.5; }
+}
+@keyframes aurora-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.animate-aurora-float { animation: aurora-float 6s ease-in-out infinite; }
+
+/* Liquid Glass — dark surfaces (dashboard, agents, chat, Mitra) */
+.glass-liquid {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+.glass-liquid-strong {
+  background: rgba(8, 15, 37, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.glass-liquid-hover { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.glass-liquid-hover:hover { transform: translateY(-3px); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28); border-color: rgba(255, 255, 255, 0.32); }
+.glass-liquid-input {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+/* Agent-tinted glass */
+.agent-glass-rakshak { background: rgba(40, 107, 255, 0.14); border-color: rgba(40, 107, 255, 0.40); }
+.agent-glass-jeevan { background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.40); }
+.agent-glass-agni { background: rgba(249, 115, 22, 0.14); border-color: rgba(249, 115, 22, 0.40); }
+.agent-glass-sanrakshak { background: rgba(34, 211, 238, 0.14); border-color: rgba(34, 211, 238, 0.40); }
+/* Liquid Chrome — subtle, only for logo, agent icons, Mitra button, active nav */
+.chrome-text {
+  background: linear-gradient(120deg, #ffffff 0%, #93c5fd 30%, #22d3ee 55%, #a78bfa 80%, #ffffff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.chrome-icon {
+  background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(147,197,253,0.35) 40%, rgba(34,211,238,0.35) 60%, rgba(167,139,250,0.35));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(40, 107, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.mitra-chrome {
+  background: linear-gradient(135deg, #286BFF 0%, #7956E8 55%, #22D3EE 100%);
+  box-shadow: 0 10px 30px rgba(121, 86, 232, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.btn-glow { transition: box-shadow 0.25s ease, transform 0.25s ease; }
+.btn-glow:hover { box-shadow: 0 0 28px rgba(40, 107, 255, 0.55), 0 10px 30px rgba(0, 0, 0, 0.35); transform: translateY(-1px); }
+/* Voice waveform (Mitra + chat) */
+.aurora-wave { display: inline-flex; align-items: center; gap: 2px; height: 18px; }
+.aurora-wave span { width: 3px; border-radius: 9999px; background: linear-gradient(180deg, #22d3ee, #7956e8); animation: aurora-wave 0.8s ease-in-out infinite alternate; }
+.aurora-wave span:nth-child(1) { height: 40%; animation-delay: 0s; }
+.aurora-wave span:nth-child(2) { height: 80%; animation-delay: 0.12s; }
+.aurora-wave span:nth-child(3) { height: 100%; animation-delay: 0.24s; }
+.aurora-wave span:nth-child(4) { height: 70%; animation-delay: 0.36s; }
+.aurora-wave span:nth-child(5) { height: 45%; animation-delay: 0.48s; }
+@keyframes aurora-wave { from { transform: scaleY(0.4); } to { transform: scaleY(1); } }
+
+/* Mobile + reduced motion: no backdrop blur cost, no aurora movement, solid dark glass for readability */
+@media (max-width: 640px) {
+  .glass-liquid, .glass-liquid-strong, .glass-liquid-input { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(11, 20, 43, 0.94) !important; }
+  .glass-liquid-input { background: rgba(255, 255, 255, 0.12) !important; }
+  .aurora-blob { filter: blur(50px); opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob, .animate-aurora-float, .aurora-wave span, .demo-wave-bar, .demo-typing span { animation: none !important; }
+}

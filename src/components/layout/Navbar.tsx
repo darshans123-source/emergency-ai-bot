@@ -477,7 +477,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:-translate-y-0.5 text-white text-xs font-semibold shadow-lg shadow-blue-500/25 transition-all cursor-pointer ring-1 ring-blue-400/30"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold transition-all cursor-pointer"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ)"
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
