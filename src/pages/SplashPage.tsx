@@ -70,7 +70,7 @@ export const SplashPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className="w-full min-h-12 px-6 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+            className="w-full min-h-12 px-6 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-sm font-semibold flex items-center justify-center gap-2 transition shadow-lg"
           >
             <LogIn className="w-4 h-4" /> Login / Profile Setup
           </button>

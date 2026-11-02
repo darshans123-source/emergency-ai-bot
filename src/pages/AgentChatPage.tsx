@@ -67,9 +67,9 @@ export const AgentChatPage: React.FC = () => {
 
   if (!agent) {
     return (
-      <div className="max-w-3xl mx-auto glass-liquid-strong rounded-2xl shadow-sm p-6 text-white">
-        <h1 className="text-xl font-bold text-white">Agent not found</h1>
-        <p className="mt-2 text-sm text-[#64748B]">The agent “{slug}” does not exist. Choose an agent from the hub.</p>
+      <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6 text-slate-900">
+        <h1 className="text-xl font-bold text-slate-900">Agent not found</h1>
+        <p className="mt-2 text-sm text-slate-500">The agent “{slug}” does not exist. Choose an agent from the hub.</p>
         <button type="button" onClick={() => navigate('/agents')} className="mt-4 min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold">
           Back to Agents
         </button>
@@ -150,7 +150,7 @@ export const AgentChatPage: React.FC = () => {
     try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ }
   };
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-16rem)] sm:h-[calc(100dvh-12rem)] min-h-[420px] text-white">
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-16rem)] sm:h-[calc(100dvh-12rem)] min-h-[420px] text-white bg-[#0B1E46] rounded-[24px] overflow-hidden shadow-lg shadow-blue-900/20">
       <div className={`glass-liquid-strong rounded-t-2xl border-b-0 text-white p-5 sm:p-6 shrink-0 relative overflow-hidden`}>
         <div className={`absolute inset-0 bg-gradient-to-br ${agent.gradient} opacity-40`} aria-hidden="true" />
         <div className="relative flex items-center justify-between gap-2">

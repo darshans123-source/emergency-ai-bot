@@ -72,7 +72,7 @@ export const LocalLoginPage: React.FC = () => {
           value={value}
           onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
           placeholder="••••"
-          className="w-full min-h-12 pl-3.5 pr-12 rounded-xl glass-input text-[#172033] placeholder-slate-400 tracking-[0.5em] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 transition"
+          className="w-full min-h-12 pl-3.5 pr-12 rounded-xl bg-slate-50 border border-slate-200 text-[#172033] placeholder-slate-400 tracking-[0.5em] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 transition"
         />
         <button
           type="button"
@@ -88,7 +88,7 @@ export const LocalLoginPage: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[#07142E] flex items-center justify-center px-4 py-8 pb-16">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#F2F5FA] flex items-center justify-center px-4 py-8 pb-16">
       <AuroraBackground absolute />
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">
@@ -97,11 +97,11 @@ export const LocalLoginPage: React.FC = () => {
             alt="AegisAI logo"
             className="w-16 h-16 rounded-3xl shadow-2xl shadow-blue-900/40 object-cover"
           />
-          <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">AEGISAI</h1>
-          <p className="mt-1 text-sm text-blue-100">One Voice. Four Agents. One Mission.</p>
+          <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">AEGISAI</h1>
+          <p className="mt-1 text-sm text-slate-500">One Voice. Four Agents. One Mission.</p>
         </div>
 
-        <div className="glass-strong rounded-3xl p-6 sm:p-8">
+        <div className="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8">
           <h2 className="text-xl sm:text-2xl font-bold text-[#172033]">
             {mode === 'login' ? 'Welcome Back' : 'Create Profile'}
           </h2>
@@ -121,7 +121,7 @@ export const LocalLoginPage: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
                 autoComplete="name"
-                className="w-full min-h-12 px-3.5 rounded-xl glass-input text-[#172033] placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 transition"
+                className="w-full min-h-12 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[#172033] placeholder-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 transition"
               />
             </div>
 
@@ -150,7 +150,7 @@ export const LocalLoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full min-h-12 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-blue-600 hover:to-purple-600 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-500/25"
+              className="w-full min-h-12 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-500/25"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -192,7 +192,7 @@ export const LocalLoginPage: React.FC = () => {
                     key={p.id}
                     type="button"
                     onClick={() => pickSaved(p.name)}
-                    className="glass glass-card-hover min-h-11 px-3.5 rounded-xl text-sm font-medium text-[#172033] inline-flex items-center gap-2"
+                    className="bg-white border border-slate-200 shadow-sm hover:border-blue-300 min-h-11 px-3.5 rounded-xl text-sm font-medium text-[#172033] inline-flex items-center gap-2"
                   >
                     <User className="w-4 h-4 text-[#2563EB]" />
                     {p.name}

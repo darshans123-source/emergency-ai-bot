@@ -66,42 +66,42 @@ export const AgentsPage: React.FC = () => {
   const [loading] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto text-white">
-      <div className="glass-liquid-strong rounded-2xl p-6 sm:p-8 text-white shadow-sm">
+    <div className="space-y-6 max-w-7xl mx-auto text-[#172033]">
+      <div className="rounded-[24px] bg-gradient-to-br from-[#0B1E46] via-[#143A75] to-[#2563EB] p-6 sm:p-8 text-white shadow-lg shadow-blue-900/20">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Bot className="w-7 h-7 text-cyan-300" /> <span className="chrome-text">{t('agents.title')}</span>
+          <Bot className="w-7 h-7 text-cyan-300" /> <span>{t('agents.title')}</span>
         </h1>
-        <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
+        <p className="mt-2 text-sm sm:text-base text-blue-100 max-w-2xl">
           {t('agents.subtitle')} For real emergencies, call 112.
         </p>
-        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
+        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/25 text-xs font-medium">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
           {t('nav.local_ai_ready')} (no API key required)
         </div>
-        <p className="mt-2 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
+        <p className="mt-2 text-xs text-blue-200">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {loading
           ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
           : AGENT_CARDS.map((agent) => (
-              <article key={agent.slug} className="glass-liquid glass-liquid-hover rounded-2xl overflow-hidden flex flex-col h-full">
+              <article key={agent.slug} className="bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition rounded-[24px] overflow-hidden flex flex-col h-full">
                 <div className={`h-24 bg-gradient-to-br ${agent.gradient} flex items-end p-4`}>
-                  <span className="w-12 h-12 rounded-2xl chrome-icon text-white flex items-center justify-center">
+                  <span className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm">
                     {agent.icon}
                   </span>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-bold text-white">{agent.name}</h2>
-                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 shrink-0">Ready</span>
+                    <h2 className="font-bold text-slate-900">{agent.name}</h2>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 shrink-0">Ready</span>
                   </div>
                   <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agents[agent.slug]?.sector || agent.sector}</p>
-                  <p className="mt-2 text-sm text-slate-300 leading-relaxed flex-1">{agents[agent.slug]?.description || agent.description}</p>
+                  <p className="mt-2 text-sm text-slate-600 leading-relaxed flex-1">{agents[agent.slug]?.description || agent.description}</p>
                   <button
                     type="button"
                     onClick={() => navigate(`/agents/${agent.slug}`)}
-                    className="mt-auto min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
+                    className="mt-auto min-h-11 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
                   >
                     {t('agents.open_agent')} <ArrowRight className="w-4 h-4" />
                   </button>
@@ -111,9 +111,9 @@ export const AgentsPage: React.FC = () => {
       </div>
 
 
-      <p className="text-xs text-slate-300">
+      <p className="text-xs text-slate-500">
         The older specialised-agent hub (police, hospital, water, power) is still available at{' '}
-        <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-cyan-300 hover:underline">
+        <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-blue-600 hover:underline">
           Legacy agent hub
         </button>
         . Nothing was deleted.
