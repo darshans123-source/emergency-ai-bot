@@ -110,14 +110,14 @@ export const CommandCenterPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-white">
+    <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-[#172033]">
       {/* Compact welcome banner — white, no large gradient */}
-      <section className="rounded-[20px] glass-liquid-strong p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-white leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
             <p className="mt-1 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
           </div>
         </div>
@@ -129,24 +129,24 @@ export const CommandCenterPage: React.FC = () => {
       {/* AI Agents — single column on small screens, 2 on tablets, 4 on desktop */}
       <section aria-label="AI agents">
         <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
-          <h2 className="text-base font-bold text-white">{t('dash.ai_agents')}</h2>
-          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 hover:underline shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
+          <h2 className="text-base font-bold text-slate-900">{t('dash.ai_agents')}</h2>
+          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline shrink-0 min-h-10">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
         </div>
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {agentCards.map((a) => (
-              <article key={a.slug} className={`rounded-[20px] glass-liquid glass-liquid-hover ${a.accent} p-4 flex flex-col min-w-0 h-full`}>
+              <article key={a.slug} className={`rounded-[20px] bg-white border border-slate-200 shadow-sm hover:border-slate-300 p-4 flex flex-col min-w-0 h-full`}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`w-10 h-10 rounded-xl ${a.chip} flex items-center justify-center shrink-0`}>{a.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 text-center leading-tight">{a.status}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-center leading-tight">{a.status}</span>
                 </div>
-                <h3 className="mt-3 text-sm font-bold text-white">{a.name}</h3>
-                <p className="text-xs font-medium text-cyan-300">{a.role}</p>
-                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">{a.desc}</p>
-                <p className="mt-2 mb-3 text-xs text-slate-300 leading-relaxed"><span className="font-semibold text-white">Task: </span>{a.task}</p>
-                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
+                <h3 className="mt-3 text-sm font-bold text-slate-900">{a.name}</h3>
+                <p className="text-xs font-medium text-blue-600">{a.role}</p>
+                <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{a.desc}</p>
+                <p className="mt-2 mb-3 text-xs text-slate-600 leading-relaxed"><span className="font-semibold text-slate-900">Task: </span>{a.task}</p>
+                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto min-h-11 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
               </article>
             ))}
           </div>
@@ -160,8 +160,8 @@ export const CommandCenterPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((s) => (
-              <div key={s.label} className="rounded-[20px] glass-liquid glass-liquid-hover p-4 flex items-start justify-between gap-2 min-w-0">
-                <div className="min-w-0"><p className="text-xs font-medium text-slate-300 leading-tight">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-white">{s.value}</p></div>
+              <div key={s.label} className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 flex items-start justify-between gap-2 min-w-0">
+                <div className="min-w-0"><p className="text-xs font-medium text-slate-500 leading-tight">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-slate-900">{s.value}</p></div>
                 <span className={`w-9 h-9 rounded-xl ${s.chip} flex items-center justify-center shrink-0`}>{s.icon}</span>
               </div>
             ))}
@@ -172,11 +172,11 @@ export const CommandCenterPage: React.FC = () => {
       {/* Bento grid: overview + quick actions + recent + activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Emergency Overview — spans 2 */}
-        <section className="lg:col-span-2 rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">{t('dash.emergency_overview')}</h2>
+        <section className="lg:col-span-2 rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-slate-900">{t('dash.emergency_overview')}</h2>
           <div className="mt-3 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm text-white flex items-center gap-2">
+              <p className="text-sm text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span className="font-semibold">{t('nav.local_ai_ready')}</span>
                 <span className="text-slate-400 text-xs">· {t('dash.simulated_data')} · Updated {lastUpdated}</span>
@@ -185,25 +185,25 @@ export const CommandCenterPage: React.FC = () => {
                 <button type="button" onClick={() => setSimulating((v) => !v)} className={`min-h-10 px-3 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 ${simulating ? 'bg-rose-600 text-white' : 'bg-[#2563EB] text-white'}`}>
                   {simulating ? <><Square className="w-3.5 h-3.5" /> {t('dash.stop_simulation')}</> : <><Play className="w-3.5 h-3.5" /> {t('dash.start_simulation')}</>}
                 </button>
-                <button type="button" onClick={() => { const next = randomDemoIncident(2000 + demoIncidents.length + 1); const list = [next, ...demoIncidents]; setDemoIncidents(list); saveDemoIncidents(list); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> {t('dash.create_incident')}</button>
-                <button type="button" onClick={() => { setDemoIncidents(loadDemoIncidents()); setDemoActivity(loadDemoActivity()); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> {t('dash.refresh')}</button>
+                <button type="button" onClick={() => { const next = randomDemoIncident(2000 + demoIncidents.length + 1); const list = [next, ...demoIncidents]; setDemoIncidents(list); saveDemoIncidents(list); }} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> {t('dash.create_incident')}</button>
+                <button type="button" onClick={() => { setDemoIncidents(loadDemoIncidents()); setDemoActivity(loadDemoActivity()); }} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> {t('dash.refresh')}</button>
               </div>
             </div>
-            <p className="text-xs text-slate-300">{simulating ? 'Simulation running: a new incident appears about every 20 seconds (simulated).' : 'Simulation stopped. Changes are saved in this browser only.'}</p>
+            <p className="text-xs text-slate-500">{simulating ? 'Simulation running: a new incident appears about every 20 seconds (simulated).' : 'Simulation stopped. Changes are saved in this browser only.'}</p>
             {summary && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                <div className="rounded-xl bg-white/10 border border-white/15 p-2.5"><p className="text-lg font-bold text-white">{summary.totalActive}</p><p className="text-[11px] text-slate-300">Active</p></div>
-                <div className="rounded-xl bg-white/10 border border-white/15 p-2.5"><p className="text-lg font-bold text-white">{summary.awaitingReview}</p><p className="text-[11px] text-slate-300">Awaiting review</p></div>
-                <div className="rounded-xl bg-white/10 border border-white/15 p-2.5"><p className="text-lg font-bold text-white">{summary.highOrCriticalPriority}</p><p className="text-[11px] text-slate-300">High / critical</p></div>
-                <div className="rounded-xl bg-white/10 border border-white/15 p-2.5"><p className="text-lg font-bold text-white">{summary.availableUnits}</p><p className="text-[11px] text-slate-300">Units available</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-slate-900">{summary.totalActive}</p><p className="text-[11px] text-slate-500">Active</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-slate-900">{summary.awaitingReview}</p><p className="text-[11px] text-slate-500">Awaiting review</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-slate-900">{summary.highOrCriticalPriority}</p><p className="text-[11px] text-slate-500">High / critical</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-slate-900">{summary.availableUnits}</p><p className="text-[11px] text-slate-500">Units available</p></div>
               </div>
             )}
             {summary && (
               <div>
-                <p className="text-xs font-semibold text-slate-300 mb-2">By category</p>
+                <p className="text-xs font-semibold text-slate-500 mb-2">By category</p>
                 <div className="flex flex-wrap gap-1.5">
                   {Object.entries(summary.categoryCounts).map(([cat, count]) => (
-                    <button key={cat} type="button" onClick={() => navigate(`/incidents?category=${cat}`)} className="px-2.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-white hover:border-cyan-300 hover:text-cyan-300 transition">{cat.replace(/_/g, ' ')} · <b>{count}</b></button>
+                    <button key={cat} type="button" onClick={() => navigate(`/incidents?category=${cat}`)} className="px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 transition">{cat.replace(/_/g, ' ')} · <b>{count}</b></button>
                   ))}
                 </div>
               </div>
@@ -212,8 +212,8 @@ export const CommandCenterPage: React.FC = () => {
         </section>
 
         {/* Quick Actions */}
-        <section className="rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">{t('dash.quick_actions')}</h2>
+        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-slate-900">{t('dash.quick_actions')}</h2>
           <div className="mt-3 grid grid-cols-1 gap-2">
             {[
               { label: t('menu.report_emergency'), icon: <FilePlus2 className="w-4 h-4" />, to: '/report' },
@@ -222,30 +222,30 @@ export const CommandCenterPage: React.FC = () => {
               { label: 'Find Hospitals', icon: <Hospital className="w-4 h-4" />, to: '/map' },
               { label: t('menu.fleet_resources'), icon: <Ambulance className="w-4 h-4" />, to: '/resources' },
             ].map((cmd) => (
-              <button key={cmd.label} type="button" onClick={() => navigate(cmd.to)} className="min-h-11 px-3 rounded-xl border border-white/15 bg-white/10 text-sm font-semibold text-white hover:border-cyan-300 hover:text-cyan-300 transition flex items-center gap-2.5 text-left">
-                <span className="text-cyan-300 shrink-0">{cmd.icon}</span>{cmd.label}
+              <button key={cmd.label} type="button" onClick={() => navigate(cmd.to)} className="min-h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-800 hover:border-blue-500 hover:text-blue-600 transition flex items-center gap-2.5 text-left">
+                <span className="text-blue-600 shrink-0">{cmd.icon}</span>{cmd.label}
               </button>
             ))}
           </div>
         </section>
 
         {/* Recent Incidents — spans 2 */}
-        <section className="lg:col-span-2 rounded-[20px] glass-liquid overflow-hidden min-w-0">
-          <div className="px-4 py-3.5 border-b border-white/15 flex items-center justify-between gap-3">
-            <h2 className="font-bold text-white">{t('dash.recent_incidents')}</h2>
-            <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-cyan-300 hover:underline inline-flex items-center gap-1 shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
+        <section className="lg:col-span-2 rounded-[20px] bg-white border border-slate-200 shadow-sm overflow-hidden min-w-0">
+          <div className="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between gap-3">
+            <h2 className="font-bold text-slate-900">{t('dash.recent_incidents')}</h2>
+            <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-blue-600 hover:underline inline-flex items-center gap-1 shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
           </div>
           {isLoading ? (<div className="p-4 space-y-3">{[0, 1, 2].map((i) => (<Skeleton key={i} className="h-14" />))}</div>) : recent.length === 0 ? (
-            <p className="p-4 text-sm text-slate-300">No incident records in the current data.</p>
+            <p className="p-4 text-sm text-slate-500">No incident records in the current data.</p>
           ) : (
-            <ul className="divide-y divide-white/10">
+            <ul className="divide-y divide-slate-100">
               {recent.map((inc) => (
                 <li key={inc.id}>
-                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="w-full text-left px-4 py-3.5 hover:bg-white/10 transition flex items-center justify-between gap-3">
+                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="w-full text-left px-4 py-3.5 hover:bg-slate-50 transition flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap"><span className="font-mono text-xs font-semibold text-cyan-300">{inc.id}</span><PriorityBadge priority={inc.priority} size="sm" /><StatusBadge status={inc.status} size="sm" /></div>
-                      <p className="mt-1 font-semibold text-white truncate">{inc.title}</p>
-                      <p className="text-xs text-slate-300 truncate flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 shrink-0" /> {inc.location.address}</p>
+                      <div className="flex items-center gap-2 flex-wrap"><span className="font-mono text-xs font-semibold text-blue-600">{inc.id}</span><PriorityBadge priority={inc.priority} size="sm" /><StatusBadge status={inc.status} size="sm" /></div>
+                      <p className="mt-1 font-semibold text-slate-900 truncate">{inc.title}</p>
+                      <p className="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 shrink-0" /> {inc.location.address}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
                   </button>
@@ -256,21 +256,21 @@ export const CommandCenterPage: React.FC = () => {
         </section>
 
         {/* Mission Activity */}
-        <section className="rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">{t('dash.recent_activity')}</h2>
-          <p className="mt-1 text-xs text-slate-300">Response timeline (simulated data)</p>
+        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-slate-900">{t('dash.recent_activity')}</h2>
+          <p className="mt-1 text-xs text-slate-500">Response timeline (simulated data)</p>
           <ul className="mt-3 space-y-2">
             {demoActivity.slice(0, 6).map((a, i) => (
-              <li key={i} className="text-sm text-white">• <span className="text-slate-300">{a}</span></li>
+              <li key={i} className="text-sm text-slate-800">• <span className="text-slate-500">{a}</span></li>
             ))}
           </ul>
-          <h3 className="font-bold text-white text-sm mt-4">Recent incidents</h3>
+          <h3 className="font-bold text-slate-900 text-sm mt-4">Recent incidents</h3>
           <ul className="mt-2 space-y-2">
             {activityIncidents.slice(0, 5).map((inc) => (
               <li key={inc.id} className="flex items-center justify-between gap-3 text-sm min-w-0">
                 <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
-                  <span className="font-mono text-xs font-semibold text-cyan-300">{inc.id}</span>
-                  <span className="ml-2 font-medium text-white truncate">{inc.title}</span>
+                  <span className="font-mono text-xs font-semibold text-blue-600">{inc.id}</span>
+                  <span className="ml-2 font-medium text-slate-900 truncate">{inc.title}</span>
                 </button>
                 <StatusBadge status={inc.status} size="sm" />
               </li>

@@ -56,7 +56,7 @@ export const AppLayout: React.FC = () => {
         {moreOpen && (
           <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-label="More sections">
             <button type="button" aria-label="Close more menu" className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-20 inset-x-0 glass-liquid-strong rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-20 inset-x-0 bg-[#0B142B] rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-bold text-white">{t('menu.more')}</p>
                 <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg text-slate-300 hover:bg-white/10" aria-label="Close"><X className="w-5 h-5" /></button>
@@ -82,7 +82,7 @@ export const AppLayout: React.FC = () => {
         <MarqueeBanner aboveNav />
 
         {/* Mobile bottom navigation — 5 main sections + More, safe-area padding */}
-        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-liquid-strong border-t border-white/15 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
+        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0B142B] border-t border-white/15 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
           <div className="grid grid-cols-6">
             {BOTTOM_NAV.map((item) => {
               const Icon = item.icon;
