@@ -34,7 +34,7 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-[100dvh] w-full overflow-x-hidden bg-[#F5F7FB] text-[#172033]">
+    <div className="flex min-h-[100dvh] w-full overflow-x-hidden bg-[#F1F5F9] text-[#172033]">
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={toggleCollapse}
@@ -43,13 +43,13 @@ export const AppLayout: React.FC = () => {
       />
       <div className="flex flex-col flex-1 min-w-0">
         <Navbar onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 bg-[#F5F7FB] text-[#172033]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 text-[#172033]">
           <Outlet />
         </main>
 
         {/* Mobile bottom navigation — only on phones/tablets, with safe-area padding */}
         <nav
-          className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]"
+          className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-strong border-t border-white/60 pb-[env(safe-area-inset-bottom)]"
           aria-label="Primary"
         >
           <div className="grid grid-cols-5">

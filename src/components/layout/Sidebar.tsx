@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const renderBody = (isDrawer: boolean) => (
-    <div className="flex flex-col h-full bg-[#101B33] text-slate-300">
+    <div className="flex flex-col h-full glass-dark text-slate-300 rounded-none">
       <div className="p-4 border-b border-white/10 flex items-center gap-3">
         <NavLink to="/" onClick={onCloseMobile} title="Command Center" className="shrink-0">
           <AegisEmblem size="md" />
@@ -122,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="p-3 border-t border-white/10">
         {(!collapsed || isDrawer) && (
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10 mb-2">
+          <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 mb-2">
             <p className="text-xs font-semibold text-white truncate">{localProfile?.name || user?.name || 'Command User'}</p>
             <p className="text-[11px] text-slate-400 truncate mt-0.5">
               {localProfile ? 'Local prototype profile' : user?.organization || 'Command centre'}

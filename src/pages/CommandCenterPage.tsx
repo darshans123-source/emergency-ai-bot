@@ -101,17 +101,23 @@ export const CommandCenterPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Hero */}
-      <section className="bg-[#101B33] rounded-2xl p-6 sm:p-8 text-white shadow-sm overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+      {/* Hero — blue-purple gradient welcome card with animated background */}
+      <section className="relative rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/20 overflow-hidden bg-gradient-to-br from-[#2563EB] via-[#4F46E5] to-[#7C3AED] animate-glass-fade-up">
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/15 blur-3xl animate-glass-float" />
+          <div className="absolute -bottom-20 left-1/4 w-64 h-64 rounded-full bg-cyan-400/25 blur-3xl animate-glass-float-slow" />
+          <div className="absolute top-8 right-1/3 w-20 h-20 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md rotate-12 hidden sm:block" />
+        </div>
+        <div className="relative flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            <p className="text-xs font-semibold uppercase tracking-widest text-blue-100">Emergency Operations Overview</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight">
               Welcome back, {displayName}
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
+            <p className="mt-2 text-sm sm:text-base text-blue-100 max-w-2xl">
               Monitor emergency operations and coordinate response activities from one place.
             </p>
-            <p className="mt-3 text-xs text-slate-400">
+            <p className="mt-3 text-xs text-blue-200">
               One Voice. Four Agents. One Mission. · Decision support only — always call 112 / 911 for
               life-threatening emergencies.
             </p>
@@ -119,7 +125,7 @@ export const CommandCenterPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/report')}
-            className="shrink-0 min-h-12 px-5 rounded-xl bg-[#E53935] hover:bg-red-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+            className="shrink-0 min-h-12 px-5 rounded-xl bg-[#EF4444] hover:bg-red-600 hover:-translate-y-0.5 text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-red-500/30"
           >
             <FilePlus2 className="w-4 h-4" />
             Report Emergency
@@ -172,7 +178,7 @@ export const CommandCenterPage: React.FC = () => {
       </section>
 
       {/* Connectivity — shown separately, and only "Connected" on a real live link */}
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <section className="glass rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-glass-fade-up">
         <div className="flex items-center gap-3 min-w-0">
           {isConnected ? (
             <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
@@ -219,7 +225,7 @@ export const CommandCenterPage: React.FC = () => {
       </section>
 
       {/* Backend health — separate from the WebSocket live link */}
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <section className="glass rounded-2xl p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-[#172033]">
@@ -241,7 +247,7 @@ export const CommandCenterPage: React.FC = () => {
 
       {/* Emergency category distribution — real summary counts only */}
       {summary && (
-        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <section className="glass rounded-2xl p-5">
           <h2 className="font-bold text-[#172033]">Emergency Category Distribution</h2>
           <p className="text-sm text-[#64748B] mt-1">Counts from the live dashboard summary, by incident category.</p>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
@@ -250,7 +256,7 @@ export const CommandCenterPage: React.FC = () => {
                 key={cat}
                 type="button"
                 onClick={() => navigate(`/incidents?category=${cat}`)}
-                className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-left hover:border-[#2563EB] transition"
+                className="glass glass-card-hover rounded-xl p-3 text-left transition"
               >
                 <p className="text-2xl font-extrabold text-[#172033]">{count}</p>
                 <p className="text-[11px] font-medium text-[#64748B] break-words mt-0.5">{cat.replace(/_/g, ' ')}</p>
@@ -262,7 +268,7 @@ export const CommandCenterPage: React.FC = () => {
 
       {/* Live incident activity — real recent incidents from /dashboard/activity */}
       {activityIncidents.length > 0 && (
-        <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <section className="glass rounded-2xl p-5">
           <h2 className="font-bold text-[#172033]">Live Incident Activity</h2>
           <ul className="mt-3 space-y-2">
             {activityIncidents.map((inc) => (
@@ -303,7 +309,7 @@ export const CommandCenterPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Police */}
-            <article className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col">
+            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between gap-2">
                 <span className="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
                   <Shield className="w-5 h-5" />
@@ -333,7 +339,7 @@ export const CommandCenterPage: React.FC = () => {
             </article>
 
             {/* Medical */}
-            <article className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col">
+            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between gap-2">
                 <span className="w-11 h-11 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
                   <HeartPulse className="w-5 h-5" />
@@ -364,7 +370,7 @@ export const CommandCenterPage: React.FC = () => {
             {/* Fire & Rescue — coordinated through real fire units + fire incidents.
                 There is no separate Fire specialised-agent in the backend, so this
                 card deliberately does not claim an agent "Online" status. */}
-            <article className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col">
+            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between gap-2">
                 <span className="w-11 h-11 rounded-xl bg-red-50 text-red-700 flex items-center justify-center">
                   <Flame className="w-5 h-5" />
@@ -392,7 +398,7 @@ export const CommandCenterPage: React.FC = () => {
             </article>
 
             {/* Civil & Public Services */}
-            <article className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col">
+            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between gap-2">
                 <span className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
                   <Droplets className="w-5 h-5" />
@@ -446,7 +452,7 @@ export const CommandCenterPage: React.FC = () => {
               key={cmd.label}
               type="button"
               onClick={() => navigate(cmd.to)}
-              className="min-h-14 px-4 rounded-xl bg-white border border-slate-200 shadow-sm text-sm font-semibold text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] transition flex items-center gap-2.5 text-left"
+              className="glass glass-card-hover min-h-14 px-4 rounded-xl text-sm font-semibold text-[#172033] hover:text-[#2563EB] transition flex items-center gap-2.5 text-left"
             >
               <span className="text-[#2563EB] shrink-0">{cmd.icon}</span>
               {cmd.label}
@@ -456,7 +462,7 @@ export const CommandCenterPage: React.FC = () => {
       </section>
 
       {/* Recent incidents — real records only */}
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <section className="glass rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
           <h2 className="font-bold text-[#172033]">Recent Incidents</h2>
           <button
