@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MarqueeBanner } from '../components/layout/MarqueeBanner';
 import { ArrowRight, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AuroraBackground } from '../components/layout/AuroraBackground';
@@ -80,6 +81,7 @@ export const SplashPage: React.FC = () => {
         </p>
       </div>
 
+      <MarqueeBanner />
       <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </div>
   );

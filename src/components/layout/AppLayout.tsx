@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar';
 import { AuroraBackground } from './AuroraBackground';
 import { Navbar } from './Navbar';
 import { useAuth } from '../../context/AuthContext';
+import { MarqueeBanner } from './MarqueeBanner';
 import { LayoutDashboard, AlertCircle, FilePlus2, MapPin, Bot, MoreHorizontal, Box, Layers, History, Settings, User, LogOut, X } from 'lucide-react';
 
 const BOTTOM_NAV = [
@@ -45,7 +46,7 @@ export const AppLayout: React.FC = () => {
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">
         <Navbar onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8 text-[#172033]">
+        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 lg:pb-16 text-[#172033]">
           <Outlet />
         </main>
 
@@ -74,6 +75,9 @@ export const AppLayout: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Marquee banner — above the mobile bottom nav, at the bottom on desktop */}
+        <MarqueeBanner aboveNav />
 
         {/* Mobile bottom navigation — 5 main sections + More, safe-area padding */}
         <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-liquid-strong border-t border-white/15 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">

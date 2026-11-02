@@ -1,6 +1,7 @@
 import { AuroraBackground } from '../components/layout/AuroraBackground';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MarqueeBanner } from '../components/layout/MarqueeBanner';
 import { AlertTriangle, UserPlus, LogIn, Eye, EyeOff, Loader2, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -87,7 +88,7 @@ export const LocalLoginPage: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[#07142E] flex items-center justify-center px-4 py-8">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#07142E] flex items-center justify-center px-4 py-8 pb-16">
       <AuroraBackground absolute />
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">
@@ -214,6 +215,7 @@ export const LocalLoginPage: React.FC = () => {
           For life-threatening emergencies, always call 112 / 911 directly.
         </p>
       </div>
+      <MarqueeBanner />
     </div>
   );
 };
