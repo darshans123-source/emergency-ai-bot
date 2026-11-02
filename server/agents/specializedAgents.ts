@@ -850,10 +850,11 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
 
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     const openAiKey = process.env.OPENAI_API_KEY?.trim();
+    const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
 
-    // 1. OpenAI takes precedence when configured (see OpenAI block below).
-    //    Gemini is only tried when no OpenAI key is set.
-    if (geminiKey && !openAiKey) {
+    // 1. Qwen (DashScope) / OpenAI take precedence when configured (see blocks below).
+    //    Gemini is only tried when neither Qwen nor OpenAI key is set.
+    if (geminiKey && !openAiKey && !dashKey) {
       const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
       try {
         const ai = new GoogleGenAI({
@@ -883,6 +884,47 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
         }
       } catch (err: any) {
         console.warn(`[SpecializedAgent:${agentId}] Gemini model notice:`, err?.message || err);
+        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
+      }
+    }
+
+    // 1b. Try Qwen (DashScope, OpenAI-compatible) if reply not yet generated and DASHSCOPE_API_KEY is configured
+    if (!replyText && dashKey) {
+      try {
+        const qwenModel = process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash';
+        const qwenBase = process.env.DASHSCOPE_BASE_URL?.trim() || 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`${qwenBase}/chat/completions`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${dashKey}` },
+          body: JSON.stringify({
+            model: qwenModel,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              ...history.slice(-4).map((m) => ({
+                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
+                content: m.content.slice(0, 250)
+              })),
+              { role: 'user', content: trimmedMessage }
+            ],
+            temperature: 0.3,
+            extra_body: { enable_thinking: true }
+          })
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content && content.trim()) {
+            replyText = content.trim();
+            providerStatus = 'Online';
+            providerNotice = null;
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[SpecializedAgent:${agentId}] Qwen model notice:`, err?.message || err);
         providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
       }
     }

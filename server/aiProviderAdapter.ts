@@ -4,7 +4,7 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini' | 'openai' | 'built-in-domain';
+  provider: 'gemini' | 'openai' | 'qwen' | 'built-in-domain';
   model: string;
   isExternalConfigured: boolean;
   status: 'Online' | 'Degraded' | 'Offline' | 'LocalFallback';
@@ -63,6 +63,20 @@ export function detectLanguage(text: string, preferred: SupportedLanguage = 'en'
 export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
+  const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
+
+  // Qwen (DashScope) takes precedence when DASHSCOPE_API_KEY is set (user-requested provider).
+  if (dashKey) {
+    const configuredModel = process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash';
+    return {
+      provider: 'qwen',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `Qwen (DashScope) Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
 
   // OpenAI takes precedence when OPENAI_API_KEY is set (user-requested provider).
   if (openAiKey) {
@@ -94,7 +108,7 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
     model: 'Aegis-Multilingual-Emergency-NLP-v2',
     isExternalConfigured: false,
     status: 'LocalFallback',
-    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure GEMINI_API_KEY in server environment for cloud LLM reasoning.',
+    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }

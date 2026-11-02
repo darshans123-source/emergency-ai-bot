@@ -585,13 +585,19 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
 });
 
 // -------------------------------------------------------------
-// OPENAI-ONLY ENDPOINTS (server-side only)
+// AI ENDPOINTS (server-side only, Qwen/DashScope first, then OpenAI)
 // -------------------------------------------------------------
-// The OpenAI key is read only from process.env.OPENAI_API_KEY on the
-// server. It is never sent to, or read from, the frontend, never put in
-// a VITE_ variable, and never committed. When the key is missing the
+// Keys are read only from server environment variables:
+//   DASHSCOPE_API_KEY (Qwen, via the OpenAI-compatible endpoint
+//   https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1,
+//   model qwen3.8-flash by default, thinking enabled as in the
+//   user-supplied DashScope example) or OPENAI_API_KEY.
+// They are never sent to, or read from, the frontend, never put in
+// a VITE_ variable, and never committed. When no key is set the
 // endpoints return a clear 503 — never a fake success and never a
-// response pretending to be OpenAI.
+// response pretending to be an AI provider. TTS stays OpenAI-only
+// (see /ai/tts) because DashScope's compatible-mode endpoint does
+// not provide OpenAI's audio/speech API.
 
 const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   rakshak: {
@@ -616,39 +622,58 @@ const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   }
 };
 
+type ChatProvider = { name: 'qwen' | 'openai'; key: string; baseUrl: string; model: string };
+
+function getChatProvider(): ChatProvider | null {
+  const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
+  if (dashKey) {
+    return {
+      name: 'qwen',
+      key: dashKey,
+      baseUrl: process.env.DASHSCOPE_BASE_URL?.trim() || 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1',
+      model: process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash'
+    };
+  }
+  const openKey = process.env.OPENAI_API_KEY?.trim();
+  if (openKey) {
+    return { name: 'openai', key: openKey, baseUrl: 'https://api.openai.com/v1', model: process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini' };
+  }
+  return null;
+}
+
 async function callOpenAIChat(
   system: string,
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
 ): Promise<string> {
-  const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) {
-    const err: any = new Error('OpenAI is not configured on the server. Set OPENAI_API_KEY in the server environment.');
+  const provider = getChatProvider();
+  if (!provider) {
+    const err: any = new Error('AI is not configured on the server. Set DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
     err.status = 503;
     throw err;
   }
-  const model = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: 'POST',
       signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
       body: JSON.stringify({
-        model,
+        model: provider.model,
         messages: [{ role: 'system', content: system }, ...messages],
-        temperature: 0.3
+        temperature: 0.3,
+        ...(provider.name === 'qwen' ? { extra_body: { enable_thinking: true } } : {})
       })
     });
     if (!response.ok) {
       const body = await response.text().catch(() => '');
-      const err: any = new Error(`OpenAI request failed (${response.status}). ${body.slice(0, 200)}`);
+      const err: any = new Error(`${provider.name} request failed (${response.status}). ${body.slice(0, 200)}`);
       err.status = 502;
       throw err;
     }
     const data: any = await response.json();
     const content = data.choices?.[0]?.message?.content;
-    if (!content || !content.trim()) throw new Error('OpenAI returned an empty response.');
+    if (!content || !content.trim()) throw new Error(`${provider.name} returned an empty response.`);
     return content.trim();
   } finally {
     clearTimeout(timeoutId);
@@ -658,8 +683,8 @@ async function callOpenAIChat(
 function openaiError(res: Response, err: any) {
   const status = err?.status || 502;
   res.status(status).json({
-    error: status === 503 ? 'OpenAI Not Configured' : 'OpenAI Error',
-    message: err?.message || 'OpenAI request failed.'
+    error: status === 503 ? 'AI Not Configured' : 'AI Error',
+    message: err?.message || 'AI request failed.'
   });
 }
 
@@ -681,7 +706,7 @@ apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) =>
       ...(Array.isArray(history) ? history.slice(-6).map((m: any) => ({ role: m.role === 'user' ? ('user' as const) : ('assistant' as const), content: String(m.content || '').slice(0, 500) })) : []),
       { role: 'user' as const, content: `${context}\n\nUser message: ${message.trim()}` }
     ]);
-    res.json({ agent: key, agentName: agentDef.name, reply, provider: 'openai', timestamp: new Date().toISOString() });
+    res.json({ agent: key, agentName: agentDef.name, reply, provider: getChatProvider()?.name || 'openai', timestamp: new Date().toISOString() });
   } catch (err: any) {
     openaiError(res, err);
   }
@@ -711,7 +736,7 @@ apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response)
       'You are an emergency dispatch assistant. Be concise, factual and calm. Never invent locations, units, times or outcomes. State when information is missing.',
       [{ role: 'user', content: `${taskText}\n\nReport: ${sourceText.slice(0, 4000)}` }]
     );
-    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: 'openai' });
+    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: getChatProvider()?.name || 'openai' });
   } catch (err: any) {
     openaiError(res, err);
   }
@@ -736,7 +761,7 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
     .slice(0, 20);
   let summary: string | null = null;
   let summaryNotice: string | null = null;
-  if (matches.length > 0 && process.env.OPENAI_API_KEY?.trim()) {
+  if (matches.length > 0 && getChatProvider()) {
     try {
       summary = await callOpenAIChat(
         'You are an emergency dispatch assistant. Summarize search results factually, without inventing incidents.',
@@ -750,10 +775,10 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
         ]
       );
     } catch {
-      summaryNotice = 'AI summary unavailable: OpenAI request failed. Matches below are from the live database.';
+      summaryNotice = 'AI summary unavailable: AI request failed. Matches below are from the live database.';
     }
-  } else if (!process.env.OPENAI_API_KEY?.trim()) {
-    summaryNotice = 'AI summary unavailable: OpenAI is not configured on the server. Matches below are from the live database.';
+  } else if (!getChatProvider()) {
+    summaryNotice = 'AI summary unavailable: no AI key is configured on the server. Matches below are from the live database.';
   }
   res.json({ query: query.trim(), total: matches.length, incidents: matches, summary, summaryNotice });
 });
