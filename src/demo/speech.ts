@@ -6,13 +6,26 @@ export function detectSpeechLang(text: string, fallback: SpeechLang = 'en'): Spe
   if (/[\u0900-\u097F]/.test(text)) return 'hi';
   return fallback;
 }
+export function getVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return [];
+  return window.speechSynthesis.getVoices();
+}
+export function getSavedVoiceName(): string | null {
+  try { return localStorage.getItem('aegis_voice_name'); } catch { return null; }
+}
+export function saveVoiceName(name: string) { try { localStorage.setItem('aegis_voice_name', name); } catch { /* ignore */ } }
 export function pickVoice(lang: SpeechLang): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
+  const saved = getSavedVoiceName();
+  if (saved) { const v = voices.find((x) => x.name === saved); if (v) return v; }
   const code = LANG_CODE[lang];
   return voices.find((v) => v.lang === code) || voices.find((v) => v.lang.startsWith(code.slice(0, 2))) || voices.find((v) => v.default) || voices[0];
 }
+export function pauseSpeaking() { if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.pause(); }
+export function resumeSpeaking() { if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.resume(); }
+export function isSpeakingPaused(): boolean { return typeof window !== 'undefined' && !!window.speechSynthesis && window.speechSynthesis.paused; }
 export function speakText(text: string, lang: SpeechLang = 'en', onEnd?: () => void): boolean {
   if (typeof window === 'undefined' || !window.speechSynthesis) return false;
   try {
@@ -22,6 +35,8 @@ export function speakText(text: string, lang: SpeechLang = 'en', onEnd?: () => v
     const voice = pickVoice(lang);
     if (voice) utter.voice = voice;
     utter.rate = 1; utter.pitch = 1;
+    // Natural pauses: SpeechSynthesis already pauses at sentence breaks;
+    // keep the full response as one utterance so Pause/Resume work cleanly.
     if (onEnd) utter.onend = onEnd;
     utter.onerror = () => { if (onEnd) onEnd(); };
     window.speechSynthesis.speak(utter);

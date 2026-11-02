@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Send, Mic, MicOff, AlertTriangle, ArrowLeft } from 'lucide-react';
-import { generateAgentResponse, AGENT_META, AgentSlug } from '../demo/demoAiEngine';
+import { AGENT_META, AgentSlug } from '../demo/demoAiEngine';
+import { generateStructuredResponse, structuredToText, ConversationContext, StructuredResponse } from '../demo/aegisEngine';
+import { loadDemoIncidents, saveDemoIncidents } from '../demo/demoStore';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
 import { AGENT_CARDS } from './AgentsPage';
@@ -11,6 +13,8 @@ interface ChatMsg {
   role: 'user' | 'agent';
   content: string;
   demoMeta?: { category: string; priority: string; actions: string[]; demoInfo: string[] };
+  structured?: StructuredResponse;
+  savedAsIncident?: boolean;
 }
 
 const LEGACY_MAP: Record<string, string> = {
@@ -71,6 +75,16 @@ export const AgentChatPage: React.FC = () => {
     );
   }
 
+  const contextRef = useRef<ConversationContext>({ turnCount: 0 });
+  const saveAsIncident = (m: ChatMsg) => {
+    if (!m.structured) return;
+    const r = m.structured;
+    const list = loadDemoIncidents();
+    if (list.some((i) => i.id === r.incident_id)) { setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, savedAsIncident: true } : x))); return; }
+    const city = ['Bengaluru', 'Hyderabad', 'Raichur', 'Kalaburagi', 'Hubballi', 'Mysuru'].includes(r.location) ? r.location : 'Not specified';
+    saveDemoIncidents([{ id: r.incident_id, title: r.category, category: r.category, priority: r.priority, status: 'ACTIVE', city, address: r.location, description: r.summary, createdAt: r.timestamp } as any, ...list]);
+    setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, savedAsIncident: true } : x)));
+  };
   const send = async (text?: string) => {
     const content = (text ?? input).trim();
     if (!content || isSending) return;
@@ -83,9 +97,10 @@ export const AgentChatPage: React.FC = () => {
     // or backend error can appear here. The previous Live mode called
     // /ai/openai and showed "OpenAI not configured" when no key was set;
     // that option has been removed.
-    const demo = generateAgentResponse(resolvedSlug as AgentSlug, content);
+    const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current);
+    contextRef.current = context;
     window.setTimeout(() => {
-      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: demo.text, demoMeta: { category: demo.category, priority: demo.priority, actions: demo.actions, demoInfo: demo.demoInfo } }]);
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: structuredToText(response), structured: response }]);
       setIsSending(false);
     }, 700);
     return;
@@ -128,6 +143,7 @@ export const AgentChatPage: React.FC = () => {
   };
 
   const clearConversation = () => {
+    contextRef.current = { turnCount: 0 };
     setMessages([]);
     try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ }
   };
@@ -179,7 +195,45 @@ export const AgentChatPage: React.FC = () => {
                 m.role === 'user' ? 'mitra-chrome text-white rounded-br-md shadow-lg shadow-blue-500/25' : 'glass-liquid-input text-white rounded-bl-md'
               }`}
             >
-              <p className="whitespace-pre-wrap break-words">{m.content}</p>
+              {m.role === 'agent' && m.structured ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="font-bold text-white">{m.structured.agent}</span>
+                    <span className="text-[11px] text-slate-300">{m.structured.incident_id} · {m.structured.timestamp}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">{m.structured.category}</span>
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${m.structured.priority === 'CRITICAL' ? 'bg-rose-500/25 border-rose-400/50 text-rose-200' : m.structured.priority === 'HIGH' ? 'bg-amber-500/25 border-amber-400/50 text-amber-200' : m.structured.priority === 'MEDIUM' ? 'bg-blue-500/25 border-blue-400/50 text-blue-200' : 'bg-slate-500/25 border-slate-400/50 text-slate-200'}`}>{m.structured.priority}</span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">{m.structured.status}</span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-slate-300">Simulated data</span>
+                  </div>
+                  <p className="whitespace-pre-wrap break-words text-white">{m.structured.summary}</p>
+                  <div className="rounded-xl bg-white/10 border border-white/15 p-2.5">
+                    <p className="text-xs font-semibold text-white">Risk assessment</p>
+                    <p className="text-xs text-slate-300 mt-0.5">{m.structured.risk_assessment}</p>
+                    <p className="text-xs text-slate-300 mt-1.5">Location: {m.structured.location} · Response units dispatched: none · Estimated response time: not available in simulation.</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-white mb-1">Recommended actions</p>
+                    <ol className="space-y-1">
+                      {m.structured.recommended_actions.map((a, i) => (<li key={i} className="text-xs text-slate-200 flex gap-2"><span className="font-bold text-cyan-300">{i + 1}.</span><span>{a}</span></li>))}
+                    </ol>
+                  </div>
+                  {m.structured.routing_note && (
+                    <div className="rounded-xl bg-cyan-500/15 border border-cyan-400/40 p-2.5">
+                      <p className="text-xs text-cyan-100">{m.structured.routing_note}</p>
+                      <button type="button" onClick={() => navigate(`/agents/${m.structured!.detectedAgentSlug}`)} className="mt-2 min-h-9 px-3 rounded-xl mitra-chrome text-xs font-semibold text-white">Open {m.structured.agent} →</button>
+                    </div>
+                  )}
+                  {m.structured.follow_up_question && (<p className="text-xs text-slate-300">Follow-up: {m.structured.follow_up_question}</p>)}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button type="button" onClick={() => saveAsIncident(m)} disabled={m.savedAsIncident} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">{m.savedAsIncident ? 'Saved to incident list ✓' : 'Save as incident'}</button>
+                  </div>
+                  <VoiceControls text={m.structured.voice_response} />
+                </div>
+              ) : (
+                <p className="whitespace-pre-wrap break-words">{m.content}</p>
+              )}
               {m.role === 'agent' && m.demoMeta && (
                 <div className="mt-2 space-y-1.5">
                   <p className="text-xs"><span className="font-semibold">Category:</span> {m.demoMeta.category} · <span className="font-semibold">Priority (simulated):</span> {m.demoMeta.priority} · <span className="font-semibold">Status:</span> Simulated assessment</p>
@@ -187,7 +241,7 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && <VoiceControls text={m.content} />}
+              {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} />}
             </div>
           </div>
         ))}

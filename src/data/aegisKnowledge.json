@@ -1,0 +1,1257 @@
+{
+  "version": 1,
+  "note": "Local rule-based knowledge only. No external AI, no API key, no real dispatch. All records are simulated and must be labelled as such in the UI.",
+  "cities": [
+    "Bengaluru",
+    "Hyderabad",
+    "Raichur",
+    "Kalaburagi",
+    "Hubballi",
+    "Mysuru"
+  ],
+  "city_aliases": {
+    "bangalore": "Bengaluru",
+    "bengaluru": "Bengaluru",
+    "hyderabad": "Hyderabad",
+    "raichur": "Raichur",
+    "kalaburagi": "Kalaburagi",
+    "gulbarga": "Kalaburagi",
+    "hubballi": "Hubballi",
+    "hubli": "Hubballi",
+    "mysuru": "Mysuru",
+    "mysore": "Mysuru"
+  },
+  "severity": {
+    "critical": [
+      "trapped",
+      "unconscious",
+      "not breathing",
+      "chest pain",
+      "heavy bleeding",
+      "explosion",
+      "blast",
+      "collapsed",
+      "severe",
+      "critical",
+      "life threatening",
+      "drowning",
+      "electrocuted"
+    ],
+    "high": [
+      "injured",
+      "injury",
+      "bleeding",
+      "fire",
+      "smoke",
+      "rising water",
+      "robbery",
+      "attack",
+      "weapon"
+    ]
+  },
+  "follow_up_phrases": [
+    "yes",
+    "what next",
+    "what should i do now",
+    "and then",
+    "more",
+    "continue",
+    "tell me more",
+    "what about",
+    "ok",
+    "okay",
+    "go on",
+    "next step"
+  ],
+  "agents": {
+    "rakshak": {
+      "name": "Rakshak AI",
+      "sector": "Police & Security Response",
+      "intents": [
+        {
+          "id": "theft",
+          "category": "Theft",
+          "priority": "MEDIUM",
+          "keywords": [
+            "theft",
+            "stolen",
+            "steal",
+            "thief",
+            "pickpocket",
+            "snatched"
+          ],
+          "synonyms": [
+            "my phone was stolen",
+            "someone stole",
+            "bag stolen",
+            "wallet missing",
+            "bike stolen"
+          ],
+          "summary_templates": [
+            "A theft has been reported{loc}. The report describes a stolen item and a request for police guidance.",
+            "Theft report received{loc}. I have classified this as a police matter and prepared the steps usually taken after a theft."
+          ],
+          "risk_assessment": "Loss of property and a risk of the stolen item being misused. Do not chase or confront anyone.",
+          "recommended_actions": [
+            "Move to a safe, public place",
+            "Note the time, place and a description of the person or vehicle if you saw one",
+            "Keep any bill, box number or IMEI details ready if the item is a phone",
+            "Report it at the nearest police station or call 112 if there is immediate danger"
+          ],
+          "voice_template": "A theft has been reported. Please move to a safe place, note the time and details, and report it to police. Do not confront anyone.",
+          "follow_up": "Was anything else taken, and do you have a description of the person or vehicle?"
+        },
+        {
+          "id": "robbery",
+          "category": "Robbery",
+          "priority": "CRITICAL",
+          "keywords": [
+            "robbery",
+            "robbed",
+            "armed robbery",
+            "mugging",
+            "held at gunpoint"
+          ],
+          "synonyms": [
+            "robbed at",
+            "mugged",
+            "someone robbed",
+            "armed man"
+          ],
+          "summary_templates": [
+            "A robbery has been reported{loc}. This is treated as a high-risk public-safety incident.",
+            "Robbery report received{loc}. Your safety comes first — property can be replaced, a confrontation cannot."
+          ],
+          "risk_assessment": "High risk of violence. The priority is personal safety, not recovery of property.",
+          "recommended_actions": [
+            "Do not resist or chase the person",
+            "Move to a safe place as soon as it is safe to do so",
+            "Note clothing, height, direction of escape and any vehicle",
+            "Call 112 immediately if anyone is hurt or still in danger"
+          ],
+          "voice_template": "A robbery has been reported. Do not resist or chase anyone. Move to safety and call 112 if there is danger.",
+          "follow_up": "Is anyone hurt, and is the person still nearby?"
+        },
+        {
+          "id": "road_accident",
+          "category": "Road Accident",
+          "priority": "HIGH",
+          "keywords": [
+            "road accident",
+            "car accident",
+            "bike accident",
+            "crash",
+            "collision",
+            "vehicle hit"
+          ],
+          "synonyms": [
+            "accident on road",
+            "two vehicles collided",
+            "car hit",
+            "bike fell",
+            "vehicle crash"
+          ],
+          "summary_templates": [
+            "A road accident has been reported{loc}. The first concern is injuries and road safety.",
+            "Road accident report received{loc}. I have classified this as a traffic and medical-safety incident."
+          ],
+          "risk_assessment": "Risk of injury and of a second collision on a busy road. Keep the area clear if it is safe to do so.",
+          "recommended_actions": [
+            "Do not move a seriously injured person unless there is immediate danger",
+            "Turn on hazard lights and keep other traffic away if you can do so safely",
+            "Note vehicle numbers and the exact road location",
+            "Call 112 if anyone is injured"
+          ],
+          "voice_template": "A road accident has been reported. Keep the area safe, do not move seriously injured people unless there is danger, and call 112 if anyone is injured.",
+          "follow_up": "Is anyone injured, and how many vehicles are involved?"
+        },
+        {
+          "id": "traffic_accident",
+          "category": "Traffic Accident",
+          "priority": "HIGH",
+          "keywords": [
+            "traffic accident",
+            "traffic jam after accident",
+            "pile up",
+            "vehicles collided"
+          ],
+          "synonyms": [
+            "traffic pile up",
+            "many vehicles crashed",
+            "accident blocked road"
+          ],
+          "summary_templates": [
+            "A traffic accident has been reported{loc}. Traffic flow and injured people are both a concern here.",
+            "Traffic accident report received{loc}. The road may be blocked and other drivers may not see the scene."
+          ],
+          "risk_assessment": "Blocked road and slow traffic increase the risk of further collisions.",
+          "recommended_actions": [
+            "Keep a safe distance from the crash site",
+            "Use hazard lights and warn approaching traffic if safe",
+            "Note the road and direction of travel",
+            "Call 112 if anyone is injured or the road is fully blocked"
+          ],
+          "voice_template": "A traffic accident has been reported. Keep a safe distance, warn other traffic if it is safe, and call 112 if anyone is injured.",
+          "follow_up": "Which road and direction is blocked, and is anyone injured?"
+        },
+        {
+          "id": "missing_person",
+          "category": "Missing Person",
+          "priority": "HIGH",
+          "keywords": [
+            "missing",
+            "missing person",
+            "child missing",
+            "person disappeared",
+            "lost child",
+            "cannot find"
+          ],
+          "synonyms": [
+            "my child is missing",
+            "person not found",
+            "someone disappeared",
+            "elderly person missing"
+          ],
+          "summary_templates": [
+            "A missing-person report has been received{loc}. Time and last-seen details matter most in the first hours.",
+            "Missing-person report received{loc}. I have prepared the details a police report usually asks for."
+          ],
+          "risk_assessment": "A missing person, especially a child or an elderly person, may be at risk from traffic, weather or confusion.",
+          "recommended_actions": [
+            "Note the last place and time the person was seen",
+            "Note clothing, age and any medical needs",
+            "Check nearby familiar places and ask neighbours",
+            "Report it to the nearest police station, or call 112 if the person is a child or in danger"
+          ],
+          "voice_template": "A missing-person report has been received. Note the last place and time seen, and report it to police. Call 112 if the person is a child or in danger.",
+          "follow_up": "Who is missing, how old are they, and where were they last seen?"
+        },
+        {
+          "id": "suspicious_activity",
+          "category": "Suspicious Activity",
+          "priority": "MEDIUM",
+          "keywords": [
+            "suspicious",
+            "suspicious person",
+            "suspicious vehicle",
+            "stranger lurking",
+            "someone following"
+          ],
+          "synonyms": [
+            "strange person near",
+            "person watching house",
+            "suspicious bag",
+            "someone following me"
+          ],
+          "summary_templates": [
+            "Suspicious activity has been reported{loc}. The guidance is to observe from a safe distance, not to investigate.",
+            "Suspicious-activity report received{loc}. I have classified this as a public-safety observation."
+          ],
+          "risk_assessment": "Unknown intent. Observing from safety is safer than approaching.",
+          "recommended_actions": [
+            "Stay in a well-lit, public place",
+            "Note appearance, clothing, vehicle number and direction",
+            "Do not approach or question the person",
+            "Call 112 if the behaviour turns threatening"
+          ],
+          "voice_template": "Suspicious activity has been reported. Stay in a safe public place, note the details, and do not approach the person.",
+          "follow_up": "Can you describe the person or vehicle, and where exactly were they seen?"
+        },
+        {
+          "id": "public_disturbance",
+          "category": "Public Disturbance",
+          "priority": "MEDIUM",
+          "keywords": [
+            "fight",
+            "disturbance",
+            "crowd fighting",
+            "riot",
+            "commotion",
+            "people fighting"
+          ],
+          "synonyms": [
+            "fight near",
+            "crowd shouting",
+            "disturbance in street",
+            "people arguing violently"
+          ],
+          "summary_templates": [
+            "A public disturbance has been reported{loc}. Crowds can turn unsafe quickly, so distance is the safest step.",
+            "Public-disturbance report received{loc}. I have classified this as a public-order concern."
+          ],
+          "risk_assessment": "Crowd situations can escalate and block roads or emergency access.",
+          "recommended_actions": [
+            "Move away from the crowd",
+            "Do not join the argument or try to intervene",
+            "Note the location and approximate number of people",
+            "Call 112 if anyone is hurt or property is being damaged"
+          ],
+          "voice_template": "A public disturbance has been reported. Move away from the crowd and do not intervene. Call 112 if anyone is hurt.",
+          "follow_up": "How many people are involved, and is anyone hurt?"
+        },
+        {
+          "id": "harassment",
+          "category": "Harassment",
+          "priority": "HIGH",
+          "keywords": [
+            "harassment",
+            "harassing",
+            "stalking",
+            "eve teasing",
+            "threatening me",
+            "abuse"
+          ],
+          "synonyms": [
+            "someone harassing",
+            "being followed and threatened",
+            "stalker",
+            "verbal abuse in public"
+          ],
+          "summary_templates": [
+            "A harassment report has been received{loc}. You do not have to handle this alone, and you do not have to confront the person.",
+            "Harassment report received{loc}. I have prepared safe next steps and what to record."
+          ],
+          "risk_assessment": "Continued harassment can escalate. Safety and a clear record matter.",
+          "recommended_actions": [
+            "Move to a public, well-lit place or a shop",
+            "Do not engage further if it is unsafe",
+            "Save messages, call records or photos if you have them safely",
+            "Call 112 if you feel threatened, or report it at a police station"
+          ],
+          "voice_template": "A harassment report has been received. Move to a public safe place, save any evidence safely, and call 112 if you feel threatened.",
+          "follow_up": "Are you safe right now, and do you have any messages or details saved?"
+        },
+        {
+          "id": "personal_safety",
+          "category": "Personal Safety",
+          "priority": "MEDIUM",
+          "keywords": [
+            "feel unsafe",
+            "not safe",
+            "scared",
+            "safety",
+            "walking alone at night",
+            "unsafe area"
+          ],
+          "synonyms": [
+            "i feel unsafe",
+            "area not safe",
+            "scared to go home",
+            "safety advice"
+          ],
+          "summary_templates": [
+            "A personal-safety concern has been reported{loc}. The focus here is on getting to safety and staying reachable.",
+            "Personal-safety request received{loc}. Here are practical steps for this situation."
+          ],
+          "risk_assessment": "Feeling unsafe in a place, especially at night, is itself a safety signal to act on.",
+          "recommended_actions": [
+            "Stay in lit, busy areas and avoid shortcuts",
+            "Share your live location with a trusted person if you can",
+            "Keep your phone charged and within reach",
+            "Call 112 if you are followed or threatened"
+          ],
+          "voice_template": "A personal-safety concern has been reported. Stay in lit busy areas, share your location with someone you trust, and call 112 if you are threatened.",
+          "follow_up": "Where are you now, and are you alone or with someone?"
+        },
+        {
+          "id": "firearms_danger",
+          "category": "Firearms / Dangerous Situation",
+          "priority": "CRITICAL",
+          "keywords": [
+            "gun",
+            "firearm",
+            "weapon",
+            "knife",
+            "armed",
+            "shooting",
+            "bomb"
+          ],
+          "synonyms": [
+            "person with gun",
+            "someone with knife",
+            "shooting heard",
+            "bomb threat"
+          ],
+          "summary_templates": [
+            "A dangerous situation involving a weapon has been reported{loc}. This is treated as critical — distance and cover come first.",
+            "Weapon-related report received{loc}. Do not approach, do not investigate, and prioritise getting away safely."
+          ],
+          "risk_assessment": "Very high risk of serious harm. Immediate distance and an emergency call are the priority.",
+          "recommended_actions": [
+            "Leave the area immediately if it is safe to do so",
+            "Do not approach the person or object",
+            "Call 112 as soon as you are safe",
+            "Do not touch any suspicious object"
+          ],
+          "voice_template": "A dangerous situation has been reported. Leave the area if it is safe, do not approach anyone, and call 112 as soon as you are safe.",
+          "follow_up": "Are you in a safe place now, and can you describe the location?"
+        },
+        {
+          "id": "general_police",
+          "category": "General Police Assistance",
+          "priority": "MEDIUM",
+          "keywords": [
+            "police",
+            "police help",
+            "complaint",
+            "fir",
+            "police station"
+          ],
+          "synonyms": [
+            "need police help",
+            "how to file complaint",
+            "police station near",
+            "general police question"
+          ],
+          "summary_templates": [
+            "A general police-assistance request has been received{loc}. Here is how a report is usually made.",
+            "General police request received{loc}. I can help you prepare the details for a report."
+          ],
+          "risk_assessment": "No immediate danger described. A clear written record still helps a police report.",
+          "recommended_actions": [
+            "Write down what happened, when and where",
+            "Keep any photos, bills or messages related to it",
+            "Visit the nearest police station with an identity document",
+            "Call 112 only if there is immediate danger"
+          ],
+          "voice_template": "A general police request has been received. Write down what happened, when and where, and visit the nearest police station with your details.",
+          "follow_up": "What happened, and when and where did it occur?"
+        }
+      ]
+    },
+    "jeevan": {
+      "name": "Jeevan AI",
+      "sector": "Medical & Healthcare Response",
+      "intents": [
+        {
+          "id": "heart_attack",
+          "category": "Heart Attack Warning Signs",
+          "priority": "CRITICAL",
+          "keywords": [
+            "chest pain",
+            "heart attack",
+            "heart pain",
+            "pressure in chest",
+            "chest tightness"
+          ],
+          "synonyms": [
+            "father chest pain",
+            "chest discomfort",
+            "pain in chest and arm",
+            "heart problem"
+          ],
+          "summary_templates": [
+            "A possible medical emergency with chest pain has been reported{loc}. This is general emergency guidance only, not a diagnosis.",
+            "Chest-pain report received{loc}. Chest pain can be serious, so the guidance below is urgent and general — it is not a diagnosis."
+          ],
+          "risk_assessment": "Chest pain can indicate a serious heart problem. Time matters, and only a medical professional can diagnose it.",
+          "recommended_actions": [
+            "Call 112 immediately",
+            "Keep the person resting, sitting or lying comfortably",
+            "Loosen tight clothing",
+            "Do not give food, drink or medicines unless a doctor has already advised them for this person"
+          ],
+          "voice_template": "A possible medical emergency with chest pain has been reported. Call 112 immediately and keep the person resting. This is not a diagnosis.",
+          "follow_up": "How long has the pain lasted, and is there sweating, breathlessness or pain in the arm or jaw?"
+        },
+        {
+          "id": "unconscious",
+          "category": "Unconscious Person",
+          "priority": "CRITICAL",
+          "keywords": [
+            "unconscious",
+            "fainted",
+            "faint",
+            "not responding",
+            "passed out",
+            "collapsed person"
+          ],
+          "synonyms": [
+            "person unconscious",
+            "someone fainted",
+            "not waking up",
+            "person collapsed"
+          ],
+          "summary_templates": [
+            "An unconscious person has been reported{loc}. This is general emergency guidance only, not a diagnosis.",
+            "Unconscious-person report received{loc}. Keep the person safe and get professional help quickly."
+          ],
+          "risk_assessment": "An unconscious person cannot protect their own airway. Professional help is needed urgently.",
+          "recommended_actions": [
+            "Call 112 immediately",
+            "Check breathing without moving the person unnecessarily",
+            "If breathing and there is no spine injury risk, turn them gently onto their side",
+            "Do not give food or drink"
+          ],
+          "voice_template": "An unconscious person has been reported. Call 112 immediately, check breathing, and do not give food or drink. This is not a diagnosis.",
+          "follow_up": "Is the person breathing, and how long have they been unconscious?"
+        },
+        {
+          "id": "road_injury",
+          "category": "Road Accident Injury",
+          "priority": "HIGH",
+          "keywords": [
+            "road accident injury",
+            "accident injured",
+            "bike accident injury",
+            "hit by vehicle",
+            "injured in accident"
+          ],
+          "synonyms": [
+            "injured in road accident",
+            "person hit by car",
+            "accident victim",
+            "rider injured"
+          ],
+          "summary_templates": [
+            "A road-accident injury has been reported{loc}. This is general first-aid guidance only, not a diagnosis.",
+            "Road-injury report received{loc}. The priority is to keep the person safe and get professional help."
+          ],
+          "risk_assessment": "Road injuries can include hidden bleeding or spine injury. Moving a seriously injured person can worsen it.",
+          "recommended_actions": [
+            "Call 112 immediately",
+            "Keep the person still unless there is immediate danger such as fire",
+            "Apply gentle pressure with a clean cloth for visible bleeding",
+            "Keep the area clear for emergency access"
+          ],
+          "voice_template": "A road-accident injury has been reported. Call 112, keep the person still unless there is danger, and apply pressure for bleeding with a clean cloth.",
+          "follow_up": "Is the person conscious and breathing, and where is the injury?"
+        },
+        {
+          "id": "bleeding",
+          "category": "Bleeding Emergency",
+          "priority": "HIGH",
+          "keywords": [
+            "bleeding",
+            "blood loss",
+            "cut bleeding",
+            "wound bleeding",
+            "heavy bleed"
+          ],
+          "synonyms": [
+            "bleeding heavily",
+            "cut and bleeding",
+            "blood not stopping",
+            "deep cut"
+          ],
+          "summary_templates": [
+            "A bleeding emergency has been reported{loc}. This is general first-aid guidance only, not a diagnosis.",
+            "Bleeding report received{loc}. Stopping visible bleeding with pressure is the first step while help is on the way."
+          ],
+          "risk_assessment": "Heavy bleeding can become dangerous quickly. Pressure and professional help matter.",
+          "recommended_actions": [
+            "Call 112 if bleeding is heavy or does not stop",
+            "Press firmly with a clean cloth or bandage",
+            "Keep the injured area raised if it is safe to do so",
+            "Do not remove an object stuck in a wound"
+          ],
+          "voice_template": "A bleeding emergency has been reported. Press firmly with a clean cloth, and call 112 if bleeding is heavy or does not stop.",
+          "follow_up": "Where is the bleeding, and is it heavy or slow?"
+        },
+        {
+          "id": "burns",
+          "category": "Burns",
+          "priority": "HIGH",
+          "keywords": [
+            "burn",
+            "burns",
+            "burnt",
+            "scald",
+            "hot water burn",
+            "fire burn"
+          ],
+          "synonyms": [
+            "burn injury",
+            "burnt hand",
+            "scald burn",
+            "burn from fire"
+          ],
+          "summary_templates": [
+            "A burn has been reported{loc}. This is general first-aid guidance only, not a diagnosis.",
+            "Burn report received{loc}. Cooling and covering the burn, and avoiding home remedies on the skin, are the usual first steps."
+          ],
+          "risk_assessment": "Burns can worsen with delay and can become infected. Large, deep or facial burns need professional care.",
+          "recommended_actions": [
+            "Cool the burn with clean, cool running water for at least 10 minutes",
+            "Cover loosely with a clean, non-sticky cloth",
+            "Do not apply toothpaste, butter or ice directly",
+            "Call 112 for large, deep, facial or breathing-related burns"
+          ],
+          "voice_template": "A burn has been reported. Cool it with clean cool water, cover it loosely, and do not apply toothpaste or butter. Call 112 for large or deep burns.",
+          "follow_up": "How large is the burn, and which part of the body is affected?"
+        },
+        {
+          "id": "breathing",
+          "category": "Breathing Difficulty",
+          "priority": "CRITICAL",
+          "keywords": [
+            "breathing difficulty",
+            "breathlessness",
+            "cannot breathe",
+            "asthma",
+            "choking",
+            "shortness of breath"
+          ],
+          "synonyms": [
+            "difficulty breathing",
+            "short of breath",
+            "asthma attack",
+            "person choking"
+          ],
+          "summary_templates": [
+            "Breathing difficulty has been reported{loc}. This is general emergency guidance only, not a diagnosis.",
+            "Breathing-difficulty report received{loc}. Breathing problems can worsen fast, so professional help is urgent."
+          ],
+          "risk_assessment": "Breathing difficulty can become life-threatening. It needs professional assessment, not a home diagnosis.",
+          "recommended_actions": [
+            "Call 112 immediately",
+            "Help the person sit upright and loosen tight clothing",
+            "If the person is choking and cannot speak, encourage coughing if they can",
+            "Do not give food or drink while breathing is difficult"
+          ],
+          "voice_template": "Breathing difficulty has been reported. Call 112 immediately and help the person sit upright. This is not a diagnosis.",
+          "follow_up": "Is the person able to speak or cough, and how long has this lasted?"
+        },
+        {
+          "id": "stroke",
+          "category": "Stroke Warning Signs",
+          "priority": "CRITICAL",
+          "keywords": [
+            "stroke",
+            "face drooping",
+            "arm weakness",
+            "speech slurred",
+            "sudden numbness"
+          ],
+          "synonyms": [
+            "stroke signs",
+            "face droop",
+            "slurred speech suddenly",
+            "one side weak"
+          ],
+          "summary_templates": [
+            "Possible stroke warning signs have been reported{loc}. This is general emergency guidance only, not a diagnosis.",
+            "Stroke-sign report received{loc}. Sudden face, arm or speech changes need urgent professional assessment."
+          ],
+          "risk_assessment": "Stroke signs are time-critical. Only a hospital assessment can confirm a stroke.",
+          "recommended_actions": [
+            "Call 112 immediately and note the time symptoms started",
+            "Keep the person resting and lying on their side if unconscious",
+            "Do not give food, drink or medicines",
+            "Do not wait to see if it passes"
+          ],
+          "voice_template": "Possible stroke warning signs have been reported. Call 112 immediately and note when symptoms started. This is not a diagnosis.",
+          "follow_up": "When did the symptoms start, and which side is affected?"
+        },
+        {
+          "id": "first_aid_general",
+          "category": "First Aid Guidance",
+          "priority": "MEDIUM",
+          "keywords": [
+            "first aid",
+            "first-aid",
+            "what first aid",
+            "minor injury",
+            "small cut",
+            "fever",
+            "headache"
+          ],
+          "synonyms": [
+            "need first aid advice",
+            "minor wound",
+            "fever guidance",
+            "general medical question"
+          ],
+          "summary_templates": [
+            "A general first-aid request has been received{loc}. This is general information only, not a diagnosis.",
+            "First-aid request received{loc}. Here is safe, general guidance for a minor situation."
+          ],
+          "risk_assessment": "Minor situations can still need professional care if they worsen. Watch for warning signs.",
+          "recommended_actions": [
+            "Clean a minor cut with clean water and cover it",
+            "Rest and drink water for mild fever or headache, unless a doctor has advised otherwise",
+            "Watch for worsening pain, fever, breathing difficulty or bleeding",
+            "Seek a doctor or call 112 if symptoms worsen"
+          ],
+          "voice_template": "A general first-aid request has been received. Clean minor cuts with water and cover them, rest, and seek a doctor if symptoms worsen. This is not a diagnosis.",
+          "follow_up": "What happened, and how long has it lasted?"
+        },
+        {
+          "id": "ambulance",
+          "category": "Ambulance Assistance",
+          "priority": "HIGH",
+          "keywords": [
+            "ambulance",
+            "need ambulance",
+            "call ambulance",
+            "hospital transport",
+            "emergency vehicle"
+          ],
+          "synonyms": [
+            "how to call ambulance",
+            "ambulance number",
+            "need hospital transport",
+            "send ambulance"
+          ],
+          "summary_templates": [
+            "An ambulance request has been received{loc}. This is a simulated request — no real ambulance has been sent.",
+            "Ambulance-assistance request received{loc}. In a real emergency, the number to call in India is 112."
+          ],
+          "risk_assessment": "Transport delay can worsen a medical emergency. A real call is needed for a real dispatch.",
+          "recommended_actions": [
+            "Call 112 in a real emergency and give the exact location",
+            "Stay with the person and keep the entrance clear",
+            "Note the person's age, symptoms and any medicines",
+            "Do not move a seriously injured person unless there is danger"
+          ],
+          "voice_template": "An ambulance request has been received. In a real emergency, call 112 with the exact location. This simulation has not sent any ambulance.",
+          "follow_up": "Where is the patient, and what are the main symptoms?"
+        }
+      ]
+    },
+    "agni": {
+      "name": "Agni AI",
+      "sector": "Fire & Rescue Response",
+      "intents": [
+        {
+          "id": "residential_fire",
+          "category": "Residential Fire",
+          "priority": "CRITICAL",
+          "keywords": [
+            "fire in building",
+            "house fire",
+            "residential fire",
+            "apartment fire",
+            "flat fire",
+            "building on fire",
+            "fire"
+          ],
+          "synonyms": [
+            "fire in my building",
+            "house on fire",
+            "fire in home",
+            "flat burning"
+          ],
+          "summary_templates": [
+            "A residential fire has been reported{loc}. Leave the building — do not collect belongings and do not use lifts.",
+            "Residential-fire report received{loc}. Evacuation comes before anything else."
+          ],
+          "risk_assessment": "Fire and smoke spread fast in a building. Smoke inhalation is often more dangerous than flames.",
+          "recommended_actions": [
+            "Leave immediately by the nearest safe exit",
+            "Do not use lifts",
+            "Stay low under smoke and close doors behind you if you can",
+            "Call 112 once you are outside and safe"
+          ],
+          "voice_template": "A residential fire has been reported. Leave immediately, do not use lifts, and call 112 once you are outside and safe.",
+          "follow_up": "Is anyone trapped inside, and which floor is affected?"
+        },
+        {
+          "id": "electrical_fire",
+          "category": "Electrical Fire",
+          "priority": "HIGH",
+          "keywords": [
+            "electrical fire",
+            "short circuit fire",
+            "wire fire",
+            "switchboard fire",
+            "electric fire"
+          ],
+          "synonyms": [
+            "short circuit",
+            "wire burning",
+            "switchboard sparking",
+            "electrical smell fire"
+          ],
+          "summary_templates": [
+            "An electrical fire has been reported{loc}. Do not pour water on an electrical fire.",
+            "Electrical-fire report received{loc}. Power and water together are dangerous, so keep distance."
+          ],
+          "risk_assessment": "Electrical fires can restart and can electrify nearby objects. Professional fire crews are needed.",
+          "recommended_actions": [
+            "Do not pour water on an electrical fire",
+            "Turn off the main power only if you can do so safely from a dry place",
+            "Leave the room and close the door if possible",
+            "Call 112 once you are safe"
+          ],
+          "voice_template": "An electrical fire has been reported. Do not pour water on it. Leave the room if it is unsafe and call 112 once you are safe.",
+          "follow_up": "Where is the fire, and is the power still on?"
+        },
+        {
+          "id": "forest_fire",
+          "category": "Forest Fire",
+          "priority": "HIGH",
+          "keywords": [
+            "forest fire",
+            "wildfire",
+            "bush fire",
+            "field fire",
+            "dry grass fire"
+          ],
+          "synonyms": [
+            "forest burning",
+            "wildfire near",
+            "field on fire",
+            "grass fire spreading"
+          ],
+          "summary_templates": [
+            "A forest or field fire has been reported{loc}. Wind can change its direction quickly.",
+            "Forest-fire report received{loc}. Distance and wind direction matter more than trying to fight it."
+          ],
+          "risk_assessment": "Wildfires spread with wind and dry vegetation. Smoke can also affect breathing at a distance.",
+          "recommended_actions": [
+            "Move away from the fire, upwind if possible",
+            "Do not try to fight a large fire yourself",
+            "Close windows and doors if smoke reaches your home",
+            "Call 112 and give the nearest road or landmark"
+          ],
+          "voice_template": "A forest fire has been reported. Move away upwind, do not try to fight a large fire yourself, and call 112.",
+          "follow_up": "How large is the fire, and which direction is the wind blowing?"
+        },
+        {
+          "id": "gas_leak",
+          "category": "Gas Leakage",
+          "priority": "CRITICAL",
+          "keywords": [
+            "gas leak",
+            "gas smell",
+            "lpg leak",
+            "gas cylinder leak",
+            "gas leaking"
+          ],
+          "synonyms": [
+            "smell gas",
+            "lpg smell",
+            "gas cylinder leaking",
+            "gas pipe leak"
+          ],
+          "summary_templates": [
+            "A gas leak has been reported{loc}. Do not switch any electrical device on or off — a spark can ignite gas.",
+            "Gas-leak report received{loc}. Fresh air and distance are the immediate steps."
+          ],
+          "risk_assessment": "Leaked gas can ignite from a spark and can cause breathing difficulty in an enclosed space.",
+          "recommended_actions": [
+            "Do not switch lights, fans or phones on or off inside",
+            "Open doors and windows only if you can do so without a spark risk, then leave",
+            "Do not light a match or stove",
+            "Call 112 from outside the building"
+          ],
+          "voice_template": "A gas leak has been reported. Do not switch anything electrical on or off, leave the building, and call 112 from outside.",
+          "follow_up": "Is the smell strong, and is anyone feeling dizzy or unwell?"
+        },
+        {
+          "id": "building_rescue",
+          "category": "Building Rescue",
+          "priority": "CRITICAL",
+          "keywords": [
+            "trapped in building",
+            "person trapped",
+            "building collapse",
+            "stuck in building",
+            "rescue"
+          ],
+          "synonyms": [
+            "trapped inside",
+            "building collapsed",
+            "person stuck",
+            "need rescue"
+          ],
+          "summary_templates": [
+            "A building rescue situation has been reported{loc}. Staying calm and giving an exact location helps rescuers.",
+            "Building-rescue report received{loc}. Do not re-enter a damaged building to search."
+          ],
+          "risk_assessment": "Collapsed or damaged buildings can shift further. Untrained rescue attempts can cause more harm.",
+          "recommended_actions": [
+            "Do not re-enter a damaged or collapsed building",
+            "Call 112 and give the building name, floor and room if known",
+            "Shout or tap if you are trapped, and save phone battery",
+            "Keep others away from the damaged structure"
+          ],
+          "voice_template": "A building rescue situation has been reported. Do not re-enter a damaged building. Call 112 with the exact building and floor.",
+          "follow_up": "How many people are trapped, and where exactly are they?"
+        },
+        {
+          "id": "vehicle_fire",
+          "category": "Vehicle Fire",
+          "priority": "HIGH",
+          "keywords": [
+            "vehicle fire",
+            "car fire",
+            "bike fire",
+            "car burning",
+            "vehicle on fire"
+          ],
+          "synonyms": [
+            "car on fire",
+            "bike burning",
+            "vehicle fire on road",
+            "car smoke fire"
+          ],
+          "summary_templates": [
+            "A vehicle fire has been reported{loc}. Fuel and tyres can make a vehicle fire spread and explode.",
+            "Vehicle-fire report received{loc}. Distance is safer than trying to save the vehicle."
+          ],
+          "risk_assessment": "Vehicle fires can flare suddenly from fuel, tyres and batteries.",
+          "recommended_actions": [
+            "Move at least 30 metres away",
+            "Do not open the bonnet or try to remove belongings",
+            "Warn other road users if it is safe",
+            "Call 112 and give the road and direction"
+          ],
+          "voice_template": "A vehicle fire has been reported. Move at least 30 metres away, do not open the bonnet, and call 112.",
+          "follow_up": "What type of vehicle is it, and is anyone trapped inside?"
+        },
+        {
+          "id": "smoke",
+          "category": "Smoke Emergency",
+          "priority": "HIGH",
+          "keywords": [
+            "smoke",
+            "smoke in building",
+            "smoke alarm",
+            "smell smoke",
+            "smoke filling"
+          ],
+          "synonyms": [
+            "smoke in apartment",
+            "smoke alarm ringing",
+            "smell burning smoke",
+            "smoke in corridor"
+          ],
+          "summary_templates": [
+            "Smoke has been reported{loc}. Smoke can be dangerous even without visible flames.",
+            "Smoke report received{loc}. Treat smoke as a fire warning until it is checked."
+          ],
+          "risk_assessment": "Smoke inhalation and low visibility are the main risks, even in a small fire.",
+          "recommended_actions": [
+            "Leave the smoky area and stay low",
+            "Close doors behind you if you can",
+            "Do not use lifts",
+            "Call 112 if smoke is thick, spreading or you cannot find its source"
+          ],
+          "voice_template": "Smoke has been reported. Leave the smoky area, stay low, do not use lifts, and call 112 if smoke is thick or spreading.",
+          "follow_up": "Where is the smoke coming from, and how thick is it?"
+        },
+        {
+          "id": "flood_rescue",
+          "category": "Flood Rescue",
+          "priority": "HIGH",
+          "keywords": [
+            "flood rescue",
+            "trapped in flood",
+            "water rescue",
+            "stuck in flood water",
+            "flood trapped"
+          ],
+          "synonyms": [
+            "trapped by flood water",
+            "need flood rescue",
+            "water rising around house",
+            "stuck in flood"
+          ],
+          "summary_templates": [
+            "A flood-rescue situation has been reported{loc}. Rising water and strong currents are the main dangers.",
+            "Flood-rescue report received{loc}. Do not walk or drive through moving water."
+          ],
+          "risk_assessment": "Flood water can hide drains and debris and can rise faster than expected.",
+          "recommended_actions": [
+            "Move to the highest safe floor or roof if water is rising",
+            "Do not walk or drive through moving water",
+            "Call 112 and give the exact address and number of people",
+            "Keep a charged phone and a light with you if possible"
+          ],
+          "voice_template": "A flood-rescue situation has been reported. Move to high ground, do not walk through moving water, and call 112 with the exact address.",
+          "follow_up": "How many people are trapped, and how deep is the water?"
+        },
+        {
+          "id": "fire_safety",
+          "category": "Fire Safety Instructions",
+          "priority": "MEDIUM",
+          "keywords": [
+            "fire safety",
+            "fire prevention",
+            "fire extinguisher",
+            "fire drill",
+            "how to prevent fire"
+          ],
+          "synonyms": [
+            "fire safety tips",
+            "how to use extinguisher",
+            "fire prevention at home",
+            "fire drill advice"
+          ],
+          "summary_templates": [
+            "A fire-safety request has been received{loc}. Here are practical prevention and escape steps.",
+            "Fire-safety request received{loc}. A planned escape route matters more than any equipment."
+          ],
+          "risk_assessment": "Most home fires start in kitchens and from electrical faults. Prevention and an escape plan reduce risk.",
+          "recommended_actions": [
+            "Keep a clear escape route from every room",
+            "Test smoke alarms monthly and keep a fire extinguisher accessible",
+            "Do not overload sockets or leave cooking unattended",
+            "Practise a family escape plan and a meeting point outside"
+          ],
+          "voice_template": "A fire-safety request has been received. Keep escape routes clear, test smoke alarms, and do not overload sockets.",
+          "follow_up": "Is this for a home, office or school?"
+        }
+      ]
+    },
+    "sanrakshak": {
+      "name": "Sanrakshak AI",
+      "sector": "Disaster & Public Services",
+      "intents": [
+        {
+          "id": "flood",
+          "category": "Flood",
+          "priority": "HIGH",
+          "keywords": [
+            "flood",
+            "flooding",
+            "waterlogging",
+            "water logged",
+            "flooded road"
+          ],
+          "synonyms": [
+            "flooding on road",
+            "area flooded",
+            "waterlogging after rain",
+            "street flooded"
+          ],
+          "summary_templates": [
+            "Flooding has been reported{loc}. Avoid flooded roads and watch for rising water.",
+            "Flood report received{loc}. I have classified this as a disaster and public-safety incident."
+          ],
+          "risk_assessment": "Flood water can hide open drains and can rise quickly after heavy rain.",
+          "recommended_actions": [
+            "Do not walk or drive through flooded roads",
+            "Move valuables and documents to a higher place if safe",
+            "Keep drinking water and a charged phone ready",
+            "Call 112 if water enters homes or anyone is trapped"
+          ],
+          "voice_template": "Flooding has been reported. Do not walk or drive through flooded roads, and call 112 if water enters homes or anyone is trapped.",
+          "follow_up": "How deep is the water, and is it still rising?"
+        },
+        {
+          "id": "heavy_rainfall",
+          "category": "Heavy Rainfall",
+          "priority": "MEDIUM",
+          "keywords": [
+            "heavy rain",
+            "heavy rainfall",
+            "continuous rain",
+            "rainstorm",
+            "monsoon rain"
+          ],
+          "synonyms": [
+            "heavy rain since morning",
+            "continuous rainfall",
+            "rainstorm warning",
+            "very heavy rain"
+          ],
+          "summary_templates": [
+            "Heavy rainfall has been reported{loc}. The main risks are waterlogging, weak structures and slippery roads.",
+            "Heavy-rainfall report received{loc}. Here are precautions for this weather."
+          ],
+          "risk_assessment": "Heavy rain can lead to flooding, falling branches and power problems, even before water is visible.",
+          "recommended_actions": [
+            "Avoid low-lying roads and underpasses",
+            "Stay indoors during lightning and strong wind",
+            "Keep phones charged and drinking water ready",
+            "Call 112 if water rises or a tree or pole falls"
+          ],
+          "voice_template": "Heavy rainfall has been reported. Avoid low-lying roads, stay indoors during lightning, and call 112 if water rises.",
+          "follow_up": "How long has it rained, and is any road already waterlogged?"
+        },
+        {
+          "id": "electricity",
+          "category": "Electricity Disruption",
+          "priority": "MEDIUM",
+          "keywords": [
+            "power outage",
+            "electricity",
+            "no power",
+            "power cut",
+            "transformer",
+            "blackout"
+          ],
+          "synonyms": [
+            "power cut in area",
+            "no electricity",
+            "transformer failed",
+            "area dark no power"
+          ],
+          "summary_templates": [
+            "An electricity disruption has been reported{loc}. This is a simulated complaint — no real utility has been contacted.",
+            "Electricity report received{loc}. Here are safe steps while power is out."
+          ],
+          "risk_assessment": "Power cuts can affect medical devices, food storage and street safety at night.",
+          "recommended_actions": [
+            "Do not touch fallen wires or damaged poles",
+            "Keep a torch ready and avoid candles near curtains",
+            "Unplug sensitive electronics to avoid surge damage",
+            "Report it to your local electricity office, or call 112 if a wire is down and dangerous"
+          ],
+          "voice_template": "An electricity disruption has been reported. Do not touch fallen wires, and report it to your local electricity office. Call 112 if a wire is down.",
+          "follow_up": "How large is the affected area, and is any wire down?"
+        },
+        {
+          "id": "water_supply",
+          "category": "Water Supply Issue",
+          "priority": "MEDIUM",
+          "keywords": [
+            "water supply",
+            "no water",
+            "water problem",
+            "pipeline leak",
+            "water disruption"
+          ],
+          "synonyms": [
+            "no water supply",
+            "water pipeline leak",
+            "water not coming",
+            "water complaint"
+          ],
+          "summary_templates": [
+            "A water-supply issue has been reported{loc}. This is a simulated complaint — no real utility has been contacted.",
+            "Water-supply report received{loc}. Here are steps while supply is disrupted."
+          ],
+          "risk_assessment": "Disrupted supply can affect drinking water and hygiene, especially in hot weather.",
+          "recommended_actions": [
+            "Store clean drinking water in covered containers",
+            "Do not drink discoloured water without boiling it first",
+            "Note the affected streets for a complaint",
+            "Report it to your local water office"
+          ],
+          "voice_template": "A water-supply issue has been reported. Store clean drinking water in covered containers, and report it to your local water office.",
+          "follow_up": "Which streets are affected, and since when?"
+        },
+        {
+          "id": "road_blockage",
+          "category": "Road Blockage",
+          "priority": "MEDIUM",
+          "keywords": [
+            "road blocked",
+            "road blockage",
+            "road closed",
+            "tree fallen road",
+            "debris on road"
+          ],
+          "synonyms": [
+            "road blocked by tree",
+            "road closed due",
+            "debris blocking road",
+            "cannot pass road"
+          ],
+          "summary_templates": [
+            "A road blockage has been reported{loc}. The road may be unsafe for other drivers as well.",
+            "Road-blockage report received{loc}. I have classified this as an infrastructure and traffic-safety issue."
+          ],
+          "risk_assessment": "Blocked roads can delay emergency access and cause further accidents.",
+          "recommended_actions": [
+            "Do not try to move large debris or a fallen pole yourself",
+            "Warn other drivers if it is safe to do so",
+            "Use an alternative route",
+            "Call 112 if the blockage is dangerous or someone is injured"
+          ],
+          "voice_template": "A road blockage has been reported. Do not move large debris yourself, use an alternative route, and call 112 if it is dangerous.",
+          "follow_up": "What is blocking the road, and is anyone injured?"
+        },
+        {
+          "id": "natural_disaster",
+          "category": "Natural Disaster",
+          "priority": "HIGH",
+          "keywords": [
+            "earthquake",
+            "cyclone",
+            "storm",
+            "landslide",
+            "natural disaster",
+            "tremor"
+          ],
+          "synonyms": [
+            "earthquake felt",
+            "cyclone warning",
+            "landslide reported",
+            "storm damage"
+          ],
+          "summary_templates": [
+            "A natural disaster has been reported{loc}. Stay away from damaged buildings and falling objects.",
+            "Natural-disaster report received{loc}. The guidance below is general safety information."
+          ],
+          "risk_assessment": "Aftershocks, falling debris and damaged structures can follow the first event.",
+          "recommended_actions": [
+            "Move to an open area away from buildings and poles if it is safe",
+            "Do not re-enter damaged buildings",
+            "Keep a charged phone and drinking water ready",
+            "Call 112 if anyone is trapped or injured"
+          ],
+          "voice_template": "A natural disaster has been reported. Move to an open area away from buildings if it is safe, and call 112 if anyone is trapped or injured.",
+          "follow_up": "What happened, and is anyone trapped or injured?"
+        },
+        {
+          "id": "infrastructure",
+          "category": "Infrastructure Problem",
+          "priority": "LOW",
+          "keywords": [
+            "pothole",
+            "road damage",
+            "drain overflow",
+            "street light",
+            "broken road",
+            "infrastructure"
+          ],
+          "synonyms": [
+            "pothole on road",
+            "drain overflowing",
+            "street light not working",
+            "road damaged"
+          ],
+          "summary_templates": [
+            "An infrastructure problem has been reported{loc}. This is a simulated complaint — no real department has been contacted.",
+            "Infrastructure report received{loc}. Here is how such a complaint is usually recorded."
+          ],
+          "risk_assessment": "Infrastructure faults can become traffic or safety problems if left unreported.",
+          "recommended_actions": [
+            "Note the exact road and landmark",
+            "Take a photo from a safe place if you can",
+            "Avoid the damaged section, especially at night",
+            "Report it to your local municipal office"
+          ],
+          "voice_template": "An infrastructure problem has been reported. Note the exact road and landmark, and report it to your local municipal office.",
+          "follow_up": "Which road and landmark, and how large is the damage?"
+        },
+        {
+          "id": "public_safety_alert",
+          "category": "Public Safety Alert",
+          "priority": "MEDIUM",
+          "keywords": [
+            "public safety",
+            "safety alert",
+            "alert",
+            "warning",
+            "emergency alert"
+          ],
+          "synonyms": [
+            "safety alert for area",
+            "public warning",
+            "emergency alert needed",
+            "general safety alert"
+          ],
+          "summary_templates": [
+            "A public-safety alert request has been received{loc}. Here is general safety guidance for the area.",
+            "Public-safety request received{loc}. Stay informed through official local channels."
+          ],
+          "risk_assessment": "General alerts help people avoid an area, but they do not replace a direct emergency call.",
+          "recommended_actions": [
+            "Avoid the affected area if possible",
+            "Follow official local announcements",
+            "Keep phones charged and emergency numbers ready",
+            "Call 112 for any immediate danger"
+          ],
+          "voice_template": "A public-safety alert request has been received. Avoid the affected area, follow official announcements, and call 112 for immediate danger.",
+          "follow_up": "What is the alert about, and which area does it cover?"
+        }
+      ]
+    }
+  }
+}

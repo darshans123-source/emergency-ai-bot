@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Send, Mic, MicOff, Bot } from 'lucide-react';
-import { routeToAgent, AGENT_META } from '../../demo/demoAiEngine';
+import { AGENT_META } from '../../demo/demoAiEngine';
+import { routeToAgentStructured } from '../../demo/aegisEngine';
 import { speakText, stopSpeaking, startRecognition, recognitionSupported, detectSpeechLang } from '../../demo/speech';
 import { VoiceControls } from './VoiceControls';
 
@@ -17,7 +18,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
     const content = (raw ?? input).trim();
     if (!content) return;
     setInput('');
-    const { agent, mitraText } = routeToAgent(content);
+    const { agent, mitraText } = routeToAgentStructured(content);
     const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: mitraText, agent };
     setMessages((p) => [...p, { id: `u-${Date.now()}`, role: 'user', content }, reply]);
     if (fromVoice) speakText(mitraText, detectSpeechLang(mitraText));
@@ -26,7 +27,8 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
     if (listening) { recRef.current?.stop(); setListening(false); return; }
     if (!recognitionSupported()) { setMessages((p) => [...p, { id: `e-${Date.now()}`, role: 'mitra', content: 'Voice input is not supported in this browser. Please type your message.' }]); return; }
     setListening(true);
-    recRef.current = startRecognition('en', (t) => { setInput(t); send(t, true); }, () => {}, () => setListening(false));
+    // Review first: transcript goes into the input box; the user presses Send to submit it.
+    recRef.current = startRecognition('en', (t) => { setInput(t); }, () => {}, () => setListening(false));
     if (!recRef.current) setListening(false);
   };
   return (
