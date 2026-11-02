@@ -83,7 +83,7 @@ export const LiveMapPage: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
 
   // UI Panels
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth >= 768));
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState<'INCIDENTS' | 'FACILITIES' | 'FLEET'>('INCIDENTS');
 
@@ -1032,7 +1032,7 @@ export const LiveMapPage: React.FC = () => {
   return (
     <div
       ref={mapWrapperRef}
-      className={`flex flex-col h-[calc(100vh-5rem)] w-full overflow-hidden bg-slate-950 text-slate-100 rounded-xl border border-slate-800 shadow-2xl relative ${
+      className={`flex flex-col h-[calc(100dvh-17rem)] sm:h-[calc(100vh-5rem)] w-full overflow-hidden bg-slate-950 text-slate-100 rounded-xl border border-slate-800 shadow-2xl relative ${
         isFullscreen ? 'h-screen rounded-none border-none' : ''
       }`}
     >
@@ -1084,7 +1084,7 @@ export const LiveMapPage: React.FC = () => {
                 if (searchQuery.trim().length >= 2) setShowSearchResults(true);
               }}
               placeholder="Search hospitals, police, incidents, or street..."
-              className="w-full pl-8 pr-8 py-1.5 text-xs bg-slate-800/90 border border-slate-700 hover:border-slate-600 focus:border-blue-500 rounded-lg text-slate-200 placeholder-slate-400 focus:outline-none transition shadow-inner font-sans"
+              className="w-full pl-8 pr-8 py-2.5 text-xs bg-slate-800/90 border border-slate-700 hover:border-slate-600 focus:border-blue-500 rounded-lg text-slate-200 placeholder-slate-400 focus:outline-none transition shadow-inner font-sans"
             />
             {searchQuery && (
               <button
@@ -1435,7 +1435,7 @@ export const LiveMapPage: React.FC = () => {
       <div className="flex-1 flex overflow-hidden relative">
         {/* TACTICAL COLLAPSIBLE SIDEBAR */}
         {isSidebarOpen && (
-          <aside className="w-80 md:w-96 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all">
+          <aside className="max-md:absolute max-md:inset-y-0 max-md:left-0 max-md:z-30 max-md:w-[85vw] max-md:max-w-80 max-md:shadow-2xl w-80 md:w-96 bg-slate-900 border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all">
             {/* Sidebar Tabs */}
             <div className="grid grid-cols-3 border-b border-slate-800 text-xs font-semibold">
               <button

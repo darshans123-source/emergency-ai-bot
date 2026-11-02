@@ -112,41 +112,41 @@ export const CommandCenterPage: React.FC = () => {
   return (
     <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-white">
       {/* Compact welcome banner — white, no large gradient */}
-      <section className="rounded-[20px] glass-liquid-strong p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <section className="rounded-[20px] glass-liquid-strong p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-white truncate">{t('dash.welcome_back')}, {displayName}</h1>
-            <p className="text-xs sm:text-sm text-slate-300 truncate">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <h1 className="text-lg sm:text-xl font-bold text-white leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
             <p className="mt-1 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
           </div>
         </div>
-        <button type="button" onClick={() => navigate('/report')} className="shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
+        <button type="button" onClick={() => navigate('/report')} className="w-full sm:w-auto shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
           <FilePlus2 className="w-4 h-4" /> {t('menu.report_emergency')}
         </button>
       </section>
 
-      {/* AI Agents — immediately below welcome, 2 per row on mobile, 4 on desktop */}
+      {/* AI Agents — single column on small screens, 2 on tablets, 4 on desktop */}
       <section aria-label="AI agents">
         <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
           <h2 className="text-base font-bold text-white">{t('dash.ai_agents')}</h2>
           <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 hover:underline shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {agentCards.map((a) => (
               <article key={a.slug} className={`rounded-[20px] glass-liquid glass-liquid-hover ${a.accent} p-4 flex flex-col min-w-0 h-full`}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`w-10 h-10 rounded-xl ${a.chip} flex items-center justify-center shrink-0`}>{a.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 truncate max-w-[55%]">{a.status}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 text-center leading-tight">{a.status}</span>
                 </div>
                 <h3 className="mt-3 text-sm font-bold text-white">{a.name}</h3>
                 <p className="text-xs font-medium text-cyan-300">{a.role}</p>
-                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed line-clamp-2">{a.desc}</p>
-                <p className="mt-2 text-xs text-slate-300 truncate"><span className="font-semibold text-white">Task: </span>{a.task}</p>
-                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto pt-0 min-h-10 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
+                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">{a.desc}</p>
+                <p className="mt-2 mb-3 text-xs text-slate-300 leading-relaxed"><span className="font-semibold text-white">Task: </span>{a.task}</p>
+                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
               </article>
             ))}
           </div>
@@ -161,7 +161,7 @@ export const CommandCenterPage: React.FC = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((s) => (
               <div key={s.label} className="rounded-[20px] glass-liquid glass-liquid-hover p-4 flex items-start justify-between gap-2 min-w-0">
-                <div className="min-w-0"><p className="text-xs font-medium text-slate-300 truncate">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-white">{s.value}</p></div>
+                <div className="min-w-0"><p className="text-xs font-medium text-slate-300 leading-tight">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-white">{s.value}</p></div>
                 <span className={`w-9 h-9 rounded-xl ${s.chip} flex items-center justify-center shrink-0`}>{s.icon}</span>
               </div>
             ))}

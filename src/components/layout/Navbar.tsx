@@ -299,13 +299,13 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-3 sm:top-4 z-30 gap-2 sm:gap-4 min-h-14 py-2">
-      {/* Left: menu (mobile) + brand + live-link status */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 min-h-14 py-2 shrink-0 sticky top-3 sm:top-4 z-30">
+      {/* Left: menu (mobile) + brand + live-link status (desktop row) */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1 min-w-0">
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-11 min-h-11 flex items-center justify-center"
+          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-10 min-h-10 flex items-center justify-center"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -313,13 +313,13 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="hidden sm:flex items-center gap-2 shrink-0"
+          className="flex items-center gap-2 shrink-0"
           title="AegisAI Command Center"
         >
-          <img src="/logo-icon.svg" alt="AegisAI logo" className="w-8 h-8 rounded-lg object-cover shrink-0" />
-          <span className="font-bold text-[#172033] tracking-tight">AegisAI</span>
+          <img src="/logo-icon.svg" alt="AegisAI logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover shrink-0" />
+          <span className="hidden sm:inline font-bold text-[#172033] tracking-tight">AegisAI</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
           <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span>{t('nav.local_ai_ready')}</span>
@@ -327,8 +327,8 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         </div>
       </div>
 
-      {/* Center: Global Search Bar */}
-      <div className="relative flex-1 max-w-lg mx-auto min-w-0" ref={searchContainerRef}>
+      {/* Center: Global Search Bar — full-width row on mobile, centre column on desktop */}
+      <div className="relative flex-1 max-w-lg mx-auto min-w-0 order-3 sm:order-2 w-full sm:w-auto" ref={searchContainerRef}>
         <div className="relative flex items-center">
           <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
           <input
@@ -474,19 +474,18 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         )}
       </div>
 
-      {/* Right: Voice AI Assistant & Notifications */}
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Right: Voice AI Assistant & Notifications — row 1 on mobile, right column on desktop */}
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
         <LanguageSelector />
-        {/* Multilingual Voice AI Assistant Trigger Button */}
+        {/* Multilingual Voice AI Assistant Trigger Button — icon only on mobile so the row never overflows */}
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold transition-all cursor-pointer min-h-10"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ / తెలుగు)"
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
-          <span className="hidden md:inline">{t('nav.mitra')} (Voice)</span>
-          <span className="md:hidden">{t('nav.mitra')}</span>
+          <span className="hidden lg:inline">{t('nav.mitra')} (Voice)</span>
         </button>
 
         {/* Notifications Button */}
@@ -507,7 +506,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
           {/* Notifications Dropdown */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-strong rounded-2xl shadow-xl py-2 z-50 text-slate-800">
+            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 glass-strong rounded-2xl shadow-xl py-2 z-50 text-slate-800">
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
@@ -577,8 +576,16 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         </div>
       </div>
 
+        {/* Mobile-only status row: Local AI Ready sits on its own line so it never crowds the icon row */}
+        <div className="sm:hidden w-full order-4 flex justify-center pb-1">
+          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>{t('nav.local_ai_ready')}</span>
+          </span>
+        </div>
+
         {/* Profile + Logout */}
-        <div className="relative" ref={profileRef}>
+        <div className="relative order-2 sm:order-4" ref={profileRef}>
           <button
             type="button"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -594,7 +601,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             </span>
           </button>
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-slate-800">
+            <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-slate-800">
               <div className="px-4 py-3 border-b border-slate-100">
                 <p className="text-sm font-semibold text-[#172033] truncate">{localProfile?.name || user?.name}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{localProfile ? 'Local prototype profile' : user?.organization}</p>

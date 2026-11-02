@@ -468,13 +468,13 @@ export const Tactical3DPage: React.FC = () => {
   }[selectedVehicle];
 
   return (
-    <div className="relative w-full h-[calc(100vh-68px)] overflow-hidden bg-slate-950 select-none">
+    <div className="relative w-full h-[calc(100dvh-17rem)] sm:h-[calc(100vh-68px)] overflow-hidden bg-slate-950 select-none">
       {/* 100% Unobstructed Full-Bleed 3D WebGL Canvas */}
       <div ref={mountRef} className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing" />
 
       {/* Top Tactical Status Overlay (Minimal footprint) */}
       <div className="absolute top-4 left-4 z-20 pointer-events-none">
-        <div className="pointer-events-auto px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 shadow-xl max-w-sm">
+        <div className="pointer-events-auto px-3 sm:px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 shadow-xl max-w-[calc(100vw-6.5rem)] sm:max-w-sm">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-cyan-400" />
             <h1 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
@@ -496,7 +496,7 @@ export const Tactical3DPage: React.FC = () => {
       </div>
 
       {/* Top-Right Quick View Shortcuts */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 pointer-events-auto">
+      <div className="absolute top-4 right-4 z-20 flex flex-col sm:flex-row items-end sm:items-center gap-2 pointer-events-auto">
         <button
           type="button"
           onClick={() => setShowIncidentPerimeter(!showIncidentPerimeter)}
@@ -508,13 +508,13 @@ export const Tactical3DPage: React.FC = () => {
           title="Toggle perimeter cones and warning barricades"
         >
           <Compass className="w-3.5 h-3.5" />
-          <span>Perimeter Cones</span>
+          <span className="hidden sm:inline">Perimeter Cones</span>
         </button>
 
         <button
           type="button"
           onClick={() => setStrobesEnabled(!strobesEnabled)}
-          className={`px-3 py-2 rounded-xl text-xs font-mono font-semibold border transition shadow-lg flex items-center gap-1.5 ${
+          className={`px-2.5 sm:px-3 py-2 min-h-10 rounded-xl text-xs font-mono font-semibold border transition shadow-lg flex items-center gap-1.5 ${
             strobesEnabled
               ? 'bg-slate-900 text-rose-300 border-rose-500/40'
               : 'bg-slate-900/90 text-slate-400 border-slate-800'

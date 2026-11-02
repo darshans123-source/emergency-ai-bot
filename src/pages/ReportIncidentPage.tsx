@@ -693,11 +693,11 @@ export const ReportIncidentPage: React.FC = () => {
           </div>
 
           {/* Submit Action */}
-          <div className="border-t border-slate-200 pt-6 flex items-center justify-between">
+          <div className="border-t border-slate-200 pt-6 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 transition"
+              className="min-h-11 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 transition shrink-0"
             >
               Cancel
             </button>
@@ -705,7 +705,7 @@ export const ReportIncidentPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-2"
+              className="flex-1 sm:flex-none justify-center min-h-11 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-2"
             >
               <FilePlus2 className="w-4 h-4" />
               <span>{isSubmitting ? 'Submitting Report...' : 'Log Incident & Dispatch'}</span>
