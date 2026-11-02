@@ -42,7 +42,7 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] w-full overflow-x-hidden bg-[#07142E] text-[#172033]">
+    <div className="relative flex min-h-[100dvh] w-full overflow-x-hidden bg-[#F2F5FA] text-[#172033]">
       <AuroraBackground />
       <div className="relative z-10 flex min-h-[100dvh] w-full">
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />

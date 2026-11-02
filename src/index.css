@@ -212,13 +212,13 @@
    flicker and keep scrolling smooth. */
 .aurora-flow {
   position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-  background: linear-gradient(180deg, #07142E 0%, #0B1E46 55%, #143A75 100%);
+  background: linear-gradient(180deg, #E9F0FA 0%, #F4F7FB 55%, #F2F5FA 100%);
 }
 .aurora-flow-absolute { position: absolute; }
 .aurora-wash { position: absolute; inset: 0; opacity: 0.12; will-change: transform; animation: aurora-calm 90s ease-in-out infinite alternate;
   background:
-    radial-gradient(900px 500px at 20% 15%, rgba(22, 197, 216, 0.35), transparent 65%),
-    radial-gradient(900px 500px at 80% 35%, rgba(101, 70, 217, 0.30), transparent 65%); }
+    radial-gradient(900px 500px at 20% 15%, rgba(37, 99, 235, 0.14), transparent 65%),
+    radial-gradient(900px 500px at 80% 35%, rgba(6, 182, 212, 0.12), transparent 65%); }
 @keyframes aurora-calm {
   0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.10; }
   100% { transform: translate3d(2vw, 1vh, 0) scale(1.02); opacity: 0.14; }

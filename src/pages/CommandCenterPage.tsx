@@ -112,13 +112,13 @@ export const CommandCenterPage: React.FC = () => {
   return (
     <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-[#172033]">
       {/* Compact welcome banner — white, no large gradient */}
-      <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <section className="rounded-[24px] bg-gradient-to-br from-[#0B1E46] via-[#143A75] to-[#2563EB] border border-blue-900/20 shadow-lg shadow-blue-900/20 p-4 sm:p-6 flex flex-col overflow-hidden relative sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
-            <p className="mt-1 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
+            <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <p className="mt-1 text-xs text-blue-200">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
           </div>
         </div>
         <button type="button" onClick={() => navigate('/report')} className="w-full sm:w-auto shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
@@ -129,7 +129,7 @@ export const CommandCenterPage: React.FC = () => {
       {/* AI Agents — single column on small screens, 2 on tablets, 4 on desktop */}
       <section aria-label="AI agents">
         <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
-          <h2 className="text-base font-bold text-slate-900">{t('dash.ai_agents')}</h2>
+          <h2 className="text-lg font-extrabold tracking-tight text-slate-900">{t('dash.ai_agents')}</h2>
           <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline shrink-0 min-h-10">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
         </div>
         {isLoading ? (
@@ -137,7 +137,7 @@ export const CommandCenterPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {agentCards.map((a) => (
-              <article key={a.slug} className={`rounded-[20px] bg-white border border-slate-200 shadow-sm hover:border-slate-300 p-4 flex flex-col min-w-0 h-full`}>
+              <article key={a.slug} className={`rounded-[24px] bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-200 p-5 flex flex-col min-w-0 h-full transition`}>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`w-10 h-10 rounded-xl ${a.chip} flex items-center justify-center shrink-0`}>{a.icon}</span>
                   <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-center leading-tight">{a.status}</span>
@@ -160,7 +160,7 @@ export const CommandCenterPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((s) => (
-              <div key={s.label} className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 flex items-start justify-between gap-2 min-w-0">
+              <div key={s.label} className="rounded-[24px] bg-white border border-slate-200 shadow-sm p-5 flex items-start justify-between gap-2 min-w-0">
                 <div className="min-w-0"><p className="text-xs font-medium text-slate-500 leading-tight">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-slate-900">{s.value}</p></div>
                 <span className={`w-9 h-9 rounded-xl ${s.chip} flex items-center justify-center shrink-0`}>{s.icon}</span>
               </div>
@@ -172,7 +172,7 @@ export const CommandCenterPage: React.FC = () => {
       {/* Bento grid: overview + quick actions + recent + activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Emergency Overview — spans 2 */}
-        <section className="lg:col-span-2 rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+        <section className="lg:col-span-2 rounded-[24px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
           <h2 className="font-bold text-slate-900">{t('dash.emergency_overview')}</h2>
           <div className="mt-3 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -212,7 +212,7 @@ export const CommandCenterPage: React.FC = () => {
         </section>
 
         {/* Quick Actions */}
-        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+        <section className="rounded-[24px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
           <h2 className="font-bold text-slate-900">{t('dash.quick_actions')}</h2>
           <div className="mt-3 grid grid-cols-1 gap-2">
             {[
@@ -256,7 +256,7 @@ export const CommandCenterPage: React.FC = () => {
         </section>
 
         {/* Mission Activity */}
-        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+        <section className="rounded-[24px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
           <h2 className="font-bold text-slate-900">{t('dash.recent_activity')}</h2>
           <p className="mt-1 text-xs text-slate-500">Response timeline (simulated data)</p>
           <ul className="mt-3 space-y-2">
