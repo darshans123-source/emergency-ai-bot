@@ -6,7 +6,7 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) =
 );
 
 export const ErrorState: React.FC<{ message: string; onRetry?: () => void }> = ({ message, onRetry }) => (
-  <div role="alert" className="rounded-xl bg-red-50 border border-red-200 px-4 py-4 text-sm text-red-700 flex items-start gap-3">
+  <div role="alert" className="glass-error rounded-2xl px-4 py-4 text-sm text-red-700 flex items-start gap-3">
     <AlertTriangle className="w-5 h-5 shrink-0" />
     <div className="flex-1 min-w-0">
       <p className="font-semibold">Could not load this section</p>
@@ -32,7 +32,7 @@ export const StatCard: React.FC<{
   accent: string;
   note?: string;
 }> = ({ label, value, icon, accent, note }) => (
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+  <div className="glass glass-card-hover rounded-2xl p-5 animate-glass-fade-up">
     <div className="flex items-center justify-between gap-3">
       <p className="text-sm font-medium text-[#64748B]">{label}</p>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${accent}`}>{icon}</div>

@@ -297,7 +297,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 gap-2 sm:gap-4">
+    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-3 sm:top-4 z-30 gap-2 sm:gap-4 min-h-16 py-2">
       {/* Left: menu (mobile) + brand + live-link status */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
@@ -359,10 +359,10 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             }}
             onKeyDown={handleSearchKeyDown}
             placeholder={isListening ? "Listening... speak command or search query" : "Search incidents by title, ID, category, or location..."}
-            className={`w-full bg-slate-100 hover:bg-slate-100/80 focus:bg-white border rounded-lg pl-10 pr-24 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
+            className={`w-full glass-input rounded-xl pl-10 pr-24 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
               isListening
-                ? 'border-blue-500 ring-2 ring-blue-100 bg-white'
-                : 'border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                ? 'border-blue-500 ring-2 ring-blue-100'
+                : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
             }`}
           />
 
@@ -429,7 +429,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
         {/* Global Search Results Dropdown */}
         {isSearchOpen && searchQuery.trim().length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 text-xs">
+          <div className="absolute left-0 right-0 mt-2 glass-strong rounded-2xl shadow-xl overflow-hidden z-50 text-xs">
             <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
               <span>Matching Incidents</span>
               <span>{isSearching ? 'Searching...' : `${searchResults.length} found`}</span>
@@ -497,10 +497,10 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer ring-1 ring-blue-400/30"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:-translate-y-0.5 text-white text-xs font-semibold shadow-lg shadow-blue-500/25 transition-all cursor-pointer ring-1 ring-blue-400/30"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ)"
         >
-          <Mic className="w-3.5 h-3.5 text-blue-200 animate-pulse" />
+          <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
           <span className="hidden md:inline">Mitra AI (Voice)</span>
           <span className="md:hidden">Mitra AI</span>
         </button>
@@ -523,7 +523,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
           {/* Notifications Dropdown */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-slate-800">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-strong rounded-2xl shadow-xl py-2 z-50 text-slate-800">
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
