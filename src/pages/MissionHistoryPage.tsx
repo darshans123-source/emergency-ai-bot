@@ -44,7 +44,7 @@ export const MissionHistoryPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-[20px] border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#172033] tracking-tight flex items-center gap-2">
             <History className="w-6 h-6 text-[#2563EB]" /> Mission History
@@ -63,7 +63,7 @@ export const MissionHistoryPage: React.FC = () => {
       </div>
 
 
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm overflow-hidden">
         <h2 className="px-5 py-4 border-b border-slate-200 font-bold text-[#172033]">Recent Incidents</h2>
         {isLoading ? (
           <div className="p-5 space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-14" />)}</div>
@@ -100,7 +100,7 @@ export const MissionHistoryPage: React.FC = () => {
         )}
       </section>
 
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm overflow-hidden">
         <h2 className="px-5 py-4 border-b border-slate-200 font-bold text-[#172033]">Audit Trail</h2>
         {isLoading ? (
           <div className="p-5 space-y-3">{[0, 1].map((i) => <Skeleton key={i} className="h-14" />)}</div>
