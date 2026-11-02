@@ -588,10 +588,15 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
 // AI ENDPOINTS (server-side only, Qwen/DashScope first, then OpenAI)
 // -------------------------------------------------------------
 // Keys are read only from server environment variables:
+//   COHERE_API_KEY (Cohere, https://api.cohere.com/v2/chat,
+//   model command-a-03-2025 by default) — used first when set,
 //   DASHSCOPE_API_KEY (Qwen, via the OpenAI-compatible endpoint
 //   https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1,
 //   model qwen3.8-flash by default, thinking enabled as in the
 //   user-supplied DashScope example) or OPENAI_API_KEY.
+// No key value is ever stored in this repo: a key pasted in chat
+// must be treated as exposed, rotated in the provider dashboard,
+// and the fresh key set directly in Vercel Environment Variables.
 // They are never sent to, or read from, the frontend, never put in
 // a VITE_ variable, and never committed. When no key is set the
 // endpoints return a clear 503 — never a fake success and never a
@@ -622,9 +627,13 @@ const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   }
 };
 
-type ChatProvider = { name: 'qwen' | 'openai'; key: string; baseUrl: string; model: string };
+type ChatProvider = { name: 'cohere' | 'qwen' | 'openai'; key: string; baseUrl: string; model: string };
 
 function getChatProvider(): ChatProvider | null {
+  const cohereKey = process.env.COHERE_API_KEY?.trim();
+  if (cohereKey) {
+    return { name: 'cohere', key: cohereKey, baseUrl: 'https://api.cohere.com/v2', model: process.env.COHERE_MODEL?.trim() || 'command-a-03-2025' };
+  }
   const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
   if (dashKey) {
     return {
@@ -647,13 +656,36 @@ async function callOpenAIChat(
 ): Promise<string> {
   const provider = getChatProvider();
   if (!provider) {
-    const err: any = new Error('AI is not configured on the server. Set DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
+    const err: any = new Error('AI is not configured on the server. Set COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
     err.status = 503;
     throw err;
   }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
+    if (provider.name === 'cohere') {
+      const response = await fetch(`${provider.baseUrl}/chat`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
+        body: JSON.stringify({
+          model: provider.model,
+          messages: [{ role: 'system', content: system }, ...messages],
+          temperature: 0.3
+        })
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        const err: any = new Error(`cohere request failed (${response.status}). ${body.slice(0, 200)}`);
+        err.status = 502;
+        throw err;
+      }
+      const data: any = await response.json();
+      const msg = data.message?.content;
+      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : data.text || data.generations?.[0]?.text;
+      if (!content || !content.trim()) throw new Error('cohere returned an empty response.');
+      return content.trim();
+    }
     const response = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: 'POST',
       signal: controller.signal,
