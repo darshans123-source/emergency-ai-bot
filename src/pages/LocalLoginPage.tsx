@@ -1,3 +1,4 @@
+import { AuroraBackground } from '../components/layout/AuroraBackground';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, UserPlus, LogIn, Eye, EyeOff, Loader2, User } from 'lucide-react';
@@ -86,16 +87,8 @@ export const LocalLoginPage: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#7C3AED] flex items-center justify-center px-4 py-8">
-      {/* Floating glass shapes + soft light effects (decorative only) */}
-      <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-blue-500/30 blur-3xl animate-glass-float" />
-        <div className="absolute top-1/3 -right-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-purple-500/30 blur-3xl animate-glass-float-slow" />
-        <div className="absolute -bottom-24 left-1/4 w-72 h-72 rounded-full bg-cyan-400/25 blur-3xl animate-glass-float" />
-        <div className="absolute top-16 left-[12%] w-24 h-24 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-md rotate-12 animate-glass-float-slow hidden sm:block" />
-        <div className="absolute bottom-20 right-[10%] w-32 h-32 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-md -rotate-6 animate-glass-float hidden sm:block" />
-      </div>
-
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#07142E] flex items-center justify-center px-4 py-8">
+      <AuroraBackground absolute />
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">
           <img

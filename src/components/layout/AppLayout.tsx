@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { AuroraBackground } from './AuroraBackground';
 import { Navbar } from './Navbar';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, AlertCircle, FilePlus2, MapPin, Bot, MoreHorizontal, Box, Layers, History, Settings, User, LogOut, X } from 'lucide-react';
@@ -38,14 +39,8 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] w-full overflow-x-hidden bg-[#080F25] text-[#172033]">
-      {/* Aurora Flow background — fixed CSS gradients only, no video, no JS animation */}
-      <div className="aurora-flow" aria-hidden="true">
-        <div className="aurora-blob aurora-blob-blue" />
-        <div className="aurora-blob aurora-blob-cyan" />
-        <div className="aurora-blob aurora-blob-violet" />
-        <div className="aurora-texture" />
-      </div>
+    <div className="relative flex min-h-[100dvh] w-full overflow-x-hidden bg-[#07142E] text-[#172033]">
+      <AuroraBackground />
       <div className="relative z-10 flex min-h-[100dvh] w-full">
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">

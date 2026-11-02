@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { AuroraBackground } from '../components/layout/AuroraBackground';
 
 /**
  * Premium splash screen with a real city-at-night photograph.
@@ -21,7 +22,8 @@ export const SplashPage: React.FC = () => {
   const [photoFailed, setPhotoFailed] = useState(false);
 
   return (
-    <div className="min-h-[100dvh] bg-[#101B33] text-white flex flex-col relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#07142E] text-white flex flex-col relative overflow-hidden">
+      {photoFailed && <AuroraBackground absolute />}
       {/* Background photo + dark overlay for readability */}
       {!photoFailed && (
         <img
