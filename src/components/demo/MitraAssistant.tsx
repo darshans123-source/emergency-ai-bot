@@ -8,7 +8,7 @@ import { VoiceControls } from './VoiceControls';
 interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; }
 export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Msg[]>([{ id: 'w', role: 'mitra', content: 'Namaste, I am Mitra AI, the central demo assistant. Tell me what happened — for example, "There is a fire near my location" or "Show me a medical emergency" — and I will route you to the right agent. This is a demo only. For real emergencies, call 112.' }]);
+  const [messages, setMessages] = useState<Msg[]>([{ id: 'w', role: 'mitra', content: 'Namaste, I am Mitra AI, your central assistant. Tell me what happened — for example, "There is a fire near my location" or "Show me a medical emergency" — and I will route you to the right agent. Simulated data · For real emergencies, call 112.' }]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const recRef = useRef<any>(null);
@@ -36,7 +36,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
         <div className="p-4 border-b border-slate-200 flex items-start justify-between gap-3 bg-[#101B33] text-white">
           <div className="flex items-center gap-3 min-w-0">
             <span className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0"><Bot className="w-5 h-5" /></span>
-            <div className="min-w-0"><h2 className="font-bold">Mitra AI — Central Assistant</h2><p className="text-xs text-slate-300">AI DEMO MODE · Routes to Rakshak / Jeevan / Agni / Sanrakshak · No real service contacted · Call 112 for real emergencies</p></div>
+            <div className="min-w-0"><h2 className="font-bold">Mitra AI — Central Assistant</h2><p className="text-xs text-slate-300">Routes to Rakshak / Jeevan / Agni / Sanrakshak · Simulated data · Call 112 for real emergencies</p></div>
           </div>
           <button type="button" onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-lg hover:bg-white/10 shrink-0" aria-label="Close"><X className="w-5 h-5" /></button>
         </div>

@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { MitraAssistant } from '../demo/MitraAssistant';
 
 export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobileMenu }) => {
-  const { notifications, unreadCount, isConnected, wsStatus, wsAttempts, retryConnection, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { localProfile, user, logout, logoutLocal } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -317,27 +317,10 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           <span className="font-bold text-[#172033] tracking-tight">AegisAI</span>
         </button>
         <div className="flex items-center gap-2">
-          {isConnected ? (
-            <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="hidden sm:inline">System Online</span>
-              <span className="sm:hidden">Online</span>
-            </span>
-          ) : wsStatus === 'unavailable' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-              <span className="hidden sm:inline">Live link unavailable</span>
-              <span className="sm:hidden">Offline</span>
-              <button type="button" onClick={retryConnection} className="ml-1 inline-flex items-center gap-1 text-[#2563EB] font-semibold" title="Retry live link">
-                <RefreshCw className="w-3 h-3" /> Retry
-              </button>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>Reconnecting{wsAttempts > 0 ? ` (${wsAttempts}/5)` : ''}…</span>
-            </span>
-          )}
+          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Local AI ready</span>
+          </span>
         </div>
       </div>
 

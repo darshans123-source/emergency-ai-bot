@@ -5,7 +5,9 @@ import { Incident } from '../types';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { CategoryBadge } from '../components/common/CategoryBadge';
-import { Skeleton, ErrorState } from '../components/common/UiBits';
+import { Skeleton } from '../components/common/UiBits';
+import { loadDemoIncidents } from '../demo/demoStore';
+import { demoIncidentToIncident } from '../demo/localFallback';
 import {
   Search,
   Filter,
@@ -58,8 +60,20 @@ export const IncidentsPage: React.FC = () => {
       });
       setIncidents(res.incidents);
       setTotal(res.total);
-    } catch (err: any) {
-      setLoadError(err?.message || 'Could not load incidents.');
+    } catch {
+      // Backend unavailable: fall back to local data instead of showing an API error.
+      const local = loadDemoIncidents().map(demoIncidentToIncident);
+      const q = search.trim().toLowerCase();
+      const filtered = local.filter((inc) => {
+        if (category !== 'ALL' && inc.category !== category) return false;
+        if (priority !== 'ALL' && inc.priority !== priority) return false;
+        if (status !== 'ALL' && inc.status !== status) return false;
+        if (q && ![inc.id, inc.title, inc.description, inc.location.address, inc.category].join(' ').toLowerCase().includes(q)) return false;
+        return true;
+      });
+      setIncidents(filtered);
+      setTotal(filtered.length);
+      setLoadError(null);
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +112,7 @@ export const IncidentsPage: React.FC = () => {
           <p className="text-sm text-slate-500 mt-1">
             Search, filter, review priority assessments, and dispatch emergency response units.
           </p>
+          <p className="text-xs text-[#64748B] mt-1">Simulated data · For real emergencies, call 112.</p>
         </div>
 
         <button
@@ -193,8 +208,6 @@ export const IncidentsPage: React.FC = () => {
         </div>
       </div>
 
-      {loadError && <ErrorState message={loadError} onRetry={loadIncidents} />}
-
       {/* Natural-language AI search (server-side OpenAI summary, real DB matches) */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <form
@@ -210,9 +223,13 @@ export const IncidentsPage: React.FC = () => {
               setAiResults(res.incidents);
               setAiSummary(res.summary);
               setAiNotice(res.summaryNotice);
-            } catch (err: any) {
-              setAiError(err?.message || 'AI search failed.');
-              setAiResults(null);
+            } catch {
+              // Backend search unavailable: search the local data instead, no error shown.
+              const q = aiQuery.trim().toLowerCase();
+              const local = loadDemoIncidents().map(demoIncidentToIncident).filter((inc) => [inc.id, inc.title, inc.description, inc.location.address, inc.category, inc.priority, inc.status].join(' ').toLowerCase().includes(q));
+              setAiResults(local);
+              setAiSummary(local.length ? `Found ${local.length} matching incident(s) in the local data.` : null);
+              setAiNotice(null);
             } finally {
               setAiSearching(false);
             }

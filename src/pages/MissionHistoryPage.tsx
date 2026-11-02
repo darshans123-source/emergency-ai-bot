@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { History, MapPin, ArrowRight, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
+import { loadDemoIncidents, loadDemoActivity } from '../demo/demoStore';
+import { demoIncidentToIncident } from '../demo/localFallback';
 import { Incident, AuditLog } from '../types';
-import { Skeleton, ErrorState } from '../components/common/UiBits';
+import { Skeleton } from '../components/common/UiBits';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 
@@ -26,8 +28,11 @@ export const MissionHistoryPage: React.FC = () => {
       const data = await api.getDashboardActivity();
       setIncidents(data.recentIncidents || []);
       setAudits(data.recentAudits || []);
-    } catch (err: any) {
-      setError(err?.message || 'Could not load mission history.');
+    } catch {
+      // Backend unavailable: history from local data, no error shown.
+      setIncidents(loadDemoIncidents().map(demoIncidentToIncident));
+      setAudits(loadDemoActivity().map((a, i) => ({ id: `AUDIT-${i}`, action: 'Demo activity', details: a, userEmail: 'Local engine', entityType: 'Incident', entityId: '', createdAt: new Date().toISOString() } as any)));
+      setError(null);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +50,7 @@ export const MissionHistoryPage: React.FC = () => {
             <History className="w-6 h-6 text-[#2563EB]" /> Mission History
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
-            Recent incidents and audit entries, exactly as recorded by the backend.
+            Recent incidents and activity. Simulated data · For real emergencies, call 112.
           </p>
         </div>
         <button
@@ -57,7 +62,6 @@ export const MissionHistoryPage: React.FC = () => {
         </button>
       </div>
 
-      {error && <ErrorState message={error} onRetry={load} />}
 
       <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <h2 className="px-5 py-4 border-b border-slate-200 font-bold text-[#172033]">Recent Incidents</h2>

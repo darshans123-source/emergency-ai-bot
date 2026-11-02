@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, HeartPulse, Flame, CloudLightning, ArrowRight, Bot } from 'lucide-react';
-import { api } from '../services/api';
-import { Skeleton, ErrorState } from '../components/common/UiBits';
+import { Skeleton } from '../components/common/UiBits';
 
 export interface AgentCardDef {
   slug: string;
@@ -60,17 +59,9 @@ export const AGENT_CARDS: AgentCardDef[] = [
 
 export const AgentsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [aiStatus, setAiStatus] = useState<{ provider: string; model: string; isExternalConfigured: boolean; status: string } | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api
-      .getAIStatus()
-      .then((s) => setAiStatus(s))
-      .catch((err: any) => setAiError(err?.message || 'Could not check AI status.'))
-      .finally(() => setLoading(false));
-  }, []);
+  // Local engine status — no backend call, so no API error can appear here.
+  const aiStatus = { provider: 'Local engine', model: 'Local rule-based engine', isExternalConfigured: true, status: 'Ready' };
+  const [loading] = useState(false);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -80,23 +71,13 @@ export const AgentsPage: React.FC = () => {
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
           Four dedicated agents for police, medical, fire and disaster response. Each opens its own
-          chat with text and voice. Every agent chat now opens in <b>AI DEMO MODE</b> by default — local, no API key, simulated answers only. Switch to Live AI in the chat if a server key is configured. For real emergencies, call 112.
+          chat with text and voice, using the local engine. For real emergencies, call 112.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
-          <span className={`w-2 h-2 rounded-full ${aiStatus?.isExternalConfigured ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-          {loading
-            ? 'Checking AI provider…'
-            : aiStatus
-              ? aiStatus.isExternalConfigured
-                ? `AI provider: ${aiStatus.provider} (${aiStatus.model})`
-                : 'AI provider: Built-in engine (OpenAI not configured on the server)'
-              : 'AI provider status unavailable'}
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          AI provider: Local engine (no API key required)
         </div>
-        {aiError && <p className="mt-2 text-xs text-amber-300">{aiError}</p>}
-        <p className="mt-2 text-xs text-slate-400">
-          Status above reflects the real /ai/status response. It is never shown as “Online” when the
-          provider is not configured.
-        </p>
+        <p className="mt-2 text-xs text-slate-400">Simulated data · For real emergencies, call 112.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -112,9 +93,7 @@ export const AgentsPage: React.FC = () => {
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <h2 className="font-bold text-[#172033]">{agent.name}</h2>
-                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 shrink-0">
-                      {aiStatus?.isExternalConfigured ? 'AI Ready' : 'Built-in'}
-                    </span>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 shrink-0">Ready</span>
                   </div>
                   <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agent.sector}</p>
                   <p className="mt-2 text-sm text-[#64748B] leading-relaxed flex-1">{agent.description}</p>
@@ -130,7 +109,6 @@ export const AgentsPage: React.FC = () => {
             ))}
       </div>
 
-      {aiError && <ErrorState message={aiError} onRetry={() => window.location.reload()} />}
 
       <p className="text-xs text-[#64748B]">
         The older specialised-agent hub (police, hospital, water, power) is still available at{' '}

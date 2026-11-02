@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
@@ -14,84 +14,54 @@ import {
   Hospital,
   RefreshCw,
   ArrowRight,
-  Wifi,
-  WifiOff
+  Play,
+  Square,
+  Plus
 } from 'lucide-react';
-import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
-import {
-  DashboardSummary,
-  Incident,
-  Resource,
-  SpecializedAgent,
-  SpecializedAgentId
-} from '../types';
-import { Skeleton, ErrorState } from '../components/common/UiBits';
+import { loadDemoIncidents, saveDemoIncidents, loadDemoActivity, saveDemoActivity, demoStats, allDemoUnits, randomDemoIncident } from '../demo/demoStore';
+import { demoIncidentToIncident, demoUnitToResource } from '../demo/localFallback';
+import { Skeleton } from '../components/common/UiBits';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
-import { DemoDashboard } from '../components/demo/DemoDashboard';
 
 export const CommandCenterPage: React.FC = () => {
   const navigate = useNavigate();
   const { localProfile, user } = useAuth();
-  const { isConnected, wsStatus, retryConnection } = useNotifications();
 
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [agents, setAgents] = useState<SpecializedAgent[]>([]);
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [backendHealth, setBackendHealth] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [backendError, setBackendError] = useState<string | null>(null);
-  const [activityIncidents, setActivityIncidents] = useState<Incident[]>([]);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [sumRes, agentRes, incRes, resRes, healthRes, actRes] = await Promise.allSettled([
-        api.getDashboardSummary(),
-        api.getSpecializedAgents(),
-        api.getIncidents({ limit: 8 }),
-        api.getResources(),
-        api.getHealth(),
-        api.getDashboardActivity()
-      ]);
-      if (healthRes.status === 'fulfilled') {
-        setBackendHealth('online');
-        setBackendError(null);
-      } else {
-        setBackendHealth('offline');
-        setBackendError(healthRes.reason?.message || 'Backend health check failed.');
-      }
-      if (actRes.status === 'fulfilled') setActivityIncidents(actRes.value.recentIncidents || []);
-      if (sumRes.status === 'fulfilled') setSummary(sumRes.value);
-      if (agentRes.status === 'fulfilled') setAgents(agentRes.value || []);
-      if (incRes.status === 'fulfilled') setIncidents(incRes.value.incidents || []);
-      if (resRes.status === 'fulfilled') setResources(resRes.value || []);
-      const failed = [sumRes, agentRes, incRes, resRes].filter((r) => r.status === 'rejected');
-      if (failed.length === 4) {
-        setError('The command centre could not reach the backend. Check your connection and retry.');
-      } else if (failed.length > 0) {
-        setError('Some sections could not be refreshed. The data below is from the sections that did load.');
-      }
-      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    } catch (err: any) {
-      setError(err?.message || 'Could not load the command centre.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
+  const [demoIncidents, setDemoIncidents] = useState(() => loadDemoIncidents());
+  const [demoActivity, setDemoActivity] = useState<string[]>(() => loadDemoActivity());
+  const [isLoading] = useState(false);
+  const [simulating, setSimulating] = useState(false);
+  const simTimer = useRef<any>(null);
   useEffect(() => {
-    load();
-  }, [load]);
+    if (!simulating) { if (simTimer.current) clearInterval(simTimer.current); return; }
+    simTimer.current = setInterval(() => {
+      setDemoIncidents((prev) => { const list = [randomDemoIncident(3000 + Math.floor(Math.random() * 9000)), ...prev].slice(0, 40); saveDemoIncidents(list); return list; });
+      setDemoActivity((prev) => { const next = ['Simulation: new incident generated and unit availability updated (simulated).', ...prev].slice(0, 20); saveDemoActivity(next); return next; });
+    }, 20000);
+    return () => { if (simTimer.current) clearInterval(simTimer.current); };
+  }, [simulating]);
+  // Local data only: the previous version called six backend endpoints on
+  // every load and showed API 500 / backend-unavailable errors when the
+  // Vercel function was down. The Command Centre now renders from the
+  // local datasets, so it loads without any backend call or error surface.
+  const incidents = demoIncidents.map(demoIncidentToIncident);
+  const demoUnits = allDemoUnits();
+  const resources = demoUnits.map(demoUnitToResource);
+  const demoStatsResult = demoStats(demoIncidents, demoUnits);
+  const summary = {
+    totalActive: demoStatsResult.active,
+    resolvedIncidents: demoStatsResult.resolved,
+    availableUnits: demoStatsResult.available,
+    awaitingReview: demoIncidents.filter((i) => i.status === 'ACTIVE').length,
+    highOrCriticalPriority: demoIncidents.filter((i) => i.priority === 'HIGH' || i.priority === 'CRITICAL').length,
+    categoryCounts: demoIncidents.reduce<Record<string, number>>((acc, i) => { acc[i.category] = (acc[i.category] || 0) + 1; return acc; }, {}),
+  };
+  const activityIncidents = incidents.slice(0, 5);
+  const lastUpdated = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const displayName = localProfile?.name || user?.name || 'Commander';
-  const agentById = (id: SpecializedAgentId) => agents.find((a) => a.id === id);
   const fireUnits = resources.filter((r) => r.type === 'FIRE_UNIT');
   const fireAvailable = fireUnits.filter((r) => r.status === 'AVAILABLE').length;
   const latestFire = incidents.find((i) => i.category === 'FIRE_INCIDENT');
@@ -105,29 +75,29 @@ export const CommandCenterPage: React.FC = () => {
       slug: 'rakshak', icon: <Shield className="w-5 h-5" />, chip: 'bg-blue-50 text-blue-700', accent: 'border-t-blue-600',
       name: 'RAKSHAK AI', role: 'Police & Security Response',
       desc: 'Police incident assistance, station information and response recommendations.',
-      status: agentById('POLICE_TACTICAL')?.status || 'Status Unavailable',
-      task: agentById('POLICE_TACTICAL')?.currentTask || agentById('POLICE_TACTICAL')?.assignedIncidentTitle || 'No active task reported',
+      status: 'Ready',
+      task: 'Police assessment ready — open the agent to ask a question',
     },
     {
       slug: 'jeevan', icon: <HeartPulse className="w-5 h-5" />, chip: 'bg-rose-50 text-rose-700', accent: 'border-t-rose-600',
       name: 'JEEVAN AI', role: 'Medical & Healthcare Response',
       desc: 'Medical emergency guidance, nearby hospital information and emergency requests.',
-      status: agentById('HOSPITAL_EMS')?.status || 'Status Unavailable',
-      task: agentById('HOSPITAL_EMS')?.currentTask || agentById('HOSPITAL_EMS')?.assignedIncidentTitle || 'No active task reported',
+      status: 'Ready',
+      task: 'Medical assessment ready — open the agent to ask a question',
     },
     {
       slug: 'agni', icon: <Flame className="w-5 h-5" />, chip: 'bg-orange-50 text-orange-700', accent: 'border-t-orange-600',
       name: 'AGNI AI', role: 'Fire & Rescue Response',
-      desc: 'Fire incident reporting, fire unit coordination and rescue support via live units and incidents.',
+      desc: 'Fire incident reporting, fire unit coordination and rescue support.',
       status: fireUnits.length > 0 ? `${fireAvailable} of ${fireUnits.length} units available` : 'No unit data',
-      task: latestFire ? latestFire.title : 'No active fire incident in live records',
+      task: latestFire ? latestFire.title : 'No active fire incident in the current records',
     },
     {
       slug: 'sanrakshak', icon: <Droplets className="w-5 h-5" />, chip: 'bg-cyan-50 text-cyan-700', accent: 'border-t-cyan-600',
       name: 'SANRAKSHAK AI', role: 'Disaster & Public Services',
       desc: 'Water, electricity, road and infrastructure issues and public safety reporting.',
-      status: agentById('WATER_HYDRO')?.status || 'Status Unavailable',
-      task: agentById('WATER_HYDRO')?.currentTask || agentById('WATER_HYDRO')?.assignedIncidentTitle || 'No active task reported',
+      status: 'Ready',
+      task: 'Disaster assessment ready — open the agent to ask a question',
     },
   ];
   const stats = [
@@ -146,21 +116,13 @@ export const CommandCenterPage: React.FC = () => {
           <div className="min-w-0">
             <h1 className="text-lg sm:text-xl font-bold text-[#172033] truncate">Welcome back, {displayName}</h1>
             <p className="text-xs sm:text-sm text-[#64748B] truncate">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
-            <p className="mt-1"><span className="text-[11px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">AI DEMO MODE</span> <span className="text-xs text-[#64748B]">Demo simulation below works with no API key. No real service is contacted. Call 112 for real emergencies.</span></p>
-            <p className="mt-1 text-xs font-medium flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-              <span className="text-[#64748B]">{isConnected ? 'Live link connected' : wsStatus === 'unavailable' ? 'Live link unavailable' : 'Live link reconnecting…'}{lastUpdated ? ` · Updated ${lastUpdated}` : ''}</span>
-            </p>
+            <p className="mt-1 text-xs text-[#64748B]">Simulated data · For real emergencies, call 112.</p>
           </div>
         </div>
         <button type="button" onClick={() => navigate('/report')} className="shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
           <FilePlus2 className="w-4 h-4" /> Report Emergency
         </button>
       </section>
-
-      <DemoDashboard />
-
-      {error && <ErrorState message={error} onRetry={load} />}
 
       {/* AI Agents — immediately below welcome, 2 per row on mobile, 4 on desktop */}
       <section aria-label="AI agents">
@@ -213,16 +175,19 @@ export const CommandCenterPage: React.FC = () => {
           <div className="mt-3 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <p className="text-sm text-[#172033] flex items-center gap-2">
-                {isConnected ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-slate-400" />}
-                <span className="font-semibold">{isConnected ? 'Connected' : wsStatus === 'unavailable' ? 'Live link unavailable' : 'Reconnecting…'}</span>
-                <span className="text-[#64748B] text-xs">· Backend API: {backendHealth === 'checking' ? 'Checking…' : backendHealth === 'online' ? 'Online' : 'Unavailable'}</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span className="font-semibold">Local AI ready</span>
+                <span className="text-[#64748B] text-xs">· Simulated data · Updated {lastUpdated}</span>
               </p>
-              <div className="flex gap-2 shrink-0">
-                <button type="button" onClick={load} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
-                {!isConnected && wsStatus === 'unavailable' && (<button type="button" onClick={retryConnection} className="min-h-10 px-3 rounded-xl bg-[#2563EB] text-white text-xs font-semibold">Retry live link</button>)}
+              <div className="flex gap-2 shrink-0 flex-wrap">
+                <button type="button" onClick={() => setSimulating((v) => !v)} className={`min-h-10 px-3 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 ${simulating ? 'bg-rose-600 text-white' : 'bg-[#2563EB] text-white'}`}>
+                  {simulating ? <><Square className="w-3.5 h-3.5" /> Stop Simulation</> : <><Play className="w-3.5 h-3.5" /> Start Simulation</>}
+                </button>
+                <button type="button" onClick={() => { const next = randomDemoIncident(2000 + demoIncidents.length + 1); const list = [next, ...demoIncidents]; setDemoIncidents(list); saveDemoIncidents(list); }} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> Create incident</button>
+                <button type="button" onClick={() => { setDemoIncidents(loadDemoIncidents()); setDemoActivity(loadDemoActivity()); }} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
               </div>
             </div>
-            {backendHealth === 'offline' && backendError && (<p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">Backend health check failed: {backendError}. Check Vercel function logs for /api.</p>)}
+            <p className="text-xs text-[#64748B]">{simulating ? 'Simulation running: a new incident appears about every 20 seconds (simulated).' : 'Simulation stopped. Changes are saved in this browser only.'}</p>
             {summary && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-[#172033]">{summary.totalActive}</p><p className="text-[11px] text-[#64748B]">Active</p></div>
@@ -233,7 +198,7 @@ export const CommandCenterPage: React.FC = () => {
             )}
             {summary && (
               <div>
-                <p className="text-xs font-semibold text-[#64748B] mb-2">By category (live summary)</p>
+                <p className="text-xs font-semibold text-[#64748B] mb-2">By category</p>
                 <div className="flex flex-wrap gap-1.5">
                   {Object.entries(summary.categoryCounts).map(([cat, count]) => (
                     <button key={cat} type="button" onClick={() => navigate(`/incidents?category=${cat}`)} className="px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-medium text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] transition">{cat.replace(/_/g, ' ')} · <b>{count}</b></button>
@@ -269,7 +234,7 @@ export const CommandCenterPage: React.FC = () => {
             <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-[#2563EB] hover:underline inline-flex items-center gap-1 shrink-0">View all <ArrowRight className="w-4 h-4" /></button>
           </div>
           {isLoading ? (<div className="p-4 space-y-3">{[0, 1, 2].map((i) => (<Skeleton key={i} className="h-14" />))}</div>) : recent.length === 0 ? (
-            <p className="p-4 text-sm text-[#64748B]">No incident records were returned by the backend. This is not a placeholder — check the connection and retry.</p>
+            <p className="p-4 text-sm text-[#64748B]">No incident records in the current data.</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {recent.map((inc) => (
@@ -288,22 +253,27 @@ export const CommandCenterPage: React.FC = () => {
           )}
         </section>
 
-        {/* Recent activity */}
+        {/* Mission Activity */}
         <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-[#172033]">Recent Activity</h2>
-          {activityIncidents.length === 0 ? (<p className="mt-2 text-sm text-[#64748B]">No recent activity returned by the backend.</p>) : (
-            <ul className="mt-3 space-y-2">
-              {activityIncidents.slice(0, 5).map((inc) => (
-                <li key={inc.id} className="flex items-center justify-between gap-3 text-sm min-w-0">
-                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
-                    <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
-                    <span className="ml-2 font-medium text-[#172033] truncate">{inc.title}</span>
-                  </button>
-                  <StatusBadge status={inc.status} size="sm" />
-                </li>
-              ))}
-            </ul>
-          )}
+          <h2 className="font-bold text-[#172033]">Mission Activity</h2>
+          <p className="mt-1 text-xs text-[#64748B]">Response timeline (simulated data)</p>
+          <ul className="mt-3 space-y-2">
+            {demoActivity.slice(0, 6).map((a, i) => (
+              <li key={i} className="text-sm text-[#172033]">• <span className="text-[#64748B]">{a}</span></li>
+            ))}
+          </ul>
+          <h3 className="font-bold text-[#172033] text-sm mt-4">Recent incidents</h3>
+          <ul className="mt-2 space-y-2">
+            {activityIncidents.slice(0, 5).map((inc) => (
+              <li key={inc.id} className="flex items-center justify-between gap-3 text-sm min-w-0">
+                <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
+                  <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
+                  <span className="ml-2 font-medium text-[#172033] truncate">{inc.title}</span>
+                </button>
+                <StatusBadge status={inc.status} size="sm" />
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </div>

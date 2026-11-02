@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { loadDemoIncidents } from '../demo/demoStore';
+import { demoIncidentToIncident } from '../demo/localFallback';
 import { useAuth } from '../context/AuthContext';
 import { auth, updateIncidentInFirestore, saveDispatchToFirestore } from '../services/firebase';
 import {
@@ -93,8 +95,10 @@ export const IncidentDetailsPage: React.FC = () => {
           // ignore route load error
         }
       }
-    } catch (err: any) {
-      console.error(err);
+    } catch {
+      // Backend unavailable: show the local incident if this is a simulated record.
+      const demo = loadDemoIncidents().find((d) => d.id === id);
+      if (demo) { setIncident(demoIncidentToIncident(demo)); setAssignments([]); setNotes([]); }
     } finally {
       setIsLoading(false);
     }

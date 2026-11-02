@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Send, Mic, MicOff, Play, Pause, Loader2, AlertTriangle, ArrowLeft, Volume2 } from 'lucide-react';
-import { api } from '../services/api';
+import { Send, Mic, MicOff, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { generateAgentResponse, AGENT_META, AgentSlug } from '../demo/demoAiEngine';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
@@ -33,12 +32,6 @@ export const AgentChatPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [mode, setMode] = useState<'demo' | 'live'>('demo');
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [audioLoadingId, setAudioLoadingId] = useState<string | null>(null);
-  const [audioError, setAudioError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -60,8 +53,7 @@ export const AgentChatPage: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      if (audioRef.current) audioRef.current.pause();
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      stopSpeaking();
       if (recognitionRef.current) recognitionRef.current.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,32 +75,20 @@ export const AgentChatPage: React.FC = () => {
     const content = (text ?? input).trim();
     if (!content || isSending) return;
     setError(null);
-    setAudioError(null);
     const userMsg: ChatMsg = { id: `u-${Date.now()}`, role: 'user', content };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
-    if (mode === 'demo') {
-      // Local demo engine — no API key, no external call. Typing delay simulates thinking.
-      const demo = generateAgentResponse(resolvedSlug as AgentSlug, content);
-      window.setTimeout(() => {
-        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: demo.text, demoMeta: { category: demo.category, priority: demo.priority, actions: demo.actions, demoInfo: demo.demoInfo } }]);
-        setIsSending(false);
-      }, 700);
-      return;
-    }
-    try {
-      const res = await api.openaiChat({
-        agent: agent.slug,
-        message: content,
-        history: messages.map((m) => ({ role: m.role, content: m.content }))
-      });
-      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: res.reply }]);
-    } catch (err: any) {
-      setError(err?.message || 'Could not reach the AI agent. Please retry.');
-    } finally {
+    // Local engine only: no external AI endpoint is called, so no API-key
+    // or backend error can appear here. The previous Live mode called
+    // /ai/openai and showed "OpenAI not configured" when no key was set;
+    // that option has been removed.
+    const demo = generateAgentResponse(resolvedSlug as AgentSlug, content);
+    window.setTimeout(() => {
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: demo.text, demoMeta: { category: demo.category, priority: demo.priority, actions: demo.actions, demoInfo: demo.demoInfo } }]);
       setIsSending(false);
-    }
+    }, 700);
+    return;
   };
 
   const toggleListen = () => {
@@ -147,52 +127,8 @@ export const AgentChatPage: React.FC = () => {
     }
   };
 
-  const toggleSpeak = async (msg: ChatMsg) => {
-    if (mode === 'demo') {
-      if (playingId === msg.id) { stopSpeaking(); setPlayingId(null); return; }
-      setPlayingId(msg.id);
-      const ok = speakText(msg.content, detectSpeechLang(msg.content), () => setPlayingId(null));
-      if (!ok) { setAudioError('Browser voice output is not supported in this browser.'); setPlayingId(null); }
-      return;
-    }
-    if (playingId === msg.id) {
-      audioRef.current?.pause();
-      setPlayingId(null);
-      return;
-    }
-    setAudioError(null);
-    setAudioLoadingId(msg.id);
-    try {
-      const blob = await api.speak(msg.content);
-      const url = URL.createObjectURL(blob);
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-      setAudioUrl(url);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => setPlayingId(null);
-      audio.onerror = () => {
-        setAudioError('Audio playback failed.');
-        setPlayingId(null);
-      };
-      setPlayingId(msg.id);
-      await audio.play();
-    } catch (err: any) {
-      setAudioError(err?.message || 'Speech playback failed.');
-    } finally {
-      setAudioLoadingId(null);
-    }
-  };
-
   return (
     <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)] min-h-[480px]">
-      <div className="rounded-t-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs sm:text-sm text-amber-900">
-        <b>AI DEMO MODE</b> — Responses, incidents, locations and dispatch operations are simulated. No real service has been contacted. For real emergencies, call <b>112</b>.
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setMode('demo')} className={`min-h-9 px-3 rounded-lg text-xs font-semibold border ${mode === 'demo' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white border-slate-300 text-[#172033]'}`}>Demo (local, no key)</button>
-          <button type="button" onClick={() => setMode('live')} className={`min-h-9 px-3 rounded-lg text-xs font-semibold border ${mode === 'live' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white border-slate-300 text-[#172033]'}`}>Live AI (needs API key)</button>
-          <button type="button" onClick={() => { stopSpeaking(); setMessages([]); try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ } }} className="min-h-9 px-3 rounded-lg text-xs font-semibold border bg-white border-slate-300 text-[#172033]">Clear demo chat</button>
-        </div>
-      </div>
       <div className={`bg-gradient-to-br ${agent.gradient} text-white p-5 sm:p-6 shrink-0`}>
         <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-xs font-semibold text-white/90 hover:text-white mb-3">
           <ArrowLeft className="w-3.5 h-3.5" /> All Agents
@@ -214,7 +150,7 @@ export const AgentChatPage: React.FC = () => {
         {messages.length === 0 && (
           <div className="space-y-2">
             <p className="text-sm text-[#172033] bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-3 leading-relaxed">{AGENT_META[resolvedSlug as AgentSlug]?.welcome || agent.description}</p>
-            <p className="text-sm text-[#64748B]">Try one of these (demo):</p>
+            <p className="text-sm text-[#64748B]">Try one of these:</p>
             {(AGENT_META[resolvedSlug as AgentSlug]?.questions || agent.prompts).map((p) => (
               <button
                 key={p}
@@ -237,35 +173,19 @@ export const AgentChatPage: React.FC = () => {
               <p className="whitespace-pre-wrap break-words">{m.content}</p>
               {m.role === 'agent' && m.demoMeta && (
                 <div className="mt-2 space-y-1.5">
-                  <p className="text-xs"><span className="font-semibold">Category (demo):</span> {m.demoMeta.category} · <span className="font-semibold">Priority (simulated):</span> {m.demoMeta.priority} · <span className="font-semibold">Status:</span> Demo Assessment</p>
+                  <p className="text-xs"><span className="font-semibold">Category:</span> {m.demoMeta.category} · <span className="font-semibold">Priority (simulated):</span> {m.demoMeta.priority} · <span className="font-semibold">Status:</span> Simulated assessment</p>
                   <p className="text-xs"><span className="font-semibold">Suggested actions:</span> {m.demoMeta.actions.join(' · ')}</p>
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-[#64748B]">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && mode === 'demo' && <VoiceControls text={m.content} />}
-              {m.role === 'agent' && mode !== 'demo' && (
-                <button
-                  type="button"
-                  onClick={() => toggleSpeak(m)}
-                  disabled={audioLoadingId === m.id}
-                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline disabled:opacity-50"
-                >
-                  {audioLoadingId === m.id ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading audio…</>
-                  ) : playingId === m.id ? (
-                    <><Pause className="w-3.5 h-3.5" /> Pause</>
-                  ) : (
-                    <><Play className="w-3.5 h-3.5" /> Play voice</>
-                  )}
-                </button>
-              )}
+              {m.role === 'agent' && <VoiceControls text={m.content} />}
             </div>
           </div>
         ))}
         {isSending && (
           <div className="flex justify-start">
             <div className="bg-slate-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm text-[#64748B] flex items-center gap-2">
-              <span className="demo-typing"><span /><span /><span /></span> {agent.name} is thinking… (demo)
+              <span className="demo-typing"><span /><span /><span /></span> {agent.name} is thinking…
             </div>
           </div>
         )}
@@ -285,11 +205,6 @@ export const AgentChatPage: React.FC = () => {
         {voiceError && (
           <div role="alert" className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-sm text-amber-800">
             {voiceError}
-          </div>
-        )}
-        {audioError && (
-          <div role="alert" className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-sm text-amber-800 flex items-center gap-2">
-            <Volume2 className="w-4 h-4 shrink-0" /> {audioError}
           </div>
         )}
         <form
@@ -326,7 +241,7 @@ export const AgentChatPage: React.FC = () => {
           </button>
         </form>
         <p className="mt-2 text-[11px] text-[#64748B]">
-          In Demo mode, answers are local simulations with no API key. In Live mode, chat uses the server AI endpoint and will show a clear error if no key is configured — it will not pretend to be a live AI. For emergencies, call 112.
+          Responses are generated by the local engine in this browser. Simulated data — for real emergencies, call 112.
         </p>
       </div>
     </div>

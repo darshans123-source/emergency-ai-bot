@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { allDemoUnits } from '../demo/demoStore';
+import { demoUnitToResource } from '../demo/localFallback';
 import { useAuth } from '../context/AuthContext';
 import { Resource, ResourceType, ResourceStatus } from '../types';
 import {
@@ -44,8 +46,12 @@ export const ResourcesPage: React.FC = () => {
         status: statusFilter !== 'ALL' ? statusFilter : undefined
       });
       setResources(data);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Backend unavailable: show local units instead of an empty page or error.
+      let local = allDemoUnits().map(demoUnitToResource);
+      if (typeFilter !== 'ALL') local = local.filter((r) => r.type === typeFilter);
+      if (statusFilter !== 'ALL') local = local.filter((r) => r.status === statusFilter);
+      setResources(local);
     } finally {
       setIsLoading(false);
     }
@@ -70,8 +76,11 @@ export const ResourcesPage: React.FC = () => {
       setShowAddModal(false);
       setNewName('');
       loadResources();
-    } catch (err: any) {
-      alert(err.message || 'Failed to create resource');
+    } catch {
+      // Backend unavailable: add locally so the page still works.
+      setResources((prev) => [{ id: `LOCAL-${Date.now()}`, name: newName.trim(), type: newType, status: 'AVAILABLE', latitude: parseFloat(newLat) || 0, longitude: parseFloat(newLng) || 0, address: newAddress.trim(), capacity: newCapacity.trim(), operationalNotes: newNotes.trim(), assignedIncidentId: null, isDemo: true, lastVerifiedAt: '' } as any, ...prev]);
+      setShowAddModal(false);
+      setNewName('');
     }
   };
 
@@ -79,8 +88,9 @@ export const ResourcesPage: React.FC = () => {
     try {
       await api.updateResource(resId, { status: newStatus });
       loadResources();
-    } catch (err: any) {
-      alert(err.message || 'Failed to update resource status');
+    } catch {
+      // Backend unavailable: update locally.
+      setResources((prev) => prev.map((r) => (r.id === resId ? { ...r, status: newStatus } : r)));
     }
   };
 
