@@ -4,7 +4,7 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini' | 'openai' | 'qwen' | 'built-in-domain';
+  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'built-in-domain';
   model: string;
   isExternalConfigured: boolean;
   status: 'Online' | 'Degraded' | 'Offline' | 'LocalFallback';
@@ -64,6 +64,20 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
   const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
+  const cohereKey = process.env.COHERE_API_KEY?.trim();
+
+  // Cohere takes precedence when COHERE_API_KEY is set (user-requested provider).
+  if (cohereKey) {
+    const configuredModel = process.env.COHERE_MODEL?.trim() || 'command-a-03-2025';
+    return {
+      provider: 'cohere',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `Cohere Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
 
   // Qwen (DashScope) takes precedence when DASHSCOPE_API_KEY is set (user-requested provider).
   if (dashKey) {
@@ -108,7 +122,7 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
     model: 'Aegis-Multilingual-Emergency-NLP-v2',
     isExternalConfigured: false,
     status: 'LocalFallback',
-    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
+    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }

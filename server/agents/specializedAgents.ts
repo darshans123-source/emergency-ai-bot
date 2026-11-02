@@ -851,10 +851,11 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     const openAiKey = process.env.OPENAI_API_KEY?.trim();
     const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
+    const cohereKey = process.env.COHERE_API_KEY?.trim();
 
-    // 1. Qwen (DashScope) / OpenAI take precedence when configured (see blocks below).
-    //    Gemini is only tried when neither Qwen nor OpenAI key is set.
-    if (geminiKey && !openAiKey && !dashKey) {
+    // 1. Cohere / Qwen (DashScope) / OpenAI take precedence when configured (see blocks below).
+    //    Gemini is only tried when none of those keys is set.
+    if (geminiKey && !openAiKey && !dashKey && !cohereKey) {
       const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
       try {
         const ai = new GoogleGenAI({
@@ -884,6 +885,46 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
         }
       } catch (err: any) {
         console.warn(`[SpecializedAgent:${agentId}] Gemini model notice:`, err?.message || err);
+        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
+      }
+    }
+
+    // 1a. Try Cohere if reply not yet generated and COHERE_API_KEY is configured
+    if (!replyText && cohereKey) {
+      try {
+        const cohereModel = process.env.COHERE_MODEL?.trim() || 'command-a-03-2025';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch('https://api.cohere.com/v2/chat', {
+          method: 'POST',
+          signal: controller.signal,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cohereKey}` },
+          body: JSON.stringify({
+            model: cohereModel,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              ...history.slice(-4).map((m) => ({
+                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
+                content: m.content.slice(0, 250)
+              })),
+              { role: 'user', content: trimmedMessage }
+            ],
+            temperature: 0.3
+          })
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          const data = await response.json();
+          const msg = data.message?.content;
+          const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : data.text;
+          if (content && content.trim()) {
+            replyText = content.trim();
+            providerStatus = 'Online';
+            providerNotice = null;
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[SpecializedAgent:${agentId}] Cohere model notice:`, err?.message || err);
         providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
       }
     }
