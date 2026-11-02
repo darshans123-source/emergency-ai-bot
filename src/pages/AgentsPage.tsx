@@ -65,7 +65,7 @@ export const AgentsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto text-white">
-      <div className="glass-liquid-strong rounded-2xl p-6 sm:p-8 text-white shadow-sm animate-aurora-float">
+      <div className="glass-liquid-strong rounded-2xl p-6 sm:p-8 text-white shadow-sm">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
           <Bot className="w-7 h-7 text-cyan-300" /> <span className="chrome-text">AI Agents</span>
         </h1>
@@ -84,7 +84,7 @@ export const AgentsPage: React.FC = () => {
         {loading
           ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
           : AGENT_CARDS.map((agent) => (
-              <article key={agent.slug} className="glass-liquid glass-liquid-hover rounded-2xl overflow-hidden flex flex-col">
+              <article key={agent.slug} className="glass-liquid glass-liquid-hover rounded-2xl overflow-hidden flex flex-col h-full">
                 <div className={`h-24 bg-gradient-to-br ${agent.gradient} flex items-end p-4`}>
                   <span className="w-12 h-12 rounded-2xl chrome-icon text-white flex items-center justify-center">
                     {agent.icon}
@@ -100,7 +100,7 @@ export const AgentsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigate(`/agents/${agent.slug}`)}
-                    className="mt-4 min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
+                    className="mt-auto min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
                   >
                     Open Agent <ArrowRight className="w-4 h-4" />
                   </button>

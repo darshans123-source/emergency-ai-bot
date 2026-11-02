@@ -28,7 +28,7 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="bg-white p-6 rounded-[20px] border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-bold text-[#172033] tracking-tight flex items-center gap-2">
           <Settings className="w-6 h-6 text-[#2563EB]" /> Settings
         </h1>
@@ -37,7 +37,7 @@ export const SettingsPage: React.FC = () => {
         </p>
       </div>
 
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm p-6">
         <h2 className="font-bold text-[#172033] flex items-center gap-2">
           <User className="w-5 h-5 text-[#2563EB]" /> Profile
         </h2>
@@ -90,7 +90,7 @@ export const SettingsPage: React.FC = () => {
         </p>
       </section>
 
-      <section className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+      <section className="bg-amber-50 border border-amber-200 rounded-[20px] p-6">
         <h2 className="font-bold text-amber-900 flex items-center gap-2">
           <ShieldAlert className="w-5 h-5" /> Prototype login — important
         </h2>
