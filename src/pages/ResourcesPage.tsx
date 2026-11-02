@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { api } from '../services/api';
 import { allDemoUnits } from '../demo/demoStore';
 import { demoUnitToResource } from '../demo/localFallback';
@@ -20,6 +21,7 @@ import {
 import { Link } from 'react-router-dom';
 
 export const ResourcesPage: React.FC = () => {
+  const { t } = useLanguage();
   const { hasRole } = useAuth();
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -156,7 +158,7 @@ export const ResourcesPage: React.FC = () => {
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Fleet & Resources</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('pages.resources_title')}</h1>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               {availableCount} Available
             </span>

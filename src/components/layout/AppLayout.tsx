@@ -4,28 +4,30 @@ import { Sidebar } from './Sidebar';
 import { AuroraBackground } from './AuroraBackground';
 import { Navbar } from './Navbar';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { MarqueeBanner } from './MarqueeBanner';
 import { LayoutDashboard, AlertCircle, FilePlus2, MapPin, Bot, MoreHorizontal, Box, Layers, History, Settings, User, LogOut, X } from 'lucide-react';
 
 const BOTTOM_NAV = [
-  { to: '/', label: 'Home', icon: LayoutDashboard, end: true },
-  { to: '/incidents', label: 'Incidents', icon: AlertCircle, end: false },
-  { to: '/report', label: 'Report', icon: FilePlus2, end: false },
-  { to: '/map', label: 'Map', icon: MapPin, end: false },
-  { to: '/agents', label: 'Agents', icon: Bot, end: false }
+  { to: '/', labelKey: 'menu.home', icon: LayoutDashboard, end: true },
+  { to: '/incidents', labelKey: 'menu.incidents', icon: AlertCircle, end: false },
+  { to: '/report', labelKey: 'menu.report_emergency', icon: FilePlus2, end: false },
+  { to: '/map', labelKey: 'menu.live_map', icon: MapPin, end: false },
+  { to: '/agents', labelKey: 'menu.ai_agents', icon: Bot, end: false }
 ];
 
 const MORE_ITEMS = [
-  { to: '/3d', label: '3D Tactical', icon: Box },
-  { to: '/resources', label: 'Fleet & Resources', icon: Layers },
-  { to: '/history', label: 'Mission History', icon: History },
-  { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/profile', label: 'Profile', icon: User }
+  { to: '/3d', labelKey: 'menu.tactical_3d', icon: Box },
+  { to: '/resources', labelKey: 'menu.fleet_resources', icon: Layers },
+  { to: '/history', labelKey: 'menu.mission_history', icon: History },
+  { to: '/settings', labelKey: 'menu.settings', icon: Settings },
+  { to: '/profile', labelKey: 'menu.user_profile', icon: User }
 ];
 
 export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try { return localStorage.getItem('aegis_sidebar_collapsed') === 'true'; } catch { return false; }
   });
@@ -56,7 +58,7 @@ export const AppLayout: React.FC = () => {
             <button type="button" aria-label="Close more menu" className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
             <div className="absolute bottom-16 inset-x-0 glass-liquid-strong rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
               <div className="flex items-center justify-between mb-3">
-                <p className="font-bold text-white">More</p>
+                <p className="font-bold text-white">{t('menu.more')}</p>
                 <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg text-slate-300 hover:bg-white/10" aria-label="Close"><X className="w-5 h-5" /></button>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -64,7 +66,7 @@ export const AppLayout: React.FC = () => {
                   const Icon = item.icon;
                   return (
                     <button key={item.to} type="button" onClick={() => { setMoreOpen(false); navigate(item.to); }} className="min-h-12 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-[#172033] flex items-center gap-2.5 text-left">
-                      <Icon className="w-4 h-4 text-[#2563EB] shrink-0" />{item.label}
+                      <Icon className="w-4 h-4 text-[#2563EB] shrink-0" />{t(item.labelKey)}
                     </button>
                   );
                 })}
@@ -86,12 +88,12 @@ export const AppLayout: React.FC = () => {
               const Icon = item.icon;
               return (
                 <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
-                  <Icon className="w-5 h-5" /><span>{item.label}</span>
+                  <Icon className="w-5 h-5" /><span>{t(item.labelKey)}</span>
                 </NavLink>
               );
             })}
             <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${moreOpen ? 'text-cyan-300' : 'text-slate-400'}`} aria-expanded={moreOpen}>
-              <MoreHorizontal className="w-5 h-5" /><span>More</span>
+              <MoreHorizontal className="w-5 h-5" /><span>{t('menu.more')}</span>
             </button>
           </div>
         </nav>

@@ -1,10 +1,12 @@
 import React from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { Settings, LogOut, User, ShieldAlert, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { deleteProfile } from '../services/localProfile';
 
 export const SettingsPage: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { localProfile, localProfiles, user, logout, logoutLocal, refreshLocalProfiles } = useAuth();
 
@@ -30,7 +32,7 @@ export const SettingsPage: React.FC = () => {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="bg-white p-6 rounded-[20px] border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-bold text-[#172033] tracking-tight flex items-center gap-2">
-          <Settings className="w-6 h-6 text-[#2563EB]" /> Settings
+          <Settings className="w-6 h-6 text-[#2563EB]" /> {t('pages.settings_title')}
         </h1>
         <p className="text-sm text-[#64748B] mt-1">
           Your profile, session and connection — nothing here is stored on a server by this page.

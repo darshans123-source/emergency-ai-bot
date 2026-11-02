@@ -24,10 +24,13 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MitraAssistant } from '../demo/MitraAssistant';
+import { LanguageSelector } from './LanguageSelector';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobileMenu }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { localProfile, user, logout, logoutLocal } = useAuth();
+  const { t, lang } = useLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -319,7 +322,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Local AI ready</span>
+            <span>{t('nav.local_ai_ready')}</span>
           </span>
         </div>
       </div>
@@ -338,7 +341,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               setIsSearchOpen(true);
             }}
             onKeyDown={handleSearchKeyDown}
-            placeholder={isListening ? "Listening... speak command or search query" : "Search incidents by title, ID, category, or location..."}
+            placeholder={isListening ? "Listening... speak command or search query" : t('nav.search_placeholder')}
             className={`w-full glass-input rounded-xl pl-10 pr-24 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
               isListening
                 ? 'border-blue-500 ring-2 ring-blue-100'
@@ -473,16 +476,17 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
       {/* Right: Voice AI Assistant & Notifications */}
       <div className="flex items-center gap-2 shrink-0">
+        <LanguageSelector />
         {/* Multilingual Voice AI Assistant Trigger Button */}
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold transition-all cursor-pointer"
-          title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ)"
+          title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ / తెలుగు)"
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
-          <span className="hidden md:inline">Mitra AI (Voice)</span>
-          <span className="md:hidden">Mitra AI</span>
+          <span className="hidden md:inline">{t('nav.mitra')} (Voice)</span>
+          <span className="md:hidden">{t('nav.mitra')}</span>
         </button>
 
         {/* Notifications Button */}
@@ -491,7 +495,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             type="button"
             onClick={() => setIsNotifOpen(!isNotifOpen)}
             className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200"
-            aria-label="Notifications"
+            aria-label={t('nav.notifications')}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -507,7 +511,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                    Notifications
+                    {t('nav.notifications')}
                   </h3>
                   {unreadCount > 0 && (
                     <span className="bg-rose-50 text-rose-700 text-xs font-semibold px-2 py-0.5 rounded-full">
@@ -521,7 +525,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                     onClick={markAllAsRead}
                     className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    Mark all read
+                    {t('nav.mark_all_read')}
                   </button>
                 )}
               </div>
@@ -529,7 +533,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center text-xs text-slate-400">
-                    No active notifications
+                    {t('nav.no_notifications')}
                   </div>
                 ) : (
                   notifications.map((item) => (
@@ -586,7 +590,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             </span>
             <span className="hidden md:block text-left leading-tight">
               <span className="block text-xs font-semibold truncate max-w-[120px]">{localProfile?.name || user?.name || 'Command User'}</span>
-              <span className="block text-[11px] text-slate-500">Profile</span>
+              <span className="block text-[11px] text-slate-500">{t('nav.profile')}</span>
             </span>
           </button>
           {isProfileOpen && (
@@ -600,14 +604,14 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                 onClick={() => { setIsProfileOpen(false); navigate('/profile'); }}
                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
               >
-                User Profile
+                {t('menu.user_profile')}
               </button>
               <button
                 type="button"
                 onClick={() => { setIsProfileOpen(false); navigate('/settings'); }}
                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
               >
-                Settings
+                {t('menu.settings')}
               </button>
               <button
                 type="button"
@@ -619,7 +623,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                 }}
                 className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
               >
-                <LogOut className="w-4 h-4" /> Logout
+                <LogOut className="w-4 h-4" /> {t('nav.logout')}
               </button>
             </div>
           )}

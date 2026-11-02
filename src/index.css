@@ -9,7 +9,7 @@
     max-width: 100%;
   }
   body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Noto Sans Kannada', 'Noto Sans Devanagari', 'Noto Sans Telugu', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(180deg, #F1F5F9 0%, #E8EEF6 55%, #F1F5F9 100%);
     color: #172033;
     -webkit-tap-highlight-color: transparent;

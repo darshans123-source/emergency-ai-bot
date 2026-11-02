@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import {
   AlertCircle,
   FilePlus2,
@@ -30,16 +31,16 @@ export const AegisEmblem: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'm
 };
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Command Center', icon: LayoutDashboard, end: true },
-  { to: '/incidents', label: 'Incidents', icon: AlertCircle, end: false },
-  { to: '/report', label: 'Report Emergency', icon: FilePlus2, end: false },
-  { to: '/map', label: 'Live Map', icon: MapPin, end: false },
-  { to: '/tactical-3d', label: '3D Tactical View', icon: Box, end: false },
-  { to: '/resources', label: 'Fleet & Resources', icon: Ambulance, end: false },
-  { to: '/agents', label: 'AI Agents', icon: Bot, end: false },
-  { to: '/history', label: 'Mission History', icon: History, end: false },
-  { to: '/settings', label: 'Settings', icon: Settings, end: false },
-  { to: '/profile', label: 'User Profile', icon: User, end: false }
+  { to: '/', labelKey: 'menu.command_center', icon: LayoutDashboard, end: true },
+  { to: '/incidents', labelKey: 'menu.incidents', icon: AlertCircle, end: false },
+  { to: '/report', labelKey: 'menu.report_emergency', icon: FilePlus2, end: false },
+  { to: '/map', labelKey: 'menu.live_map', icon: MapPin, end: false },
+  { to: '/tactical-3d', labelKey: 'menu.tactical_3d', icon: Box, end: false },
+  { to: '/resources', labelKey: 'menu.fleet_resources', icon: Ambulance, end: false },
+  { to: '/agents', labelKey: 'menu.ai_agents', icon: Bot, end: false },
+  { to: '/history', labelKey: 'menu.mission_history', icon: History, end: false },
+  { to: '/settings', labelKey: 'menu.settings', icon: Settings, end: false },
+  { to: '/profile', labelKey: 'menu.user_profile', icon: User, end: false }
 ];
 
 interface SidebarProps {
@@ -56,6 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile
 }) => {
   const { localProfile, user, logout, logoutLocal } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -105,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               to={item.to}
               end={item.end}
               onClick={onCloseMobile}
-              title={item.label}
+              title={t(item.labelKey)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors min-h-11 ${
                   isActive
@@ -115,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }
             >
               <Icon className="w-5 h-5 shrink-0" />
-              {(!collapsed || isDrawer) && <span className="truncate">{item.label}</span>}
+              {(!collapsed || isDrawer) && <span className="truncate">{t(item.labelKey)}</span>}
             </NavLink>
           );
         })}
