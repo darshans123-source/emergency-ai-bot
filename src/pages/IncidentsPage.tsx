@@ -120,7 +120,7 @@ export const IncidentsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('/report')}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition shrink-0"
+          className="w-full sm:w-auto min-h-11 justify-center flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition shrink-0"
         >
           <FilePlus2 className="w-4 h-4" />
           <span>Report Emergency</span>
@@ -160,7 +160,7 @@ export const IncidentsPage: React.FC = () => {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="text-xs px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
+            className="text-xs min-h-11 px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
           >
             <option value="ALL">All Categories</option>
             <option value="ROAD_ACCIDENT">Road Accident</option>
@@ -175,7 +175,7 @@ export const IncidentsPage: React.FC = () => {
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="text-xs px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
+            className="text-xs min-h-11 px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
           >
             <option value="ALL">All Priorities</option>
             <option value="CRITICAL">Critical</option>
@@ -188,7 +188,7 @@ export const IncidentsPage: React.FC = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="text-xs px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
+            className="text-xs min-h-11 px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
           >
             <option value="ALL">All Statuses</option>
             <option value="RECEIVED">Received</option>
@@ -202,7 +202,7 @@ export const IncidentsPage: React.FC = () => {
           <button
             type="button"
             onClick={loadIncidents}
-            className="p-2 border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 transition"
+            className="min-h-11 min-w-11 flex items-center justify-center border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 transition"
             title="Refresh Table"
           >
             <RefreshCw className="w-4 h-4" />

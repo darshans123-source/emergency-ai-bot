@@ -150,14 +150,14 @@ export const AgentChatPage: React.FC = () => {
     try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ }
   };
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)] min-h-[480px] text-white">
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-16rem)] sm:h-[calc(100dvh-12rem)] min-h-[420px] text-white">
       <div className={`glass-liquid-strong rounded-t-2xl border-b-0 text-white p-5 sm:p-6 shrink-0 relative overflow-hidden`}>
         <div className={`absolute inset-0 bg-gradient-to-br ${agent.gradient} opacity-40`} aria-hidden="true" />
         <div className="relative flex items-center justify-between gap-2">
-          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-xs font-semibold text-white/90 hover:text-white mb-0">
+          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-xs font-semibold text-white/90 hover:text-white mb-0 min-h-11">
             <ArrowLeft className="w-3.5 h-3.5" /> {t('chat.all_agents')}
           </button>
-          <button type="button" onClick={clearConversation} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 shrink-0">{t('chat.clear_conversation')}</button>
+          <button type="button" onClick={clearConversation} className="min-h-11 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 shrink-0">{t('chat.clear_conversation')}</button>
         </div>
         <div className="relative flex items-center gap-3 mt-3">
           <span className="w-12 h-12 rounded-2xl chrome-icon flex items-center justify-center shrink-0">{agent.icon}</span>
@@ -224,12 +224,12 @@ export const AgentChatPage: React.FC = () => {
                   {m.structured.routing_note && (
                     <div className="rounded-xl bg-cyan-500/15 border border-cyan-400/40 p-2.5">
                       <p className="text-xs text-cyan-100">{m.structured.routing_note}</p>
-                      <button type="button" onClick={() => navigate(`/agents/${m.structured!.detectedAgentSlug}`)} className="mt-2 min-h-9 px-3 rounded-xl mitra-chrome text-xs font-semibold text-white">Open {m.structured.agent} →</button>
+                      <button type="button" onClick={() => navigate(`/agents/${m.structured!.detectedAgentSlug}`)} className="mt-2 min-h-11 px-3 rounded-xl mitra-chrome text-xs font-semibold text-white">Open {m.structured.agent} →</button>
                     </div>
                   )}
                   {m.structured.follow_up_question && (<p className="text-xs text-slate-300">{t('chat.follow_up')}: {m.structured.follow_up_question}</p>)}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <button type="button" onClick={() => saveAsIncident(m)} disabled={m.savedAsIncident} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">{m.savedAsIncident ? t('chat.saved_to_incident_list') : t('chat.save_as_incident')}</button>
+                    <button type="button" onClick={() => saveAsIncident(m)} disabled={m.savedAsIncident} className="min-h-11 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">{m.savedAsIncident ? t('chat.saved_to_incident_list') : t('chat.save_as_incident')}</button>
                   </div>
                   <VoiceControls text={m.structured.voice_response} lang={lang} />
                 </div>

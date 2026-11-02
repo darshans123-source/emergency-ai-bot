@@ -19,7 +19,7 @@ const SEGMENT = (
 export const MarqueeBanner: React.FC<{ aboveNav?: boolean }> = ({ aboveNav = false }) => {
   return (
     <div
-      className={`marquee-banner fixed inset-x-0 z-30 ${aboveNav ? 'bottom-14 lg:bottom-0' : 'bottom-0'}`}
+      className={`marquee-banner fixed inset-x-0 z-30 ${aboveNav ? 'bottom-16 lg:bottom-0' : 'bottom-0'}`}
       role="note"
       aria-label="AI agents are under development. We are working to make them better. Designed and developed by Darshan."
     >

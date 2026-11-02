@@ -48,7 +48,7 @@ export const AppLayout: React.FC = () => {
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">
         <Navbar onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 lg:pb-16 text-[#172033]">
+        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-32 lg:pb-16 text-[#172033]">
           <Outlet />
         </main>
 
@@ -56,7 +56,7 @@ export const AppLayout: React.FC = () => {
         {moreOpen && (
           <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-label="More sections">
             <button type="button" aria-label="Close more menu" className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-16 inset-x-0 glass-liquid-strong rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-20 inset-x-0 glass-liquid-strong rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-bold text-white">{t('menu.more')}</p>
                 <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg text-slate-300 hover:bg-white/10" aria-label="Close"><X className="w-5 h-5" /></button>
@@ -87,12 +87,12 @@ export const AppLayout: React.FC = () => {
             {BOTTOM_NAV.map((item) => {
               const Icon = item.icon;
               return (
-                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
+                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
                   <Icon className="w-5 h-5" /><span>{t(item.labelKey)}</span>
                 </NavLink>
               );
             })}
-            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${moreOpen ? 'text-cyan-300' : 'text-slate-400'}`} aria-expanded={moreOpen}>
+            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 ${moreOpen ? 'text-cyan-300' : 'text-slate-400'}`} aria-expanded={moreOpen}>
               <MoreHorizontal className="w-5 h-5" /><span>{t('menu.more')}</span>
             </button>
           </div>
