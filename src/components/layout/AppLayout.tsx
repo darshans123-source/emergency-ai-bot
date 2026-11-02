@@ -38,11 +38,19 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-[100dvh] w-full overflow-x-hidden bg-[#F1F5F9] text-[#172033]">
+    <div className="relative flex min-h-[100dvh] w-full overflow-x-hidden bg-[#080F25] text-[#172033]">
+      {/* Aurora Flow background — fixed CSS gradients only, no video, no JS animation */}
+      <div className="aurora-flow" aria-hidden="true">
+        <div className="aurora-blob aurora-blob-blue" />
+        <div className="aurora-blob aurora-blob-cyan" />
+        <div className="aurora-blob aurora-blob-violet" />
+        <div className="aurora-texture" />
+      </div>
+      <div className="relative z-10 flex min-h-[100dvh] w-full">
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">
         <Navbar onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8 text-[#172033]">
+        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8 text-[#172033]">
           <Outlet />
         </main>
 
@@ -50,10 +58,10 @@ export const AppLayout: React.FC = () => {
         {moreOpen && (
           <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-label="More sections">
             <button type="button" aria-label="Close more menu" className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-16 inset-x-0 bg-white rounded-t-[20px] border border-slate-200 shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-16 inset-x-0 glass-liquid-strong rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
               <div className="flex items-center justify-between mb-3">
-                <p className="font-bold text-[#172033]">More</p>
-                <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg hover:bg-slate-100" aria-label="Close"><X className="w-5 h-5" /></button>
+                <p className="font-bold text-white">More</p>
+                <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg text-slate-300 hover:bg-white/10" aria-label="Close"><X className="w-5 h-5" /></button>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {MORE_ITEMS.map((item) => {
@@ -73,21 +81,22 @@ export const AppLayout: React.FC = () => {
         )}
 
         {/* Mobile bottom navigation — 5 main sections + More, safe-area padding */}
-        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-strong border-t border-white/60 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
+        <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-liquid-strong border-t border-white/15 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
           <div className="grid grid-cols-6">
             {BOTTOM_NAV.map((item) => {
               const Icon = item.icon;
               return (
-                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${isActive ? 'text-[#2563EB]' : 'text-[#64748B]'}`}>
+                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
                   <Icon className="w-5 h-5" /><span>{item.label}</span>
                 </NavLink>
               );
             })}
-            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${moreOpen ? 'text-[#2563EB]' : 'text-[#64748B]'}`} aria-expanded={moreOpen}>
+            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium min-h-14 ${moreOpen ? 'text-cyan-300' : 'text-slate-400'}`} aria-expanded={moreOpen}>
               <MoreHorizontal className="w-5 h-5" /><span>More</span>
             </button>
           </div>
         </nav>
+      </div>
       </div>
     </div>
   );

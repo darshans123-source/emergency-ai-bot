@@ -21,7 +21,7 @@ export const AGENT_CARDS: AgentCardDef[] = [
     sector: 'Police & Public Safety',
     description: 'Police incident assistance, police station information, incident reporting and response recommendations.',
     icon: <Shield className="w-6 h-6" />,
-    accent: 'text-blue-700',
+    accent: 'text-blue-300',
     gradient: 'from-blue-600 to-blue-800',
     prompts: ['Report a road accident near me.', 'What should I do after a theft?', 'Find the nearest police station.']
   },
@@ -31,7 +31,7 @@ export const AGENT_CARDS: AgentCardDef[] = [
     sector: 'Medical & Ambulance Assistance',
     description: 'Medical emergency guidance, nearby hospital information and emergency request assistance.',
     icon: <HeartPulse className="w-6 h-6" />,
-    accent: 'text-rose-700',
+    accent: 'text-rose-300',
     gradient: 'from-rose-600 to-rose-800',
     prompts: ['Someone is injured — what first aid do I give?', 'Find the nearest hospital.', 'How do I request an ambulance?']
   },
@@ -41,7 +41,7 @@ export const AGENT_CARDS: AgentCardDef[] = [
     sector: 'Fire & Rescue Operations',
     description: 'Fire incident reporting, fire safety and evacuation guidance, and rescue coordination support.',
     icon: <Flame className="w-6 h-6" />,
-    accent: 'text-red-700',
+    accent: 'text-orange-300',
     gradient: 'from-red-600 to-orange-700',
     prompts: ['There is a fire in my building — what do I do?', 'Report a fire incident.', 'How do I evacuate safely during a fire?']
   },
@@ -51,7 +51,7 @@ export const AGENT_CARDS: AgentCardDef[] = [
     sector: 'Disaster Management',
     description: 'Flood, natural disaster, water and power disruption guidance, shelter and public safety support.',
     icon: <CloudLightning className="w-6 h-6" />,
-    accent: 'text-cyan-700',
+    accent: 'text-cyan-300',
     gradient: 'from-cyan-600 to-teal-700',
     prompts: ['My area is flooding — what should I do?', 'Report a water supply disruption.', 'Report a power outage in my area.']
   }
@@ -64,10 +64,10 @@ export const AgentsPage: React.FC = () => {
   const [loading] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="bg-[#101B33] rounded-2xl p-6 sm:p-8 text-white shadow-sm">
+    <div className="space-y-6 max-w-7xl mx-auto text-white">
+      <div className="glass-liquid-strong rounded-2xl p-6 sm:p-8 text-white shadow-sm animate-aurora-float">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Bot className="w-7 h-7 text-[#06B6D4]" /> AI Agents
+          <Bot className="w-7 h-7 text-cyan-300" /> <span className="chrome-text">AI Agents</span>
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
           Four dedicated agents for police, medical, fire and disaster response. Each opens its own
@@ -84,23 +84,23 @@ export const AgentsPage: React.FC = () => {
         {loading
           ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
           : AGENT_CARDS.map((agent) => (
-              <article key={agent.slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+              <article key={agent.slug} className="glass-liquid glass-liquid-hover rounded-2xl overflow-hidden flex flex-col">
                 <div className={`h-24 bg-gradient-to-br ${agent.gradient} flex items-end p-4`}>
-                  <span className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm">
+                  <span className="w-12 h-12 rounded-2xl chrome-icon text-white flex items-center justify-center">
                     {agent.icon}
                   </span>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-bold text-[#172033]">{agent.name}</h2>
-                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 shrink-0">Ready</span>
+                    <h2 className="font-bold text-white">{agent.name}</h2>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 shrink-0">Ready</span>
                   </div>
                   <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agent.sector}</p>
-                  <p className="mt-2 text-sm text-[#64748B] leading-relaxed flex-1">{agent.description}</p>
+                  <p className="mt-2 text-sm text-slate-300 leading-relaxed flex-1">{agent.description}</p>
                   <button
                     type="button"
                     onClick={() => navigate(`/agents/${agent.slug}`)}
-                    className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition inline-flex items-center justify-center gap-1.5"
+                    className="mt-4 min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
                   >
                     Open Agent <ArrowRight className="w-4 h-4" />
                   </button>
@@ -110,9 +110,9 @@ export const AgentsPage: React.FC = () => {
       </div>
 
 
-      <p className="text-xs text-[#64748B]">
+      <p className="text-xs text-slate-300">
         The older specialised-agent hub (police, hospital, water, power) is still available at{' '}
-        <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-[#2563EB] hover:underline">
+        <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-cyan-300 hover:underline">
           Legacy agent hub
         </button>
         . Nothing was deleted.

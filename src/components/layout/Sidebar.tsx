@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </NavLink>
         {(!collapsed || isDrawer) && (
           <div className="min-w-0 flex-1">
-            <h1 className="text-base font-bold text-white tracking-tight">AegisAI</h1>
+            <h1 className="text-base font-bold tracking-tight chrome-text">AegisAI</h1>
             <p className="text-[11px] text-slate-400 truncate">One Voice. Four Agents. One Mission.</p>
           </div>
         )}
@@ -109,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors min-h-11 ${
                   isActive
-                    ? 'bg-[#2563EB] text-white font-semibold'
+                    ? 'mitra-chrome text-white font-semibold shadow-lg shadow-violet-500/30'
                     : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 } ${!isDrawer && collapsed ? 'justify-center' : ''}`
               }
