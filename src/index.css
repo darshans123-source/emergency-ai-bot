@@ -197,3 +197,10 @@
     -webkit-backdrop-filter: none !important;
   }
 }
+/* Demo voice waveform + typing animation (demo mode only) */
+.demo-wave-bar { height: 16px; animation: demo-wave 0.7s ease-in-out infinite alternate; }
+@keyframes demo-wave { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+.demo-typing span { display: inline-block; width: 6px; height: 6px; margin-right: 3px; border-radius: 9999px; background: #64748B; animation: demo-typing 1s infinite; }
+.demo-typing span:nth-child(2) { animation-delay: 0.15s; }
+.demo-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes demo-typing { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }

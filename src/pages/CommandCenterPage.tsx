@@ -30,6 +30,7 @@ import {
 import { Skeleton, ErrorState } from '../components/common/UiBits';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { DemoDashboard } from '../components/demo/DemoDashboard';
 
 export const CommandCenterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -145,6 +146,7 @@ export const CommandCenterPage: React.FC = () => {
           <div className="min-w-0">
             <h1 className="text-lg sm:text-xl font-bold text-[#172033] truncate">Welcome back, {displayName}</h1>
             <p className="text-xs sm:text-sm text-[#64748B] truncate">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <p className="mt-1"><span className="text-[11px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">AI DEMO MODE</span> <span className="text-xs text-[#64748B]">Demo simulation below works with no API key. No real service is contacted. Call 112 for real emergencies.</span></p>
             <p className="mt-1 text-xs font-medium flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
               <span className="text-[#64748B]">{isConnected ? 'Live link connected' : wsStatus === 'unavailable' ? 'Live link unavailable' : 'Live link reconnecting…'}{lastUpdated ? ` · Updated ${lastUpdated}` : ''}</span>
@@ -155,6 +157,8 @@ export const CommandCenterPage: React.FC = () => {
           <FilePlus2 className="w-4 h-4" /> Report Emergency
         </button>
       </section>
+
+      <DemoDashboard />
 
       {error && <ErrorState message={error} onRetry={load} />}
 

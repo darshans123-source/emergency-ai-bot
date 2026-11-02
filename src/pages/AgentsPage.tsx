@@ -80,7 +80,7 @@ export const AgentsPage: React.FC = () => {
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
           Four dedicated agents for police, medical, fire and disaster response. Each opens its own
-          chat with text and voice.
+          chat with text and voice. Every agent chat now opens in <b>AI DEMO MODE</b> by default — local, no API key, simulated answers only. Switch to Live AI in the chat if a server key is configured. For real emergencies, call 112.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
           <span className={`w-2 h-2 rounded-full ${aiStatus?.isExternalConfigured ? 'bg-emerald-400' : 'bg-amber-400'}`} />

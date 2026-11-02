@@ -2,12 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Send, Mic, MicOff, Play, Pause, Loader2, AlertTriangle, ArrowLeft, Volume2 } from 'lucide-react';
 import { api } from '../services/api';
+import { generateAgentResponse, AGENT_META, AgentSlug } from '../demo/demoAiEngine';
+import { VoiceControls } from '../components/demo/VoiceControls';
+import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
 import { AGENT_CARDS } from './AgentsPage';
 
 interface ChatMsg {
   id: string;
   role: 'user' | 'agent';
   content: string;
+  demoMeta?: { category: string; priority: string; actions: string[]; demoInfo: string[] };
 }
 
 const LEGACY_MAP: Record<string, string> = {
@@ -29,6 +33,7 @@ export const AgentChatPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioLoadingId, setAudioLoadingId] = useState<string | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
@@ -40,6 +45,18 @@ export const AgentChatPage: React.FC = () => {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
+  // Demo chat history is stored in this browser only, per agent.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(`aegis_demo_chat_${resolvedSlug}`);
+      if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) setMessages(v); }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedSlug]);
+  useEffect(() => {
+    try { localStorage.setItem(`aegis_demo_chat_${resolvedSlug}`, JSON.stringify(messages.slice(-40))); } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   useEffect(() => {
     return () => {
@@ -71,6 +88,15 @@ export const AgentChatPage: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
+    if (mode === 'demo') {
+      // Local demo engine — no API key, no external call. Typing delay simulates thinking.
+      const demo = generateAgentResponse(resolvedSlug as AgentSlug, content);
+      window.setTimeout(() => {
+        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: demo.text, demoMeta: { category: demo.category, priority: demo.priority, actions: demo.actions, demoInfo: demo.demoInfo } }]);
+        setIsSending(false);
+      }, 700);
+      return;
+    }
     try {
       const res = await api.openaiChat({
         agent: agent.slug,
@@ -122,6 +148,13 @@ export const AgentChatPage: React.FC = () => {
   };
 
   const toggleSpeak = async (msg: ChatMsg) => {
+    if (mode === 'demo') {
+      if (playingId === msg.id) { stopSpeaking(); setPlayingId(null); return; }
+      setPlayingId(msg.id);
+      const ok = speakText(msg.content, detectSpeechLang(msg.content), () => setPlayingId(null));
+      if (!ok) { setAudioError('Browser voice output is not supported in this browser.'); setPlayingId(null); }
+      return;
+    }
     if (playingId === msg.id) {
       audioRef.current?.pause();
       setPlayingId(null);
@@ -152,7 +185,15 @@ export const AgentChatPage: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-10rem)] sm:h-[calc(100dvh-12rem)] min-h-[480px]">
-      <div className={`rounded-t-2xl bg-gradient-to-br ${agent.gradient} text-white p-5 sm:p-6 shrink-0`}>
+      <div className="rounded-t-2xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs sm:text-sm text-amber-900">
+        <b>AI DEMO MODE</b> — Responses, incidents, locations and dispatch operations are simulated. No real service has been contacted. For real emergencies, call <b>112</b>.
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button type="button" onClick={() => setMode('demo')} className={`min-h-9 px-3 rounded-lg text-xs font-semibold border ${mode === 'demo' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white border-slate-300 text-[#172033]'}`}>Demo (local, no key)</button>
+          <button type="button" onClick={() => setMode('live')} className={`min-h-9 px-3 rounded-lg text-xs font-semibold border ${mode === 'live' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white border-slate-300 text-[#172033]'}`}>Live AI (needs API key)</button>
+          <button type="button" onClick={() => { stopSpeaking(); setMessages([]); try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ } }} className="min-h-9 px-3 rounded-lg text-xs font-semibold border bg-white border-slate-300 text-[#172033]">Clear demo chat</button>
+        </div>
+      </div>
+      <div className={`bg-gradient-to-br ${agent.gradient} text-white p-5 sm:p-6 shrink-0`}>
         <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-xs font-semibold text-white/90 hover:text-white mb-3">
           <ArrowLeft className="w-3.5 h-3.5" /> All Agents
         </button>
@@ -172,8 +213,9 @@ export const AgentChatPage: React.FC = () => {
       <div className="flex-1 overflow-y-auto bg-white border-x border-slate-200 px-4 sm:px-5 py-4 space-y-3 min-h-0">
         {messages.length === 0 && (
           <div className="space-y-2">
-            <p className="text-sm text-[#64748B]">Try one of these:</p>
-            {agent.prompts.map((p) => (
+            <p className="text-sm text-[#172033] bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-3 leading-relaxed">{AGENT_META[resolvedSlug as AgentSlug]?.welcome || agent.description}</p>
+            <p className="text-sm text-[#64748B]">Try one of these (demo):</p>
+            {(AGENT_META[resolvedSlug as AgentSlug]?.questions || agent.prompts).map((p) => (
               <button
                 key={p}
                 type="button"
@@ -193,7 +235,15 @@ export const AgentChatPage: React.FC = () => {
               }`}
             >
               <p className="whitespace-pre-wrap break-words">{m.content}</p>
-              {m.role === 'agent' && (
+              {m.role === 'agent' && m.demoMeta && (
+                <div className="mt-2 space-y-1.5">
+                  <p className="text-xs"><span className="font-semibold">Category (demo):</span> {m.demoMeta.category} · <span className="font-semibold">Priority (simulated):</span> {m.demoMeta.priority} · <span className="font-semibold">Status:</span> Demo Assessment</p>
+                  <p className="text-xs"><span className="font-semibold">Suggested actions:</span> {m.demoMeta.actions.join(' · ')}</p>
+                  {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-[#64748B]">• {d}</p>))}
+                </div>
+              )}
+              {m.role === 'agent' && mode === 'demo' && <VoiceControls text={m.content} />}
+              {m.role === 'agent' && mode !== 'demo' && (
                 <button
                   type="button"
                   onClick={() => toggleSpeak(m)}
@@ -215,7 +265,7 @@ export const AgentChatPage: React.FC = () => {
         {isSending && (
           <div className="flex justify-start">
             <div className="bg-slate-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm text-[#64748B] flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> {agent.name} is thinking…
+              <span className="demo-typing"><span /><span /><span /></span> {agent.name} is thinking… (demo)
             </div>
           </div>
         )}
@@ -276,8 +326,7 @@ export const AgentChatPage: React.FC = () => {
           </button>
         </form>
         <p className="mt-2 text-[11px] text-[#64748B]">
-          If OpenAI is not configured on the server, chat will show a clear error — it will not pretend
-          to be OpenAI. For emergencies, call 112 / 911.
+          In Demo mode, answers are local simulations with no API key. In Live mode, chat uses the server AI endpoint and will show a clear error if no key is configured — it will not pretend to be a live AI. For emergencies, call 112.
         </p>
       </div>
     </div>

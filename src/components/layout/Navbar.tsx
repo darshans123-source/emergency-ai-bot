@@ -23,7 +23,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { MultilingualVoiceModal } from '../common/MultilingualVoiceModal';
+import { MitraAssistant } from '../demo/MitraAssistant';
 
 export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobileMenu }) => {
   const { notifications, unreadCount, isConnected, wsStatus, wsAttempts, retryConnection, markAsRead, markAllAsRead } = useNotifications();
@@ -643,10 +643,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         </div>
 
       {/* Multilingual Voice Assistant Modal */}
-      <MultilingualVoiceModal
-        isOpen={isVoiceModalOpen}
-        onClose={() => setIsVoiceModalOpen(false)}
-      />
+      <MitraAssistant open={isVoiceModalOpen} onClose={() => setIsVoiceModalOpen(false)} />
     </header>
   );
 };
