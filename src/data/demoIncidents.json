@@ -1,0 +1,450 @@
+{
+  "note": "Simulated demo records only. No real dispatch, no verified hospital or response time.",
+  "count": 25,
+  "incidents": [
+    {
+      "id": "DEMO-1001",
+      "title": "Fire in a residential building",
+      "category": "FIRE_INCIDENT",
+      "priority": "CRITICAL",
+      "status": "ACTIVE",
+      "city": "Bengaluru",
+      "address": "MG Road, Bengaluru",
+      "description": "Simulated fire report in a residential building.",
+      "createdAt": "2026-11-02 09:12",
+      "assignedAgent": "Agni AI",
+      "recommendedActions": [
+        "Leave the building calmly",
+        "Do not use lifts",
+        "Call 112 in a real emergency"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1002",
+      "title": "Road accident on ring road",
+      "category": "ROAD_ACCIDENT",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Hyderabad",
+      "address": "Outer Ring Road, Hyderabad",
+      "description": "Simulated two-vehicle collision, injuries reported in the demo.",
+      "createdAt": "2026-11-02 09:28",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Keep injured people still",
+        "Call 112 if anyone is injured",
+        "Keep traffic away if safe"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1003",
+      "title": "Person injured, needs first aid",
+      "category": "MEDICAL_EMERGENCY",
+      "priority": "CRITICAL",
+      "status": "ACTIVE",
+      "city": "Raichur",
+      "address": "Station Road, Raichur",
+      "description": "Simulated medical emergency, first-aid guidance requested.",
+      "createdAt": "2026-11-02 09:41",
+      "assignedAgent": "Jeevan AI",
+      "recommendedActions": [
+        "Call 112 immediately",
+        "Keep the person still and safe",
+        "Do not give food or drink to an unconscious person"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1004",
+      "title": "Theft reported at a shop",
+      "category": "PUBLIC_SAFETY",
+      "priority": "MEDIUM",
+      "status": "ACTIVE",
+      "city": "Bengaluru",
+      "address": "Commercial Street, Bengaluru",
+      "description": "Simulated theft report for police demo assessment.",
+      "createdAt": "2026-11-02 10:05",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Move to a safe place",
+        "Note time, location and details",
+        "Call 112 if there is danger"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1005",
+      "title": "Waterlogging after heavy rain",
+      "category": "FLOOD",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Kalaburagi",
+      "address": "Old City Road, Kalaburagi",
+      "description": "Simulated flooding and waterlogging report.",
+      "createdAt": "2026-11-02 10:18",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Avoid flooded roads",
+        "Move to higher ground if water rises",
+        "Call 112 if anyone is trapped"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1006",
+      "title": "Power outage in a residential area",
+      "category": "POWER_OUTAGE",
+      "priority": "MEDIUM",
+      "status": "ACTIVE",
+      "city": "Hubballi",
+      "address": "Gokul Road, Hubballi",
+      "description": "Simulated electricity disruption report.",
+      "createdAt": "2026-11-02 10:33",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Do not touch fallen wires",
+        "Report to local electricity office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1007",
+      "title": "Fire in a market shop",
+      "category": "FIRE_INCIDENT",
+      "priority": "HIGH",
+      "status": "RESOLVED",
+      "city": "Mysuru",
+      "address": "Devaraja Market, Mysuru",
+      "description": "Simulated market fire, resolved in the demo timeline.",
+      "createdAt": "2026-11-02 08:50",
+      "assignedAgent": "Agni AI",
+      "recommendedActions": [
+        "Leave the building calmly",
+        "Do not use lifts",
+        "Call 112 in a real emergency"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1008",
+      "title": "Chest pain reported",
+      "category": "MEDICAL_EMERGENCY",
+      "priority": "CRITICAL",
+      "status": "ACTIVE",
+      "city": "Hyderabad",
+      "address": "Banjara Hills, Hyderabad",
+      "description": "Simulated chest-pain emergency, severity assessment demo.",
+      "createdAt": "2026-11-02 10:47",
+      "assignedAgent": "Jeevan AI",
+      "recommendedActions": [
+        "Call 112 immediately",
+        "Keep the person still and safe",
+        "Do not give food or drink to an unconscious person"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1009",
+      "title": "Suspicious person near a school",
+      "category": "PUBLIC_SAFETY",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Bengaluru",
+      "address": "Indiranagar, Bengaluru",
+      "description": "Simulated public-safety report near a school.",
+      "createdAt": "2026-11-02 11:02",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Move to a safe place",
+        "Note time, location and details",
+        "Call 112 if there is danger"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1010",
+      "title": "Road damage and potholes",
+      "category": "ROAD_DAMAGE",
+      "priority": "LOW",
+      "status": "ACTIVE",
+      "city": "Raichur",
+      "address": "Mantralayam Road, Raichur",
+      "description": "Simulated road-damage infrastructure report.",
+      "createdAt": "2026-11-02 11:15",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Note exact road and landmark",
+        "Report to local municipal office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1011",
+      "title": "Water supply disruption",
+      "category": "WATER_SUPPLY",
+      "priority": "MEDIUM",
+      "status": "ACTIVE",
+      "city": "Hubballi",
+      "address": "Vidyanagar, Hubballi",
+      "description": "Simulated water-supply complaint.",
+      "createdAt": "2026-11-02 11:29",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Store clean drinking water",
+        "Report to local water office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1012",
+      "title": "Minor fire in a warehouse",
+      "category": "FIRE_INCIDENT",
+      "priority": "MEDIUM",
+      "status": "RESOLVED",
+      "city": "Kalaburagi",
+      "address": "Industrial Area, Kalaburagi",
+      "description": "Simulated warehouse fire, resolved in demo.",
+      "createdAt": "2026-11-02 07:58",
+      "assignedAgent": "Agni AI",
+      "recommendedActions": [
+        "Leave the building calmly",
+        "Do not use lifts",
+        "Call 112 in a real emergency"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1013",
+      "title": "Bike accident, rider injured",
+      "category": "ROAD_ACCIDENT",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Mysuru",
+      "address": "Sayyaji Rao Road, Mysuru",
+      "description": "Simulated bike accident with injury.",
+      "createdAt": "2026-11-02 11:44",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Keep injured people still",
+        "Call 112 if anyone is injured",
+        "Keep traffic away if safe"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1014",
+      "title": "Fever and breathing difficulty",
+      "category": "MEDICAL_EMERGENCY",
+      "priority": "HIGH",
+      "status": "ACTIVE",
+      "city": "Bengaluru",
+      "address": "Whitefield, Bengaluru",
+      "description": "Simulated medical guidance request.",
+      "createdAt": "2026-11-02 12:01",
+      "assignedAgent": "Jeevan AI",
+      "recommendedActions": [
+        "Call 112 immediately",
+        "Keep the person still and safe",
+        "Do not give food or drink to an unconscious person"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1015",
+      "title": "Robbery attempt at an ATM",
+      "category": "PUBLIC_SAFETY",
+      "priority": "CRITICAL",
+      "status": "DISPATCHED",
+      "city": "Hyderabad",
+      "address": "Jubilee Hills, Hyderabad",
+      "description": "Simulated robbery-attempt report.",
+      "createdAt": "2026-11-02 12:12",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Move to a safe place",
+        "Note time, location and details",
+        "Call 112 if there is danger"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1016",
+      "title": "Drain overflow in a street",
+      "category": "FLOOD",
+      "priority": "MEDIUM",
+      "status": "ACTIVE",
+      "city": "Raichur",
+      "address": "Gandhi Chowk, Raichur",
+      "description": "Simulated drain-overflow report.",
+      "createdAt": "2026-11-02 12:26",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Avoid flooded roads",
+        "Move to higher ground if water rises",
+        "Call 112 if anyone is trapped"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1017",
+      "title": "Transformer failure, area dark",
+      "category": "POWER_OUTAGE",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Mysuru",
+      "address": "Kuvempunagar, Mysuru",
+      "description": "Simulated transformer-failure report.",
+      "createdAt": "2026-11-02 12:39",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Do not touch fallen wires",
+        "Report to local electricity office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1018",
+      "title": "Smoke in an apartment block",
+      "category": "FIRE_INCIDENT",
+      "priority": "HIGH",
+      "status": "ACTIVE",
+      "city": "Hubballi",
+      "address": "Keshwapur, Hubballi",
+      "description": "Simulated smoke report, evacuation guidance demo.",
+      "createdAt": "2026-11-02 12:51",
+      "assignedAgent": "Agni AI",
+      "recommendedActions": [
+        "Leave the building calmly",
+        "Do not use lifts",
+        "Call 112 in a real emergency"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1019",
+      "title": "Elderly person fell at home",
+      "category": "MEDICAL_EMERGENCY",
+      "priority": "MEDIUM",
+      "status": "RESOLVED",
+      "city": "Kalaburagi",
+      "address": "Sangameshwar Colony, Kalaburagi",
+      "description": "Simulated fall report, resolved in demo.",
+      "createdAt": "2026-11-02 06:40",
+      "assignedAgent": "Jeevan AI",
+      "recommendedActions": [
+        "Call 112 immediately",
+        "Keep the person still and safe",
+        "Do not give food or drink to an unconscious person"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1020",
+      "title": "Fight reported near a bus stand",
+      "category": "PUBLIC_SAFETY",
+      "priority": "MEDIUM",
+      "status": "ACTIVE",
+      "city": "Bengaluru",
+      "address": "Majestic Bus Stand, Bengaluru",
+      "description": "Simulated public-disturbance report.",
+      "createdAt": "2026-11-02 13:04",
+      "assignedAgent": "Rakshak AI",
+      "recommendedActions": [
+        "Move to a safe place",
+        "Note time, location and details",
+        "Call 112 if there is danger"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1021",
+      "title": "Water pipeline leak",
+      "category": "WATER_SUPPLY",
+      "priority": "MEDIUM",
+      "status": "DISPATCHED",
+      "city": "Hyderabad",
+      "address": "Secunderabad Road, Hyderabad",
+      "description": "Simulated pipeline-leak report.",
+      "createdAt": "2026-11-02 13:17",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Store clean drinking water",
+        "Report to local water office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1022",
+      "title": "Firecracker fire in a godown",
+      "category": "FIRE_INCIDENT",
+      "priority": "CRITICAL",
+      "status": "ACTIVE",
+      "city": "Raichur",
+      "address": "Market Yard, Raichur",
+      "description": "Simulated godown fire report.",
+      "createdAt": "2026-11-02 13:30",
+      "assignedAgent": "Agni AI",
+      "recommendedActions": [
+        "Leave the building calmly",
+        "Do not use lifts",
+        "Call 112 in a real emergency"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1023",
+      "title": "Child with high fever",
+      "category": "MEDICAL_EMERGENCY",
+      "priority": "HIGH",
+      "status": "ACTIVE",
+      "city": "Hubballi",
+      "address": "Deshpande Nagar, Hubballi",
+      "description": "Simulated child medical guidance request.",
+      "createdAt": "2026-11-02 13:42",
+      "assignedAgent": "Jeevan AI",
+      "recommendedActions": [
+        "Call 112 immediately",
+        "Keep the person still and safe",
+        "Do not give food or drink to an unconscious person"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1024",
+      "title": "Street light failure, dark road",
+      "category": "POWER_OUTAGE",
+      "priority": "LOW",
+      "status": "ACTIVE",
+      "city": "Mysuru",
+      "address": "Vijayanagar, Mysuru",
+      "description": "Simulated street-light complaint.",
+      "createdAt": "2026-11-02 13:55",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Do not touch fallen wires",
+        "Report to local electricity office"
+      ],
+      "simulation": true
+    },
+    {
+      "id": "DEMO-1025",
+      "title": "Heavy rain, low-lying area flooded",
+      "category": "FLOOD",
+      "priority": "HIGH",
+      "status": "DISPATCHED",
+      "city": "Kalaburagi",
+      "address": "Gulbarga Fort Area, Kalaburagi",
+      "description": "Simulated flood report.",
+      "createdAt": "2026-11-02 14:08",
+      "assignedAgent": "Sanrakshak AI",
+      "recommendedActions": [
+        "Avoid flooded roads",
+        "Move to higher ground if water rises",
+        "Call 112 if anyone is trapped"
+      ],
+      "simulation": true
+    }
+  ]
+}

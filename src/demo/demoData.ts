@@ -1,5 +1,9 @@
 // Realistic-looking but clearly fictional demo data for the AegisAI DEMO simulation.
+// The 25 incident records live in src/data/demoIncidents.json and are imported here,
+// so the JSON file is the canonical record set, not a dead copy.
 // Nothing here is live, verified, or a real dispatch. All names are generic.
+import demoIncidentsJson from '../data/demoIncidents.json';
+
 export type DemoUnitType = 'POLICE' | 'AMBULANCE' | 'FIRE';
 export interface DemoIncident {
   id: string; title: string; category: string; priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
@@ -11,33 +15,10 @@ export interface DemoInfraReport { id: string; type: string; city: string; addre
 
 export const DEMO_CITIES = ['Bengaluru', 'Hyderabad', 'Raichur', 'Kalaburagi', 'Hubballi', 'Mysuru'];
 const C = DEMO_CITIES;
-export const DEMO_INCIDENTS: DemoIncident[] = [
-  { id: 'DEMO-1001', title: 'Fire in a residential building', category: 'FIRE_INCIDENT', priority: 'CRITICAL', status: 'ACTIVE', city: C[0], address: 'MG Road, Bengaluru', description: 'Simulated fire report in a residential building.', createdAt: '2026-11-02 09:12' },
-  { id: 'DEMO-1002', title: 'Road accident on ring road', category: 'ROAD_ACCIDENT', priority: 'HIGH', status: 'DISPATCHED', city: C[1], address: 'Outer Ring Road, Hyderabad', description: 'Simulated two-vehicle collision, injuries reported in the demo.', createdAt: '2026-11-02 09:28' },
-  { id: 'DEMO-1003', title: 'Person injured, needs first aid', category: 'MEDICAL_EMERGENCY', priority: 'CRITICAL', status: 'ACTIVE', city: C[2], address: 'Station Road, Raichur', description: 'Simulated medical emergency, first-aid guidance requested.', createdAt: '2026-11-02 09:41' },
-  { id: 'DEMO-1004', title: 'Theft reported at a shop', category: 'PUBLIC_SAFETY', priority: 'MEDIUM', status: 'ACTIVE', city: C[0], address: 'Commercial Street, Bengaluru', description: 'Simulated theft report for police demo assessment.', createdAt: '2026-11-02 10:05' },
-  { id: 'DEMO-1005', title: 'Waterlogging after heavy rain', category: 'FLOOD', priority: 'HIGH', status: 'DISPATCHED', city: C[3], address: 'Old City Road, Kalaburagi', description: 'Simulated flooding and waterlogging report.', createdAt: '2026-11-02 10:18' },
-  { id: 'DEMO-1006', title: 'Power outage in a residential area', category: 'POWER_OUTAGE', priority: 'MEDIUM', status: 'ACTIVE', city: C[4], address: 'Gokul Road, Hubballi', description: 'Simulated electricity disruption report.', createdAt: '2026-11-02 10:33' },
-  { id: 'DEMO-1007', title: 'Fire in a market shop', category: 'FIRE_INCIDENT', priority: 'HIGH', status: 'RESOLVED', city: C[5], address: 'Devaraja Market, Mysuru', description: 'Simulated market fire, resolved in the demo timeline.', createdAt: '2026-11-02 08:50' },
-  { id: 'DEMO-1008', title: 'Chest pain reported', category: 'MEDICAL_EMERGENCY', priority: 'CRITICAL', status: 'ACTIVE', city: C[1], address: 'Banjara Hills, Hyderabad', description: 'Simulated chest-pain emergency, severity assessment demo.', createdAt: '2026-11-02 10:47' },
-  { id: 'DEMO-1009', title: 'Suspicious person near a school', category: 'PUBLIC_SAFETY', priority: 'HIGH', status: 'DISPATCHED', city: C[0], address: 'Indiranagar, Bengaluru', description: 'Simulated public-safety report near a school.', createdAt: '2026-11-02 11:02' },
-  { id: 'DEMO-1010', title: 'Road damage and potholes', category: 'ROAD_DAMAGE', priority: 'LOW', status: 'ACTIVE', city: C[2], address: 'Mantralayam Road, Raichur', description: 'Simulated road-damage infrastructure report.', createdAt: '2026-11-02 11:15' },
-  { id: 'DEMO-1011', title: 'Water supply disruption', category: 'WATER_SUPPLY', priority: 'MEDIUM', status: 'ACTIVE', city: C[4], address: 'Vidyanagar, Hubballi', description: 'Simulated water-supply complaint.', createdAt: '2026-11-02 11:29' },
-  { id: 'DEMO-1012', title: 'Minor fire in a warehouse', category: 'FIRE_INCIDENT', priority: 'MEDIUM', status: 'RESOLVED', city: C[3], address: 'Industrial Area, Kalaburagi', description: 'Simulated warehouse fire, resolved in demo.', createdAt: '2026-11-02 07:58' },
-  { id: 'DEMO-1013', title: 'Bike accident, rider injured', category: 'ROAD_ACCIDENT', priority: 'HIGH', status: 'DISPATCHED', city: C[5], address: 'Sayyaji Rao Road, Mysuru', description: 'Simulated bike accident with injury.', createdAt: '2026-11-02 11:44' },
-  { id: 'DEMO-1014', title: 'Fever and breathing difficulty', category: 'MEDICAL_EMERGENCY', priority: 'HIGH', status: 'ACTIVE', city: C[0], address: 'Whitefield, Bengaluru', description: 'Simulated medical guidance request.', createdAt: '2026-11-02 12:01' },
-  { id: 'DEMO-1015', title: 'Robbery attempt at an ATM', category: 'PUBLIC_SAFETY', priority: 'CRITICAL', status: 'DISPATCHED', city: C[1], address: 'Jubilee Hills, Hyderabad', description: 'Simulated robbery-attempt report.', createdAt: '2026-11-02 12:12' },
-  { id: 'DEMO-1016', title: 'Drain overflow in a street', category: 'FLOOD', priority: 'MEDIUM', status: 'ACTIVE', city: C[2], address: 'Gandhi Chowk, Raichur', description: 'Simulated drain-overflow report.', createdAt: '2026-11-02 12:26' },
-  { id: 'DEMO-1017', title: 'Transformer failure, area dark', category: 'POWER_OUTAGE', priority: 'HIGH', status: 'DISPATCHED', city: C[5], address: 'Kuvempunagar, Mysuru', description: 'Simulated transformer-failure report.', createdAt: '2026-11-02 12:39' },
-  { id: 'DEMO-1018', title: 'Smoke in an apartment block', category: 'FIRE_INCIDENT', priority: 'HIGH', status: 'ACTIVE', city: C[4], address: 'Keshwapur, Hubballi', description: 'Simulated smoke report, evacuation guidance demo.', createdAt: '2026-11-02 12:51' },
-  { id: 'DEMO-1019', title: 'Elderly person fell at home', category: 'MEDICAL_EMERGENCY', priority: 'MEDIUM', status: 'RESOLVED', city: C[3], address: 'Sangameshwar Colony, Kalaburagi', description: 'Simulated fall report, resolved in demo.', createdAt: '2026-11-02 06:40' },
-  { id: 'DEMO-1020', title: 'Fight reported near a bus stand', category: 'PUBLIC_SAFETY', priority: 'MEDIUM', status: 'ACTIVE', city: C[0], address: 'Majestic Bus Stand, Bengaluru', description: 'Simulated public-disturbance report.', createdAt: '2026-11-02 13:04' },
-  { id: 'DEMO-1021', title: 'Water pipeline leak', category: 'WATER_SUPPLY', priority: 'MEDIUM', status: 'DISPATCHED', city: C[1], address: 'Secunderabad Road, Hyderabad', description: 'Simulated pipeline-leak report.', createdAt: '2026-11-02 13:17' },
-  { id: 'DEMO-1022', title: 'Firecracker fire in a godown', category: 'FIRE_INCIDENT', priority: 'CRITICAL', status: 'ACTIVE', city: C[2], address: 'Market Yard, Raichur', description: 'Simulated godown fire report.', createdAt: '2026-11-02 13:30' },
-  { id: 'DEMO-1023', title: 'Child with high fever', category: 'MEDICAL_EMERGENCY', priority: 'HIGH', status: 'ACTIVE', city: C[4], address: 'Deshpande Nagar, Hubballi', description: 'Simulated child medical guidance request.', createdAt: '2026-11-02 13:42' },
-  { id: 'DEMO-1024', title: 'Street light failure, dark road', category: 'POWER_OUTAGE', priority: 'LOW', status: 'ACTIVE', city: C[5], address: 'Vijayanagar, Mysuru', description: 'Simulated street-light complaint.', createdAt: '2026-11-02 13:55' },
-  { id: 'DEMO-1025', title: 'Heavy rain, low-lying area flooded', category: 'FLOOD', priority: 'HIGH', status: 'DISPATCHED', city: C[3], address: 'Gulbarga Fort Area, Kalaburagi', description: 'Simulated flood report.', createdAt: '2026-11-02 14:08' },
-];
+export const DEMO_INCIDENTS: DemoIncident[] = (demoIncidentsJson.incidents as any[]).map((i) => ({
+  id: i.id, title: i.title, category: i.category, priority: i.priority, status: i.status,
+  city: i.city, address: i.address, description: i.description, createdAt: i.createdAt,
+}));
 function units(type: DemoUnitType, cityList: string[]): DemoUnit[] {
   return cityList.map((city, i) => ({
     id: `${type.slice(0, 3)}-${String(i + 1).padStart(2, '0')}`, type,
