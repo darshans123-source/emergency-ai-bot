@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, HeartPulse, Flame, CloudLightning, ArrowRight, Bot } from 'lucide-react';
 import { Skeleton } from '../components/common/UiBits';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export interface AgentCardDef {
   slug: string;
@@ -59,6 +60,7 @@ export const AGENT_CARDS: AgentCardDef[] = [
 
 export const AgentsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t, agents } = useLanguage();
   // Local engine status — no backend call, so no API error can appear here.
   const aiStatus = { provider: 'Local engine', model: 'Local rule-based engine', isExternalConfigured: true, status: 'Ready' };
   const [loading] = useState(false);
@@ -67,17 +69,16 @@ export const AgentsPage: React.FC = () => {
     <div className="space-y-6 max-w-7xl mx-auto text-white">
       <div className="glass-liquid-strong rounded-2xl p-6 sm:p-8 text-white shadow-sm">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
-          <Bot className="w-7 h-7 text-cyan-300" /> <span className="chrome-text">AI Agents</span>
+          <Bot className="w-7 h-7 text-cyan-300" /> <span className="chrome-text">{t('agents.title')}</span>
         </h1>
         <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl">
-          Four dedicated agents for police, medical, fire and disaster response. Each opens its own
-          chat with text and voice, using the local engine. For real emergencies, call 112.
+          {t('agents.subtitle')} For real emergencies, call 112.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          AI provider: Local engine (no API key required)
+          {t('nav.local_ai_ready')} (no API key required)
         </div>
-        <p className="mt-2 text-xs text-slate-400">Simulated data · For real emergencies, call 112.</p>
+        <p className="mt-2 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -95,14 +96,14 @@ export const AgentsPage: React.FC = () => {
                     <h2 className="font-bold text-white">{agent.name}</h2>
                     <span className="text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 shrink-0">Ready</span>
                   </div>
-                  <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agent.sector}</p>
-                  <p className="mt-2 text-sm text-slate-300 leading-relaxed flex-1">{agent.description}</p>
+                  <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agents[agent.slug]?.sector || agent.sector}</p>
+                  <p className="mt-2 text-sm text-slate-300 leading-relaxed flex-1">{agents[agent.slug]?.description || agent.description}</p>
                   <button
                     type="button"
                     onClick={() => navigate(`/agents/${agent.slug}`)}
                     className="mt-auto min-h-11 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
                   >
-                    Open Agent <ArrowRight className="w-4 h-4" />
+                    {t('agents.open_agent')} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </article>

@@ -9,7 +9,7 @@ import React from 'react';
 // Main content clearance lives in AppLayout (pb-28 mobile, lg:pb-16).
 const SEGMENT = (
   <>
-    <span className="whitespace-nowrap">🚧 AI AGENTS ARE CURRENTLY UNDER DEVELOPMENT — We&apos;re working to make them smarter!</span>
+    <span className="whitespace-nowrap">AI AGENTS ARE UNDER DEVELOPMENT — WE ARE WORKING TO MAKE THEM BETTER 🚀</span>
     <span className="text-cyan-300 px-4" aria-hidden="true">|</span>
     <span className="whitespace-nowrap">✨ <span className="marquee-accent">Designed &amp; Developed by Darshan</span></span>
     <span className="text-cyan-300 px-4" aria-hidden="true">|</span>
@@ -21,7 +21,7 @@ export const MarqueeBanner: React.FC<{ aboveNav?: boolean }> = ({ aboveNav = fal
     <div
       className={`marquee-banner fixed inset-x-0 z-30 ${aboveNav ? 'bottom-14 lg:bottom-0' : 'bottom-0'}`}
       role="note"
-      aria-label="AI agents are currently under development. Designed and developed by Darshan."
+      aria-label="AI agents are under development. We are working to make them better. Designed and developed by Darshan."
     >
       <div className="marquee-accent-line" aria-hidden="true" />
       <div className="flex items-center gap-2.5 h-9 px-3 sm:px-4">

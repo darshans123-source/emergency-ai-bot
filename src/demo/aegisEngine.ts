@@ -4,6 +4,7 @@
 // hospital, live GPS or a response time: response_units is always [] and
 // estimated_response_time is always null, by design.
 import knowledge from '../data/aegisKnowledge.json';
+import agentResponses from '../i18n/agentResponses.json';
 import { AGENT_META, AgentSlug } from './demoAiEngine';
 
 export type Priority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
@@ -106,18 +107,30 @@ export function detectAgent(text: string): AgentSlug {
   const best = bestIntent(norm(text));
   return best ? best.agentSlug : 'rakshak';
 }
-export function routeToAgentStructured(text: string): { agent: AgentSlug; mitraText: string } {
+export function routeToAgentStructured(text: string, lang: ResponseLanguage = 'en'): { agent: AgentSlug; mitraText: string } {
   const best = bestIntent(norm(text));
   const agent = best ? best.agentSlug : 'rakshak';
   const meta = AGENT_META[agent];
   const category = best ? best.intent.category : 'General';
+  if (lang !== 'en') {
+    const tr = (agentResponses as any)[lang];
+    const cat = tr?.categories[category] || category;
+    const template = lang === 'kn'
+      ? `ಇದನ್ನು ${cat} ವಿನಂತಿಯಾಗಿ ವರ್ಗೀಕರಿಸಿದ್ದೇನೆ. ಸಿಮ್ಯುಲೇಟೆಡ್ ಮೌಲ್ಯಮಾಪನಕ್ಕಾಗಿ ನಾನು ನಿಮ್ಮನ್ನು ${meta.name} ಗೆ ಸಂಪರ್ಕಿಸುತ್ತಿದ್ದೇನೆ. ಯಾವುದೇ ನಿಜವಾದ ಸೇವೆಯನ್ನು ಸಂಪರ್ಕಿಸಲಾಗಿಲ್ಲ.`
+      : lang === 'hi'
+      ? `इसे ${cat} अनुरोध के रूप में वर्गीकृत किया गया है। सिम्युलेटेड मूल्यांकन के लिए मैं आपको ${meta.name} से जोड़ रहा हूँ। किसी वास्तविक सेवा से संपर्क नहीं किया गया है।`
+      : `దీనిని ${cat} అభ్యర్థనగా వర్గీకరించారు. సిమ్యులేటెడ్ అంచనా కోసం నేను మిమ్మల్ని ${meta.name} కు కనెక్ట్ చేస్తున్నాను. ఏ నిజమైన సేవను సంప్రదించలేదు.`;
+    return { agent, mitraText: template };
+  }
   return { agent, mitraText: `I have classified this as a ${category} request. I am connecting you to ${meta.name}, our ${meta.sector.toLowerCase()} assistant, for a simulated assessment. No real service has been contacted.` };
 }
 
+export type ResponseLanguage = 'en' | 'kn' | 'hi' | 'te';
 export function generateStructuredResponse(
   chatAgent: AgentSlug,
   message: string,
   context: ConversationContext = { turnCount: 0 },
+  lang: ResponseLanguage = 'en',
 ): { response: StructuredResponse; context: ConversationContext } {
   const text = norm(message);
   const location = extractLocation(text) || context.lastLocation || null;
@@ -174,6 +187,27 @@ export function generateStructuredResponse(
       ? `This looks like a ${intent.category} request, which ${AGENTS[agentSlug].name} normally handles. You can open that agent from the Agents hub for a focused assessment — the safety guidance above still applies.`
       : undefined,
   };
+  if (lang !== 'en') {
+    const tr = (agentResponses as any)[lang];
+    if (tr) {
+      const cat = tr.categories[intent.category] || intent.category;
+      const locPart = location ? ` ${location}.` : '';
+      // Summary: translated category + translated agent guidance (+ city name as given).
+      response.summary = `${cat} — ${tr.guidance[agentSlug] || ''}${locPart}`.replace('  ', ' ');
+      response.category = cat;
+      response.status = lang === 'kn' ? 'ಮೌಲ್ಯಮಾಪನ ಪೂರ್ಣಗೊಂಡಿದೆ' : lang === 'hi' ? 'मूल्यांकन पूर्ण' : 'అంచనా పూర్తయింది';
+      response.risk_assessment = tr.risk;
+      const specific = tr.specific_actions[intent.id];
+      response.recommended_actions = specific || tr.actions[agentSlug] || intent.recommended_actions;
+      response.voice_response = `${response.summary} ${tr.call112}`;
+      response.follow_up_question = !location ? tr.location_question : tr.follow_up;
+      if (response.routing_note) {
+        response.routing_note = lang === 'kn' ? `ಇದು ${cat} ವಿನಂತಿಯಂತೆ ಕಾಣುತ್ತದೆ, ಇದನ್ನು ಸಾಮಾನ್ಯವಾಗಿ ${AGENTS[agentSlug].name} ನಿರ್ವಹಿಸುತ್ತದೆ. ಕೇಂದ್ರಿತ ಮೌಲ್ಯಮಾಪನಕ್ಕಾಗಿ ಏಜೆಂಟ್‌ಗಳ ಹಬ್‌ನಿಂದ ಆ ಏಜೆಂಟ್ ಅನ್ನು ತೆರೆಯಿರಿ — ಮೇಲಿನ ಸುರಕ್ಷತಾ ಮಾರ್ಗದರ್ಶನ ಇನ್ನೂ ಅನ್ವಯಿಸುತ್ತದೆ.`
+          : lang === 'hi' ? `यह ${cat} अनुरोध जैसा लगता है, जिसे सामान्यतः ${AGENTS[agentSlug].name} संभालता है। केंद्रित मूल्यांकन के लिए एजेंट हब से उस एजेंट को खोलें — ऊपर दी गई सुरक्षा मार्गदर्शन अभी भी लागू है।`
+          : `ఇది ${cat} అభ్యర్థనలా కనిపిస్తోంది, దీనిని సాధారణంగా ${AGENTS[agentSlug].name} నిర్వహిస్తుంది. కేంద్రీకృత అంచనా కోసం ఏజెంట్ హబ్ నుండి ఆ ఏజెంట్‌ను తెరవండి — పైన ఉన్న భద్రతా మార్గదర్శకత్వం ఇప్పటికీ వర్తిస్తుంది.`;
+      }
+    }
+  }
   const nextContext: ConversationContext = {
     lastIntentId: intent.id, lastAgentSlug: agentSlug, lastCategory: intent.category,
     lastLocation: location || context.lastLocation, turnCount: context.turnCount + 1,

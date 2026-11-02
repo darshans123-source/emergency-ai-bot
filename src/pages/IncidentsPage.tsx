@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
 import { Incident } from '../types';
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export const IncidentsPage: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const querySearch = searchParams.get('search') || '';
@@ -104,7 +106,7 @@ export const IncidentsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-[20px] border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Incidents Queue</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('pages.incidents_title')}</h1>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
               {total} Total
             </span>

@@ -19,6 +19,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { loadDemoIncidents, saveDemoIncidents, loadDemoActivity, saveDemoActivity, demoStats, allDemoUnits, randomDemoIncident } from '../demo/demoStore';
 import { demoIncidentToIncident, demoUnitToResource } from '../demo/localFallback';
 import { Skeleton } from '../components/common/UiBits';
@@ -28,6 +29,7 @@ import { StatusBadge } from '../components/common/StatusBadge';
 export const CommandCenterPage: React.FC = () => {
   const navigate = useNavigate();
   const { localProfile, user } = useAuth();
+  const { t, agents } = useLanguage();
 
   const [demoIncidents, setDemoIncidents] = useState(() => loadDemoIncidents());
   const [demoActivity, setDemoActivity] = useState<string[]>(() => loadDemoActivity());
@@ -73,38 +75,38 @@ export const CommandCenterPage: React.FC = () => {
   const agentCards = [
     {
       slug: 'rakshak', icon: <Shield className="w-5 h-5" />, chip: 'chrome-icon text-white', accent: 'agent-glass-rakshak',
-      name: 'RAKSHAK AI', role: 'Police & Security Response',
-      desc: 'Police incident assistance, station information and response recommendations.',
+      name: 'RAKSHAK AI', role: agents.rakshak?.sector || 'Police & Security Response',
+      desc: agents.rakshak?.description || 'Police incident assistance, station information and response recommendations.',
       status: 'Ready',
       task: 'Police assessment ready — open the agent to ask a question',
     },
     {
       slug: 'jeevan', icon: <HeartPulse className="w-5 h-5" />, chip: 'chrome-icon text-white', accent: 'agent-glass-jeevan',
-      name: 'JEEVAN AI', role: 'Medical & Healthcare Response',
-      desc: 'Medical emergency guidance, nearby hospital information and emergency requests.',
+      name: 'JEEVAN AI', role: agents.jeevan?.sector || 'Medical & Healthcare Response',
+      desc: agents.jeevan?.description || 'Medical emergency guidance, nearby hospital information and emergency requests.',
       status: 'Ready',
       task: 'Medical assessment ready — open the agent to ask a question',
     },
     {
       slug: 'agni', icon: <Flame className="w-5 h-5" />, chip: 'chrome-icon text-white', accent: 'agent-glass-agni',
-      name: 'AGNI AI', role: 'Fire & Rescue Response',
-      desc: 'Fire incident reporting, fire unit coordination and rescue support.',
+      name: 'AGNI AI', role: agents.agni?.sector || 'Fire & Rescue Response',
+      desc: agents.agni?.description || 'Fire incident reporting, fire unit coordination and rescue support.',
       status: fireUnits.length > 0 ? `${fireAvailable} of ${fireUnits.length} units available` : 'No unit data',
       task: latestFire ? latestFire.title : 'No active fire incident in the current records',
     },
     {
       slug: 'sanrakshak', icon: <Droplets className="w-5 h-5" />, chip: 'chrome-icon text-white', accent: 'agent-glass-sanrakshak',
-      name: 'SANRAKSHAK AI', role: 'Disaster & Public Services',
-      desc: 'Water, electricity, road and infrastructure issues and public safety reporting.',
+      name: 'SANRAKSHAK AI', role: agents.sanrakshak?.sector || 'Disaster & Public Services',
+      desc: agents.sanrakshak?.description || 'Water, electricity, road and infrastructure issues and public safety reporting.',
       status: 'Ready',
       task: 'Disaster assessment ready — open the agent to ask a question',
     },
   ];
   const stats = [
-    { label: 'Total Incidents', value: totalIncidents !== null ? String(totalIncidents) : '—', icon: <AlertCircle className="w-4 h-4" />, chip: 'bg-blue-500/20 text-blue-300 border border-blue-400/30' },
-    { label: 'Active Incidents', value: summary ? String(summary.totalActive) : '—', icon: <Activity className="w-4 h-4" />, chip: 'bg-amber-500/20 text-amber-300 border border-amber-400/30' },
-    { label: 'Resolved Incidents', value: summary ? String(summary.resolvedIncidents) : '—', icon: <CheckCircle2 className="w-4 h-4" />, chip: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' },
-    { label: 'Available Response Units', value: summary ? String(summary.availableUnits) : '—', icon: <Ambulance className="w-4 h-4" />, chip: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' },
+    { label: t('dash.total_incidents'), value: totalIncidents !== null ? String(totalIncidents) : '—', icon: <AlertCircle className="w-4 h-4" />, chip: 'bg-blue-500/20 text-blue-300 border border-blue-400/30' },
+    { label: t('dash.active_incidents'), value: summary ? String(summary.totalActive) : '—', icon: <Activity className="w-4 h-4" />, chip: 'bg-amber-500/20 text-amber-300 border border-amber-400/30' },
+    { label: t('dash.resolved_incidents'), value: summary ? String(summary.resolvedIncidents) : '—', icon: <CheckCircle2 className="w-4 h-4" />, chip: 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' },
+    { label: t('dash.available_units'), value: summary ? String(summary.availableUnits) : '—', icon: <Ambulance className="w-4 h-4" />, chip: 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' },
   ];
 
   return (
@@ -114,21 +116,21 @@ export const CommandCenterPage: React.FC = () => {
         <div className="flex items-center gap-3 min-w-0">
           <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-white truncate">Welcome back, {displayName}</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-white truncate">{t('dash.welcome_back')}, {displayName}</h1>
             <p className="text-xs sm:text-sm text-slate-300 truncate">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
-            <p className="mt-1 text-xs text-slate-400">Simulated data · For real emergencies, call 112.</p>
+            <p className="mt-1 text-xs text-slate-400">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
           </div>
         </div>
         <button type="button" onClick={() => navigate('/report')} className="shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
-          <FilePlus2 className="w-4 h-4" /> Report Emergency
+          <FilePlus2 className="w-4 h-4" /> {t('menu.report_emergency')}
         </button>
       </section>
 
       {/* AI Agents — immediately below welcome, 2 per row on mobile, 4 on desktop */}
       <section aria-label="AI agents">
         <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
-          <h2 className="text-base font-bold text-white">AI Response Agents</h2>
-          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 hover:underline shrink-0">View all <ArrowRight className="w-4 h-4" /></button>
+          <h2 className="text-base font-bold text-white">{t('dash.ai_agents')}</h2>
+          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 hover:underline shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
         </div>
         {isLoading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
@@ -144,7 +146,7 @@ export const CommandCenterPage: React.FC = () => {
                 <p className="text-xs font-medium text-cyan-300">{a.role}</p>
                 <p className="mt-1.5 text-xs text-slate-300 leading-relaxed line-clamp-2">{a.desc}</p>
                 <p className="mt-2 text-xs text-slate-300 truncate"><span className="font-semibold text-white">Task: </span>{a.task}</p>
-                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto pt-0 min-h-10 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition">Open Agent</button>
+                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto pt-0 min-h-10 rounded-xl mitra-chrome btn-glow text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
               </article>
             ))}
           </div>
@@ -171,20 +173,20 @@ export const CommandCenterPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Emergency Overview — spans 2 */}
         <section className="lg:col-span-2 rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">Emergency Overview</h2>
+          <h2 className="font-bold text-white">{t('dash.emergency_overview')}</h2>
           <div className="mt-3 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <p className="text-sm text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span className="font-semibold">Local AI ready</span>
-                <span className="text-slate-400 text-xs">· Simulated data · Updated {lastUpdated}</span>
+                <span className="font-semibold">{t('nav.local_ai_ready')}</span>
+                <span className="text-slate-400 text-xs">· {t('dash.simulated_data')} · Updated {lastUpdated}</span>
               </p>
               <div className="flex gap-2 shrink-0 flex-wrap">
                 <button type="button" onClick={() => setSimulating((v) => !v)} className={`min-h-10 px-3 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 ${simulating ? 'bg-rose-600 text-white' : 'bg-[#2563EB] text-white'}`}>
-                  {simulating ? <><Square className="w-3.5 h-3.5" /> Stop Simulation</> : <><Play className="w-3.5 h-3.5" /> Start Simulation</>}
+                  {simulating ? <><Square className="w-3.5 h-3.5" /> {t('dash.stop_simulation')}</> : <><Play className="w-3.5 h-3.5" /> {t('dash.start_simulation')}</>}
                 </button>
-                <button type="button" onClick={() => { const next = randomDemoIncident(2000 + demoIncidents.length + 1); const list = [next, ...demoIncidents]; setDemoIncidents(list); saveDemoIncidents(list); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> Create incident</button>
-                <button type="button" onClick={() => { setDemoIncidents(loadDemoIncidents()); setDemoActivity(loadDemoActivity()); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+                <button type="button" onClick={() => { const next = randomDemoIncident(2000 + demoIncidents.length + 1); const list = [next, ...demoIncidents]; setDemoIncidents(list); saveDemoIncidents(list); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" /> {t('dash.create_incident')}</button>
+                <button type="button" onClick={() => { setDemoIncidents(loadDemoIncidents()); setDemoActivity(loadDemoActivity()); }} className="min-h-10 px-3 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> {t('dash.refresh')}</button>
               </div>
             </div>
             <p className="text-xs text-slate-300">{simulating ? 'Simulation running: a new incident appears about every 20 seconds (simulated).' : 'Simulation stopped. Changes are saved in this browser only.'}</p>
@@ -211,14 +213,14 @@ export const CommandCenterPage: React.FC = () => {
 
         {/* Quick Actions */}
         <section className="rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">Quick Actions</h2>
+          <h2 className="font-bold text-white">{t('dash.quick_actions')}</h2>
           <div className="mt-3 grid grid-cols-1 gap-2">
             {[
-              { label: 'Report Emergency', icon: <FilePlus2 className="w-4 h-4" />, to: '/report' },
-              { label: 'View Incidents', icon: <AlertCircle className="w-4 h-4" />, to: '/incidents' },
-              { label: 'Live Map', icon: <MapPin className="w-4 h-4" />, to: '/map' },
+              { label: t('menu.report_emergency'), icon: <FilePlus2 className="w-4 h-4" />, to: '/report' },
+              { label: t('dash.view_incidents'), icon: <AlertCircle className="w-4 h-4" />, to: '/incidents' },
+              { label: t('menu.live_map'), icon: <MapPin className="w-4 h-4" />, to: '/map' },
               { label: 'Find Hospitals', icon: <Hospital className="w-4 h-4" />, to: '/map' },
-              { label: 'Response Units', icon: <Ambulance className="w-4 h-4" />, to: '/resources' },
+              { label: t('menu.fleet_resources'), icon: <Ambulance className="w-4 h-4" />, to: '/resources' },
             ].map((cmd) => (
               <button key={cmd.label} type="button" onClick={() => navigate(cmd.to)} className="min-h-11 px-3 rounded-xl border border-white/15 bg-white/10 text-sm font-semibold text-white hover:border-cyan-300 hover:text-cyan-300 transition flex items-center gap-2.5 text-left">
                 <span className="text-cyan-300 shrink-0">{cmd.icon}</span>{cmd.label}
@@ -230,8 +232,8 @@ export const CommandCenterPage: React.FC = () => {
         {/* Recent Incidents — spans 2 */}
         <section className="lg:col-span-2 rounded-[20px] glass-liquid overflow-hidden min-w-0">
           <div className="px-4 py-3.5 border-b border-white/15 flex items-center justify-between gap-3">
-            <h2 className="font-bold text-white">Recent Incidents</h2>
-            <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-cyan-300 hover:underline inline-flex items-center gap-1 shrink-0">View all <ArrowRight className="w-4 h-4" /></button>
+            <h2 className="font-bold text-white">{t('dash.recent_incidents')}</h2>
+            <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-cyan-300 hover:underline inline-flex items-center gap-1 shrink-0">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
           </div>
           {isLoading ? (<div className="p-4 space-y-3">{[0, 1, 2].map((i) => (<Skeleton key={i} className="h-14" />))}</div>) : recent.length === 0 ? (
             <p className="p-4 text-sm text-slate-300">No incident records in the current data.</p>
@@ -255,7 +257,7 @@ export const CommandCenterPage: React.FC = () => {
 
         {/* Mission Activity */}
         <section className="rounded-[20px] glass-liquid p-4 sm:p-5 min-w-0">
-          <h2 className="font-bold text-white">Mission Activity</h2>
+          <h2 className="font-bold text-white">{t('dash.recent_activity')}</h2>
           <p className="mt-1 text-xs text-slate-300">Response timeline (simulated data)</p>
           <ul className="mt-3 space-y-2">
             {demoActivity.slice(0, 6).map((a, i) => (

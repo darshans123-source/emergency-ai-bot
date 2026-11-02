@@ -7,6 +7,7 @@ import { loadDemoIncidents, saveDemoIncidents } from '../demo/demoStore';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
 import { AGENT_CARDS } from './AgentsPage';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ChatMsg {
   id: string;
@@ -29,6 +30,7 @@ export const AgentChatPage: React.FC = () => {
   const navigate = useNavigate();
   const resolvedSlug = LEGACY_MAP[(slug || '').toUpperCase()] || (slug || '').toLowerCase();
   const agent = AGENT_CARDS.find((a) => a.slug === resolvedSlug);
+  const { t, lang, agents: agentTranslations } = useLanguage();
 
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
@@ -97,7 +99,7 @@ export const AgentChatPage: React.FC = () => {
     // or backend error can appear here. The previous Live mode called
     // /ai/openai and showed "OpenAI not configured" when no key was set;
     // that option has been removed.
-    const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current);
+    const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current, lang);
     contextRef.current = context;
     window.setTimeout(() => {
       setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: structuredToText(response), structured: response }]);
@@ -122,14 +124,14 @@ export const AgentChatPage: React.FC = () => {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-IN';
+      recognition.lang = ({ en: 'en-IN', hi: 'hi-IN', kn: 'kn-IN', te: 'te-IN' } as const)[lang] || 'en-IN';
       recognition.onstart = () => setIsListening(true);
       recognition.onresult = (event: any) => {
         const transcript = event.results[event.results.length - 1][0].transcript;
         setInput(transcript);
       };
       recognition.onerror = (event: any) => {
-        if (event.error === 'not-allowed') setVoiceError('Microphone permission denied. Allow microphone access in your browser to use voice input.');
+        if (event.error === 'not-allowed') setVoiceError(t('voice.mic_denied'));
         else if (event.error !== 'no-speech') setVoiceError(`Voice error: ${event.error}`);
         setIsListening(false);
       };
@@ -153,20 +155,20 @@ export const AgentChatPage: React.FC = () => {
         <div className={`absolute inset-0 bg-gradient-to-br ${agent.gradient} opacity-40`} aria-hidden="true" />
         <div className="relative flex items-center justify-between gap-2">
           <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-xs font-semibold text-white/90 hover:text-white mb-0">
-            <ArrowLeft className="w-3.5 h-3.5" /> All Agents
+            <ArrowLeft className="w-3.5 h-3.5" /> {t('chat.all_agents')}
           </button>
-          <button type="button" onClick={clearConversation} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 shrink-0">Clear conversation</button>
+          <button type="button" onClick={clearConversation} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 shrink-0">{t('chat.clear_conversation')}</button>
         </div>
         <div className="relative flex items-center gap-3 mt-3">
           <span className="w-12 h-12 rounded-2xl chrome-icon flex items-center justify-center shrink-0">{agent.icon}</span>
           <div className="min-w-0">
             <h1 className="text-xl font-extrabold tracking-tight">{agent.name}</h1>
-            <p className="text-sm text-white/85">{agent.sector}</p>
+            <p className="text-sm text-white/85">{agentTranslations[agent.slug]?.sector || agent.sector}</p>
           </div>
         </div>
-        <p className="relative mt-3 text-sm text-white/85 leading-relaxed">{agent.description}</p>
+        <p className="relative mt-3 text-sm text-white/85 leading-relaxed">{agentTranslations[agent.slug]?.description || agent.description}</p>
         <p className="relative mt-2 text-xs text-white/70">
-          Text chat is primary. Voice playback is optional and never auto-plays.
+          {t('chat.voice_note')}
           {isListening && (<span className="ml-2 inline-flex items-center gap-1 text-cyan-300 font-semibold"><span className="aurora-wave"><span /><span /><span /><span /><span /></span> Listening…</span>)}
         </p>
       </div>
@@ -175,8 +177,8 @@ export const AgentChatPage: React.FC = () => {
         {messages.length === 0 && (
           <div className="space-y-2">
             <p className="text-sm text-white glass-liquid-input rounded-xl px-3.5 py-3 leading-relaxed">{AGENT_META[resolvedSlug as AgentSlug]?.welcome || agent.description}</p>
-            <p className="text-sm text-slate-300">Try one of these:</p>
-            {(AGENT_META[resolvedSlug as AgentSlug]?.questions || agent.prompts).map((p) => (
+            <p className="text-sm text-slate-300">{t('chat.try_one')}</p>
+            {(agentTranslations[resolvedSlug]?.prompts || AGENT_META[resolvedSlug as AgentSlug]?.questions || agent.prompts).map((p) => (
               <button
                 key={p}
                 type="button"
@@ -203,18 +205,18 @@ export const AgentChatPage: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">{m.structured.category}</span>
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${m.structured.priority === 'CRITICAL' ? 'bg-rose-500/25 border-rose-400/50 text-rose-200' : m.structured.priority === 'HIGH' ? 'bg-amber-500/25 border-amber-400/50 text-amber-200' : m.structured.priority === 'MEDIUM' ? 'bg-blue-500/25 border-blue-400/50 text-blue-200' : 'bg-slate-500/25 border-slate-400/50 text-slate-200'}`}>{m.structured.priority}</span>
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${m.structured.priority === 'CRITICAL' ? 'bg-rose-500/25 border-rose-400/50 text-rose-200' : m.structured.priority === 'HIGH' ? 'bg-amber-500/25 border-amber-400/50 text-amber-200' : m.structured.priority === 'MEDIUM' ? 'bg-blue-500/25 border-blue-400/50 text-blue-200' : 'bg-slate-500/25 border-slate-400/50 text-slate-200'}`}>{lang === 'en' ? m.structured.priority : t(`common.${m.structured.priority.toLowerCase()}`)}</span>
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">{m.structured.status}</span>
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-slate-300">Simulated data</span>
                   </div>
                   <p className="whitespace-pre-wrap break-words text-white">{m.structured.summary}</p>
                   <div className="rounded-xl bg-white/10 border border-white/15 p-2.5">
-                    <p className="text-xs font-semibold text-white">Risk assessment</p>
+                    <p className="text-xs font-semibold text-white">{t('chat.risk_assessment')}</p>
                     <p className="text-xs text-slate-300 mt-0.5">{m.structured.risk_assessment}</p>
-                    <p className="text-xs text-slate-300 mt-1.5">Location: {m.structured.location} · Response units dispatched: none · Estimated response time: not available in simulation.</p>
+                    <p className="text-xs text-slate-300 mt-1.5">{t('chat.location')}: {m.structured.location} · {t('chat.no_unit_dispatched')} · {t('chat.no_response_time')}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-white mb-1">Recommended actions</p>
+                    <p className="text-xs font-semibold text-white mb-1">{t('chat.recommended_actions')}</p>
                     <ol className="space-y-1">
                       {m.structured.recommended_actions.map((a, i) => (<li key={i} className="text-xs text-slate-200 flex gap-2"><span className="font-bold text-cyan-300">{i + 1}.</span><span>{a}</span></li>))}
                     </ol>
@@ -225,11 +227,11 @@ export const AgentChatPage: React.FC = () => {
                       <button type="button" onClick={() => navigate(`/agents/${m.structured!.detectedAgentSlug}`)} className="mt-2 min-h-9 px-3 rounded-xl mitra-chrome text-xs font-semibold text-white">Open {m.structured.agent} →</button>
                     </div>
                   )}
-                  {m.structured.follow_up_question && (<p className="text-xs text-slate-300">Follow-up: {m.structured.follow_up_question}</p>)}
+                  {m.structured.follow_up_question && (<p className="text-xs text-slate-300">{t('chat.follow_up')}: {m.structured.follow_up_question}</p>)}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <button type="button" onClick={() => saveAsIncident(m)} disabled={m.savedAsIncident} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">{m.savedAsIncident ? 'Saved to incident list ✓' : 'Save as incident'}</button>
+                    <button type="button" onClick={() => saveAsIncident(m)} disabled={m.savedAsIncident} className="min-h-9 px-3 rounded-xl border border-white/25 bg-white/10 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">{m.savedAsIncident ? t('chat.saved_to_incident_list') : t('chat.save_as_incident')}</button>
                   </div>
-                  <VoiceControls text={m.structured.voice_response} />
+                  <VoiceControls text={m.structured.voice_response} lang={lang} />
                 </div>
               ) : (
                 <p className="whitespace-pre-wrap break-words">{m.content}</p>
@@ -241,14 +243,14 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} />}
+              {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} lang={lang} />}
             </div>
           </div>
         ))}
         {isSending && (
           <div className="flex justify-start">
             <div className="glass-liquid-input rounded-2xl rounded-bl-md px-4 py-3 text-sm text-slate-300 flex items-center gap-2">
-              <span className="demo-typing"><span /><span /><span /></span> {agent.name} is thinking…
+              <span className="demo-typing"><span /><span /><span /></span> {agent.name} {t('chat.thinking')}
             </div>
           </div>
         )}
@@ -281,7 +283,7 @@ export const AgentChatPage: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Message ${agent.name}…`}
+            placeholder={t('chat.message_placeholder')}
             className="flex-1 min-w-0 min-h-12 px-3.5 rounded-xl glass-liquid-input text-white placeholder-slate-400 focus:outline-none focus:border-cyan-300"
           />
           <button
@@ -304,7 +306,7 @@ export const AgentChatPage: React.FC = () => {
           </button>
         </form>
         <p className="mt-2 text-[11px] text-slate-400">
-          Responses are generated by the local engine in this browser. Simulated data — for real emergencies, call 112.
+          {t('chat.simulated_note')}
         </p>
       </div>
     </div>

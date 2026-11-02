@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { SplashPage } from './pages/SplashPage';
 import { LocalLoginPage } from './pages/LocalLoginPage';
@@ -85,6 +86,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <LanguageProvider>
         <NotificationProvider>
           <Suspense fallback={<PageLoading />}>
             <Routes>
@@ -127,6 +129,7 @@ export default function App() {
             </Routes>
           </Suspense>
         </NotificationProvider>
+        </LanguageProvider>
       </AuthProvider>
     </BrowserRouter>
   );

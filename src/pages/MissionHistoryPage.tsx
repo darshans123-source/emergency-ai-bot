@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { History, MapPin, ArrowRight, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
@@ -15,6 +16,7 @@ import { PriorityBadge } from '../components/common/PriorityBadge';
  * Nothing here is invented, and an empty result is shown as empty.
  */
 export const MissionHistoryPage: React.FC = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [audits, setAudits] = useState<AuditLog[]>([]);
@@ -47,7 +49,7 @@ export const MissionHistoryPage: React.FC = () => {
       <div className="bg-white p-6 rounded-[20px] border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#172033] tracking-tight flex items-center gap-2">
-            <History className="w-6 h-6 text-[#2563EB]" /> Mission History
+            <History className="w-6 h-6 text-[#2563EB]" /> {t('pages.history_title')}
           </h1>
           <p className="text-sm text-[#64748B] mt-1">
             Recent incidents and activity. Simulated data · For real emergencies, call 112.

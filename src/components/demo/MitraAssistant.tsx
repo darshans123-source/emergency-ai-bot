@@ -5,10 +5,12 @@ import { AGENT_META } from '../../demo/demoAiEngine';
 import { routeToAgentStructured } from '../../demo/aegisEngine';
 import { speakText, stopSpeaking, startRecognition, recognitionSupported, detectSpeechLang } from '../../demo/speech';
 import { VoiceControls } from './VoiceControls';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; }
 export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const navigate = useNavigate();
+  const { t, lang } = useLanguage();
   const [messages, setMessages] = useState<Msg[]>([{ id: 'w', role: 'mitra', content: 'Namaste, I am Mitra AI, your central assistant. Tell me what happened — for example, "There is a fire near my location" or "Show me a medical emergency" — and I will route you to the right agent. Simulated data · For real emergencies, call 112.' }]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
@@ -18,7 +20,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
     const content = (raw ?? input).trim();
     if (!content) return;
     setInput('');
-    const { agent, mitraText } = routeToAgentStructured(content);
+    const { agent, mitraText } = routeToAgentStructured(content, lang);
     const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: mitraText, agent };
     setMessages((p) => [...p, { id: `u-${Date.now()}`, role: 'user', content }, reply]);
     if (fromVoice) speakText(mitraText, detectSpeechLang(mitraText));
@@ -28,7 +30,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
     if (!recognitionSupported()) { setMessages((p) => [...p, { id: `e-${Date.now()}`, role: 'mitra', content: 'Voice input is not supported in this browser. Please type your message.' }]); return; }
     setListening(true);
     // Review first: transcript goes into the input box; the user presses Send to submit it.
-    recRef.current = startRecognition('en', (t) => { setInput(t); }, () => {}, () => setListening(false));
+    recRef.current = startRecognition(lang, (t) => { setInput(t); }, () => {}, () => setListening(false));
     if (!recRef.current) setListening(false);
   };
   return (
@@ -39,7 +41,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
           <div className="flex items-center gap-3 min-w-0">
             <span className="w-10 h-10 rounded-xl chrome-icon flex items-center justify-center shrink-0"><Bot className="w-5 h-5" /></span>
             {listening && (<span className="aurora-wave" aria-hidden="true"><span /><span /><span /><span /><span /></span>)}
-            <div className="min-w-0"><h2 className="font-bold">Mitra AI — Central Assistant</h2><p className="text-xs text-slate-300">Routes to Rakshak / Jeevan / Agni / Sanrakshak · Simulated data · Call 112 for real emergencies</p></div>
+            <div className="min-w-0"><h2 className="font-bold">{t('mitra.title')}</h2><p className="text-xs text-slate-300">Routes to Rakshak / Jeevan / Agni / Sanrakshak · Simulated data · Call 112 for real emergencies</p></div>
           </div>
           <button type="button" onClick={() => { stopSpeaking(); onClose(); }} className="p-2 rounded-lg hover:bg-white/10 shrink-0" aria-label="Close"><X className="w-5 h-5" /></button>
         </div>
@@ -48,7 +50,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === 'user' ? 'mitra-chrome text-white rounded-br-md' : 'glass-liquid-input text-white rounded-bl-md'}`}>
                 <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                {m.role === 'mitra' && <VoiceControls text={m.content} />}
+                {m.role === 'mitra' && <VoiceControls text={m.content} lang={lang} />}
                 {m.role === 'mitra' && m.agent && (
                   <button type="button" onClick={() => { stopSpeaking(); onClose(); navigate(`/agents/${m.agent}`); }} className="mt-2 min-h-10 px-3 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold">Open {AGENT_META[m.agent].name} →</button>
                 )}
@@ -62,7 +64,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
           </div>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); send(); }} className="p-3 border-t border-white/15 flex items-center gap-2">
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Mitra… e.g. There is a fire" className="flex-1 min-w-0 min-h-12 px-3.5 rounded-xl glass-liquid-input text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-300" />
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t('mitra.placeholder')} className="flex-1 min-w-0 min-h-12 px-3.5 rounded-xl glass-liquid-input text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-300" />
           <button type="button" onClick={toggleMic} title="Voice input" className={`shrink-0 w-12 h-12 rounded-xl border flex items-center justify-center ${listening ? 'bg-rose-500/25 border-rose-400/50 text-rose-300 mic-ring' : 'glass-liquid-input text-slate-200'}`}>{listening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}</button>
           <button type="submit" disabled={!input.trim()} className="shrink-0 w-12 h-12 rounded-xl mitra-chrome btn-glow text-white disabled:opacity-50 flex items-center justify-center" aria-label="Send"><Send className="w-5 h-5" /></button>
         </form>

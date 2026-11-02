@@ -1,7 +1,8 @@
 // Browser-native speech only. No external API, no API key.
-export type SpeechLang = 'en' | 'hi' | 'kn';
-export const LANG_CODE: Record<SpeechLang, string> = { en: 'en-IN', hi: 'hi-IN', kn: 'kn-IN' };
+export type SpeechLang = 'en' | 'hi' | 'kn' | 'te';
+export const LANG_CODE: Record<SpeechLang, string> = { en: 'en-IN', hi: 'hi-IN', kn: 'kn-IN', te: 'te-IN' };
 export function detectSpeechLang(text: string, fallback: SpeechLang = 'en'): SpeechLang {
+  if (/[\u0C00-\u0C7F]/.test(text)) return 'te';
   if (/[\u0C80-\u0CFF]/.test(text)) return 'kn';
   if (/[\u0900-\u097F]/.test(text)) return 'hi';
   return fallback;
