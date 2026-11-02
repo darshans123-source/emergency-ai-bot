@@ -299,7 +299,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 min-h-14 py-2 shrink-0 sticky top-3 sm:top-4 z-30">
+    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-6 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 min-h-14 py-2 shrink-0 sticky top-3 sm:top-4 z-30">
       {/* Left: menu (mobile) + brand + live-link status (desktop row) */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1 min-w-0">
         <button
@@ -342,7 +342,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             }}
             onKeyDown={handleSearchKeyDown}
             placeholder={isListening ? "Listening... speak command or search query" : t('nav.search_placeholder')}
-            className={`w-full glass-input rounded-xl pl-10 pr-24 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
+            className={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-24 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
               isListening
                 ? 'border-blue-500 ring-2 ring-blue-100'
                 : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
@@ -412,7 +412,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
         {/* Global Search Results Dropdown */}
         {isSearchOpen && searchQuery.trim().length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 glass-strong rounded-2xl shadow-xl overflow-hidden z-50 text-xs">
+          <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-xs">
             <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
               <span>Matching Incidents</span>
               <span>{isSearching ? 'Searching...' : `${searchResults.length} found`}</span>
@@ -481,7 +481,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold transition-all cursor-pointer min-h-10"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold transition-all cursor-pointer min-h-10"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ / తెలుగు)"
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
@@ -506,7 +506,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
           {/* Notifications Dropdown */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 glass-strong rounded-2xl shadow-xl py-2 z-50 text-slate-800">
+            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-slate-800">
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
