@@ -296,7 +296,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-3 sm:top-4 z-30 gap-2 sm:gap-4 min-h-16 py-2">
+    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl glass-strong px-3 sm:px-6 flex items-center justify-between shrink-0 sticky top-3 sm:top-4 z-30 gap-2 sm:gap-4 min-h-14 py-2">
       {/* Left: menu (mobile) + brand + live-link status */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button

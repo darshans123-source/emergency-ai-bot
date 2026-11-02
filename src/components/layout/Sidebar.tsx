@@ -107,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={onCloseMobile}
               title={item.label}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors min-h-11 ${
+                `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors min-h-11 ${
                   isActive
                     ? 'bg-[#2563EB] text-white font-semibold'
                     : 'text-slate-300 hover:bg-white/10 hover:text-white'
@@ -134,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           type="button"
           onClick={handleLogout}
           title="Logout"
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition min-h-11 ${
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition min-h-11 ${
             collapsed ? 'justify-center' : ''
           }`}
         >
@@ -159,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Desktop: collapsible */}
       <aside
         className={`hidden lg:flex shrink-0 h-screen sticky top-0 transition-all duration-200 ${
-          collapsed ? 'w-20' : 'w-64'
+          collapsed ? 'w-16' : 'w-60'
         }`}
       >
         {renderBody(false)}

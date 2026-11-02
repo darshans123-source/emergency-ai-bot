@@ -85,9 +85,9 @@ export const IncidentsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-4 max-w-7xl mx-auto pb-12 min-w-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-[20px] border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Incidents Queue</h1>
@@ -111,7 +111,7 @@ export const IncidentsPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-sm">
+      <div className="bg-white p-4 rounded-[20px] border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-sm">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
@@ -250,7 +250,7 @@ export const IncidentsPage: React.FC = () => {
       </div>
 
       {/* Incidents Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-[20px] border border-slate-200 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="p-5 space-y-3">
             {[0, 1, 2, 3].map((i) => (
@@ -263,7 +263,21 @@ export const IncidentsPage: React.FC = () => {
             <p className="mt-1 text-xs text-slate-400">Adjust active filters or clear search query to view all records.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="sm:hidden divide-y divide-slate-100">
+            {incidents.map((inc) => (
+              <button key={inc.id} type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="w-full text-left p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs font-semibold text-blue-600">{inc.id}</span>
+                  <span className="flex gap-1.5"><PriorityBadge priority={inc.priority} size="sm" /><StatusBadge status={inc.status} size="sm" /></span>
+                </div>
+                <p className="mt-1.5 font-semibold text-slate-900 line-clamp-1">{inc.title}</p>
+                <p className="text-xs text-slate-500 line-clamp-1 flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 text-slate-400 shrink-0" /><span>{inc.location.address}</span></p>
+                <p className="mt-1.5 text-xs text-slate-500 flex items-center justify-between gap-2"><span><CategoryBadge category={inc.category} /></span><span>{new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · View details →</span></p>
+              </button>
+            ))}
+          </div>
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
@@ -344,6 +358,7 @@ export const IncidentsPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
     </div>
