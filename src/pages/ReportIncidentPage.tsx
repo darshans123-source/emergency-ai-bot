@@ -345,9 +345,9 @@ export const ReportIncidentPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+    <div className="max-w-4xl mx-auto space-y-4 pb-12 min-w-0">
+      <div className="bg-white rounded-[20px] border border-slate-200 shadow-xs overflow-hidden">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
               Report Emergency Incident
@@ -362,7 +362,7 @@ export const ReportIncidentPage: React.FC = () => {
         </div>
 
         {/* Voice Reporting Quick Banner */}
-        <div className="mx-6 mt-6 p-4 rounded-xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/30 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+        <div className="mx-4 sm:mx-6 mt-4 sm:mt-6 p-4 rounded-[20px] bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border border-blue-500/30 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-xl bg-blue-600/30 border border-blue-400/30 text-blue-300 shrink-0">
               <Mic className="w-5 h-5 animate-pulse text-blue-400" />
@@ -396,8 +396,9 @@ export const ReportIncidentPage: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 text-sm">
-          {/* Section 1: Core Incident Info */}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 text-sm">
+          {/* Section 1: Emergency Details */}
+          <h3 className="text-sm font-bold text-slate-900">Emergency Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -557,7 +558,7 @@ export const ReportIncidentPage: React.FC = () => {
             </div>
 
             {/* Map Container */}
-            <div className="rounded-lg border border-slate-300 overflow-hidden shadow-xs h-64 bg-slate-50 relative">
+            <div className="rounded-[20px] border border-slate-300 overflow-hidden shadow-xs h-64 sm:h-80 bg-slate-50 relative">
               <div ref={mapContainerRef} className="w-full h-full" />
             </div>
 

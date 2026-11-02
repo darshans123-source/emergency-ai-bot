@@ -27,7 +27,7 @@ import {
   SpecializedAgent,
   SpecializedAgentId
 } from '../types';
-import { StatCard, Skeleton, ErrorState } from '../components/common/UiBits';
+import { Skeleton, ErrorState } from '../components/common/UiBits';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
 
@@ -99,418 +99,209 @@ export const CommandCenterPage: React.FC = () => {
   const totalIncidents =
     summary ? summary.totalActive + summary.resolvedIncidents : null;
 
+  const agentCards = [
+    {
+      slug: 'rakshak', icon: <Shield className="w-5 h-5" />, chip: 'bg-blue-50 text-blue-700', accent: 'border-t-blue-600',
+      name: 'RAKSHAK AI', role: 'Police & Security Response',
+      desc: 'Police incident assistance, station information and response recommendations.',
+      status: agentById('POLICE_TACTICAL')?.status || 'Status Unavailable',
+      task: agentById('POLICE_TACTICAL')?.currentTask || agentById('POLICE_TACTICAL')?.assignedIncidentTitle || 'No active task reported',
+    },
+    {
+      slug: 'jeevan', icon: <HeartPulse className="w-5 h-5" />, chip: 'bg-rose-50 text-rose-700', accent: 'border-t-rose-600',
+      name: 'JEEVAN AI', role: 'Medical & Healthcare Response',
+      desc: 'Medical emergency guidance, nearby hospital information and emergency requests.',
+      status: agentById('HOSPITAL_EMS')?.status || 'Status Unavailable',
+      task: agentById('HOSPITAL_EMS')?.currentTask || agentById('HOSPITAL_EMS')?.assignedIncidentTitle || 'No active task reported',
+    },
+    {
+      slug: 'agni', icon: <Flame className="w-5 h-5" />, chip: 'bg-orange-50 text-orange-700', accent: 'border-t-orange-600',
+      name: 'AGNI AI', role: 'Fire & Rescue Response',
+      desc: 'Fire incident reporting, fire unit coordination and rescue support via live units and incidents.',
+      status: fireUnits.length > 0 ? `${fireAvailable} of ${fireUnits.length} units available` : 'No unit data',
+      task: latestFire ? latestFire.title : 'No active fire incident in live records',
+    },
+    {
+      slug: 'sanrakshak', icon: <Droplets className="w-5 h-5" />, chip: 'bg-cyan-50 text-cyan-700', accent: 'border-t-cyan-600',
+      name: 'SANRAKSHAK AI', role: 'Disaster & Public Services',
+      desc: 'Water, electricity, road and infrastructure issues and public safety reporting.',
+      status: agentById('WATER_HYDRO')?.status || 'Status Unavailable',
+      task: agentById('WATER_HYDRO')?.currentTask || agentById('WATER_HYDRO')?.assignedIncidentTitle || 'No active task reported',
+    },
+  ];
+  const stats = [
+    { label: 'Total Incidents', value: totalIncidents !== null ? String(totalIncidents) : '—', icon: <AlertCircle className="w-4 h-4" />, chip: 'bg-blue-50 text-blue-700' },
+    { label: 'Active Incidents', value: summary ? String(summary.totalActive) : '—', icon: <Activity className="w-4 h-4" />, chip: 'bg-amber-50 text-amber-700' },
+    { label: 'Resolved Incidents', value: summary ? String(summary.resolvedIncidents) : '—', icon: <CheckCircle2 className="w-4 h-4" />, chip: 'bg-emerald-50 text-emerald-700' },
+    { label: 'Available Response Units', value: summary ? String(summary.availableUnits) : '—', icon: <Ambulance className="w-4 h-4" />, chip: 'bg-cyan-50 text-cyan-700' },
+  ];
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Hero — blue-purple gradient welcome card with animated background */}
-      <section className="relative rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-500/20 overflow-hidden bg-gradient-to-br from-[#2563EB] via-[#4F46E5] to-[#7C3AED] animate-glass-fade-up">
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/15 blur-3xl animate-glass-float" />
-          <div className="absolute -bottom-20 left-1/4 w-64 h-64 rounded-full bg-cyan-400/25 blur-3xl animate-glass-float-slow" />
-          <div className="absolute top-8 right-1/3 w-20 h-20 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md rotate-12 hidden sm:block" />
-        </div>
-        <div className="relative flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+    <div className="space-y-4 max-w-7xl mx-auto min-w-0">
+      {/* Compact welcome banner — white, no large gradient */}
+      <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-widest text-blue-100">Emergency Operations Overview</p>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Welcome back, {displayName}
-            </h1>
-            <p className="mt-2 text-sm sm:text-base text-blue-100 max-w-2xl">
-              Monitor emergency operations and coordinate response activities from one place.
-            </p>
-            <p className="mt-3 text-xs text-blue-200">
-              One Voice. Four Agents. One Mission. · Decision support only — always call 112 / 911 for
-              life-threatening emergencies.
+            <h1 className="text-lg sm:text-xl font-bold text-[#172033] truncate">Welcome back, {displayName}</h1>
+            <p className="text-xs sm:text-sm text-[#64748B] truncate">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <p className="mt-1 text-xs font-medium flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              <span className="text-[#64748B]">{isConnected ? 'Live link connected' : wsStatus === 'unavailable' ? 'Live link unavailable' : 'Live link reconnecting…'}{lastUpdated ? ` · Updated ${lastUpdated}` : ''}</span>
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate('/report')}
-            className="shrink-0 min-h-12 px-5 rounded-xl bg-[#EF4444] hover:bg-red-600 hover:-translate-y-0.5 text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-red-500/30"
-          >
-            <FilePlus2 className="w-4 h-4" />
-            Report Emergency
-          </button>
         </div>
+        <button type="button" onClick={() => navigate('/report')} className="shrink-0 min-h-11 px-4 rounded-xl bg-[#E53935] hover:bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition">
+          <FilePlus2 className="w-4 h-4" /> Report Emergency
+        </button>
       </section>
 
       {error && <ErrorState message={error} onRetry={load} />}
 
-      {/* Stats — only from the live summary, never invented */}
+      {/* AI Agents — immediately below welcome, 2 per row on mobile, 4 on desktop */}
+      <section aria-label="AI agents">
+        <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
+          <h2 className="text-base font-bold text-[#172033]">AI Response Agents</h2>
+          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline shrink-0">View all <ArrowRight className="w-4 h-4" /></button>
+        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {agentCards.map((a) => (
+              <article key={a.slug} className={`rounded-[20px] bg-white border border-slate-200 border-t-4 ${a.accent} shadow-sm p-4 flex flex-col hover:shadow-md hover:-translate-y-0.5 transition min-w-0`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`w-10 h-10 rounded-xl ${a.chip} flex items-center justify-center shrink-0`}>{a.icon}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 truncate max-w-[55%]">{a.status}</span>
+                </div>
+                <h3 className="mt-3 text-sm font-bold text-[#172033]">{a.name}</h3>
+                <p className="text-xs font-medium text-[#2563EB]">{a.role}</p>
+                <p className="mt-1.5 text-xs text-[#64748B] leading-relaxed line-clamp-2">{a.desc}</p>
+                <p className="mt-2 text-xs text-[#64748B] truncate"><span className="font-semibold text-[#172033]">Task: </span>{a.task}</p>
+                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-3 min-h-10 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition">Open Agent</button>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Compact stats */}
       <section aria-label="Operations statistics">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28" />
-            ))}
-          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-24" />))}</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              label="Total Incidents"
-              value={totalIncidents !== null ? String(totalIncidents) : '—'}
-              icon={<AlertCircle className="w-5 h-5" />}
-              accent="bg-blue-50 text-blue-700"
-              note="Active + resolved, from the live summary"
-            />
-            <StatCard
-              label="Active Incidents"
-              value={summary ? String(summary.totalActive) : '—'}
-              icon={<Activity className="w-5 h-5" />}
-              accent="bg-amber-50 text-amber-700"
-              note="Awaiting review included in the live count"
-            />
-            <StatCard
-              label="Resolved Incidents"
-              value={summary ? String(summary.resolvedIncidents) : '—'}
-              icon={<CheckCircle2 className="w-5 h-5" />}
-              accent="bg-emerald-50 text-emerald-700"
-              note="From the live summary"
-            />
-            <StatCard
-              label="Available Response Units"
-              value={summary ? String(summary.availableUnits) : '—'}
-              icon={<Ambulance className="w-5 h-5" />}
-              accent="bg-cyan-50 text-cyan-700"
-              note="Units reported available by the backend"
-            />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 flex items-start justify-between gap-2 min-w-0">
+                <div className="min-w-0"><p className="text-xs font-medium text-[#64748B] truncate">{s.label}</p><p className="mt-1 text-2xl font-extrabold text-[#172033]">{s.value}</p></div>
+                <span className={`w-9 h-9 rounded-xl ${s.chip} flex items-center justify-center shrink-0`}>{s.icon}</span>
+              </div>
+            ))}
           </div>
         )}
       </section>
 
-      {/* Connectivity — shown separately, and only "Connected" on a real live link */}
-      <section className="glass rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-glass-fade-up">
-        <div className="flex items-center gap-3 min-w-0">
-          {isConnected ? (
-            <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-              <Wifi className="w-5 h-5" />
-            </span>
+      {/* Bento grid: overview + quick actions + recent + activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Emergency Overview — spans 2 */}
+        <section className="lg:col-span-2 rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-[#172033]">Emergency Overview</h2>
+          <div className="mt-3 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <p className="text-sm text-[#172033] flex items-center gap-2">
+                {isConnected ? <Wifi className="w-4 h-4 text-emerald-600" /> : <WifiOff className="w-4 h-4 text-slate-400" />}
+                <span className="font-semibold">{isConnected ? 'Connected' : wsStatus === 'unavailable' ? 'Live link unavailable' : 'Reconnecting…'}</span>
+                <span className="text-[#64748B] text-xs">· Backend API: {backendHealth === 'checking' ? 'Checking…' : backendHealth === 'online' ? 'Online' : 'Unavailable'}</span>
+              </p>
+              <div className="flex gap-2 shrink-0">
+                <button type="button" onClick={load} className="min-h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+                {!isConnected && wsStatus === 'unavailable' && (<button type="button" onClick={retryConnection} className="min-h-10 px-3 rounded-xl bg-[#2563EB] text-white text-xs font-semibold">Retry live link</button>)}
+              </div>
+            </div>
+            {backendHealth === 'offline' && backendError && (<p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">Backend health check failed: {backendError}. Check Vercel function logs for /api.</p>)}
+            {summary && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-[#172033]">{summary.totalActive}</p><p className="text-[11px] text-[#64748B]">Active</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-[#172033]">{summary.awaitingReview}</p><p className="text-[11px] text-[#64748B]">Awaiting review</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-[#172033]">{summary.highOrCriticalPriority}</p><p className="text-[11px] text-[#64748B]">High / critical</p></div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5"><p className="text-lg font-bold text-[#172033]">{summary.availableUnits}</p><p className="text-[11px] text-[#64748B]">Units available</p></div>
+              </div>
+            )}
+            {summary && (
+              <div>
+                <p className="text-xs font-semibold text-[#64748B] mb-2">By category (live summary)</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(summary.categoryCounts).map(([cat, count]) => (
+                    <button key={cat} type="button" onClick={() => navigate(`/incidents?category=${cat}`)} className="px-2.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-medium text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] transition">{cat.replace(/_/g, ' ')} · <b>{count}</b></button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Quick Actions */}
+        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-[#172033]">Quick Actions</h2>
+          <div className="mt-3 grid grid-cols-1 gap-2">
+            {[
+              { label: 'Report Emergency', icon: <FilePlus2 className="w-4 h-4" />, to: '/report' },
+              { label: 'View Incidents', icon: <AlertCircle className="w-4 h-4" />, to: '/incidents' },
+              { label: 'Live Map', icon: <MapPin className="w-4 h-4" />, to: '/map' },
+              { label: 'Find Hospitals', icon: <Hospital className="w-4 h-4" />, to: '/map' },
+              { label: 'Response Units', icon: <Ambulance className="w-4 h-4" />, to: '/resources' },
+            ].map((cmd) => (
+              <button key={cmd.label} type="button" onClick={() => navigate(cmd.to)} className="min-h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-[#172033] hover:border-[#2563EB] hover:text-[#2563EB] transition flex items-center gap-2.5 text-left">
+                <span className="text-[#2563EB] shrink-0">{cmd.icon}</span>{cmd.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Incidents — spans 2 */}
+        <section className="lg:col-span-2 rounded-[20px] bg-white border border-slate-200 shadow-sm overflow-hidden min-w-0">
+          <div className="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between gap-3">
+            <h2 className="font-bold text-[#172033]">Recent Incidents</h2>
+            <button type="button" onClick={() => navigate('/incidents')} className="text-sm font-semibold text-[#2563EB] hover:underline inline-flex items-center gap-1 shrink-0">View all <ArrowRight className="w-4 h-4" /></button>
+          </div>
+          {isLoading ? (<div className="p-4 space-y-3">{[0, 1, 2].map((i) => (<Skeleton key={i} className="h-14" />))}</div>) : recent.length === 0 ? (
+            <p className="p-4 text-sm text-[#64748B]">No incident records were returned by the backend. This is not a placeholder — check the connection and retry.</p>
           ) : (
-            <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
-              <WifiOff className="w-5 h-5" />
-            </span>
-          )}
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#172033]">
-              {isConnected
-                ? 'System connectivity: Connected'
-                : wsStatus === 'unavailable'
-                  ? 'System connectivity: Live link unavailable'
-                  : 'System connectivity: Reconnecting…'}
-            </p>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              {lastUpdated ? `Operations data last refreshed at ${lastUpdated}. ` : ''}
-              The live link badge reflects the actual WebSocket state — it is never shown as
-              Connected unless the service confirms it.
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={load}
-            className="min-h-11 px-4 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" /> Refresh data
-          </button>
-          {!isConnected && wsStatus === 'unavailable' && (
-            <button
-              type="button"
-              onClick={retryConnection}
-              className="min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700"
-            >
-              Retry live link
-            </button>
-          )}
-        </div>
-      </section>
-
-      {/* Backend health — separate from the WebSocket live link */}
-      <section className="glass rounded-2xl p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-[#172033]">
-              Backend API: {backendHealth === 'checking' ? 'Checking…' : backendHealth === 'online' ? 'Online' : 'Unavailable'}
-            </p>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              {backendHealth === 'offline'
-                ? `The live API did not answer the health check${backendError ? `: ${backendError}` : ''}. This is a deployment/backend issue, not an empty dashboard — check the Vercel function logs for the /api function.`
-                : 'Checked against /api/health. Live incident data below comes from the same backend.'}
-            </p>
-          </div>
-          {backendHealth === 'offline' && (
-            <button type="button" onClick={load} className="min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold shrink-0">
-              Retry Backend
-            </button>
-          )}
-        </div>
-      </section>
-
-      {/* Emergency category distribution — real summary counts only */}
-      {summary && (
-        <section className="glass rounded-2xl p-5">
-          <h2 className="font-bold text-[#172033]">Emergency Category Distribution</h2>
-          <p className="text-sm text-[#64748B] mt-1">Counts from the live dashboard summary, by incident category.</p>
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-            {Object.entries(summary.categoryCounts).map(([cat, count]) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => navigate(`/incidents?category=${cat}`)}
-                className="glass glass-card-hover rounded-xl p-3 text-left transition"
-              >
-                <p className="text-2xl font-extrabold text-[#172033]">{count}</p>
-                <p className="text-[11px] font-medium text-[#64748B] break-words mt-0.5">{cat.replace(/_/g, ' ')}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Live incident activity — real recent incidents from /dashboard/activity */}
-      {activityIncidents.length > 0 && (
-        <section className="glass rounded-2xl p-5">
-          <h2 className="font-bold text-[#172033]">Live Incident Activity</h2>
-          <ul className="mt-3 space-y-2">
-            {activityIncidents.map((inc) => (
-              <li key={inc.id} className="flex items-center justify-between gap-3 text-sm">
-                <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
-                  <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
-                  <span className="ml-2 font-medium text-[#172033] truncate">{inc.title}</span>
-                </button>
-                <StatusBadge status={inc.status} size="sm" />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* AI Response Agents */}
-      <section>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#172033]">AI Response Agents</h2>
-            <p className="text-sm text-[#64748B]">Status and current task come from the live agent service.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate('/agents')}
-            className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline shrink-0"
-          >
-            View all agents <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-56" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Police */}
-            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
-              <div className="flex items-center justify-between gap-2">
-                <span className="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                  <Shield className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700">
-                  {agentById('POLICE_TACTICAL')?.status || 'Status Unavailable'}
-                </span>
-              </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Rakshak AI — Police Response</h3>
-              <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
-                Police incident assistance, police station information, incident reporting and response
-                recommendations.
-              </p>
-              <p className="mt-3 text-xs text-[#64748B]">
-                <span className="font-semibold text-[#172033]">Active task: </span>
-                {agentById('POLICE_TACTICAL')?.currentTask ||
-                  agentById('POLICE_TACTICAL')?.assignedIncidentTitle ||
-                  'No active task reported'}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/agents/rakshak')}
-                className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                Open Agent
-              </button>
-            </article>
-
-            {/* Medical */}
-            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
-              <div className="flex items-center justify-between gap-2">
-                <span className="w-11 h-11 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
-                  <HeartPulse className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700">
-                  {agentById('HOSPITAL_EMS')?.status || 'Status Unavailable'}
-                </span>
-              </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Jeevan AI — Medical Response</h3>
-              <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
-                Medical emergency guidance, nearby hospital information and emergency request assistance.
-              </p>
-              <p className="mt-3 text-xs text-[#64748B]">
-                <span className="font-semibold text-[#172033]">Active task: </span>
-                {agentById('HOSPITAL_EMS')?.currentTask ||
-                  agentById('HOSPITAL_EMS')?.assignedIncidentTitle ||
-                  'No active task reported'}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/agents/jeevan')}
-                className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                Open Agent
-              </button>
-            </article>
-
-            {/* Fire & Rescue — coordinated through real fire units + fire incidents.
-                There is no separate Fire specialised-agent in the backend, so this
-                card deliberately does not claim an agent "Online" status. */}
-            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
-              <div className="flex items-center justify-between gap-2">
-                <span className="w-11 h-11 rounded-xl bg-red-50 text-red-700 flex items-center justify-center">
-                  <Flame className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700">
-                  {fireUnits.length > 0 ? `${fireAvailable} of ${fireUnits.length} units available` : 'No unit data'}
-                </span>
-              </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Agni AI — Fire & Rescue</h3>
-              <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
-                Fire incident reporting, fire unit coordination and rescue support — via live fire units
-                and fire incidents.
-              </p>
-              <p className="mt-3 text-xs text-[#64748B]">
-                <span className="font-semibold text-[#172033]">Active task: </span>
-                {latestFire ? latestFire.title : 'No active fire incident in live records'}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/agents/agni')}
-                className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                Open Agent
-              </button>
-            </article>
-
-            {/* Civil & Public Services */}
-            <article className="glass glass-card-hover rounded-2xl p-5 flex flex-col">
-              <div className="flex items-center justify-between gap-2">
-                <span className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
-                  <Droplets className="w-5 h-5" />
-                </span>
-                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700">
-                  {agentById('WATER_HYDRO')?.status || 'Status Unavailable'}
-                </span>
-              </div>
-              <h3 className="mt-4 font-bold text-[#172033]">Sanrakshak AI — Disaster & Public Services</h3>
-              <p className="mt-1 text-sm text-[#64748B] leading-relaxed">
-                Water supply disruptions, electricity complaints, road and infrastructure issues and
-                public safety reporting.
-              </p>
-              <p className="mt-3 text-xs text-[#64748B]">
-                <span className="font-semibold text-[#172033]">Active task: </span>
-                {agentById('WATER_HYDRO')?.currentTask ||
-                  agentById('WATER_HYDRO')?.assignedIncidentTitle ||
-                  'No active task reported'}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/agents/sanrakshak')}
-                className="mt-4 min-h-11 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                Open Agent
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/agents/sanrakshak')}
-                className="mt-2 text-xs font-semibold text-[#2563EB] hover:underline text-left"
-              >
-                Also: Power agent (Shakti AI) →
-              </button>
-            </article>
-          </div>
-        )}
-      </section>
-
-      {/* Quick Commands */}
-      <section>
-        <h2 className="text-lg font-bold text-[#172033] mb-4">Quick Commands</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {[
-            { label: 'View Active Incidents', icon: <AlertCircle className="w-4 h-4" />, to: '/incidents?status=RESOURCES_DISPATCHED' },
-            { label: 'Find Nearby Hospitals', icon: <Hospital className="w-4 h-4" />, to: '/map' },
-            { label: 'Report Emergency', icon: <FilePlus2 className="w-4 h-4" />, to: '/report' },
-            { label: 'View Live Map', icon: <MapPin className="w-4 h-4" />, to: '/map' },
-            { label: 'View Response Units', icon: <Ambulance className="w-4 h-4" />, to: '/resources' }
-          ].map((cmd) => (
-            <button
-              key={cmd.label}
-              type="button"
-              onClick={() => navigate(cmd.to)}
-              className="glass glass-card-hover min-h-14 px-4 rounded-xl text-sm font-semibold text-[#172033] hover:text-[#2563EB] transition flex items-center gap-2.5 text-left"
-            >
-              <span className="text-[#2563EB] shrink-0">{cmd.icon}</span>
-              {cmd.label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Recent incidents — real records only */}
-      <section className="glass rounded-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
-          <h2 className="font-bold text-[#172033]">Recent Incidents</h2>
-          <button
-            type="button"
-            onClick={() => navigate('/incidents')}
-            className="text-sm font-semibold text-[#2563EB] hover:underline inline-flex items-center gap-1 shrink-0"
-          >
-            View all <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-        {isLoading ? (
-          <div className="p-5 space-y-3">
-            {[0, 1, 2].map((i) => (
-              <Skeleton key={i} className="h-14" />
-            ))}
-          </div>
-        ) : recent.length === 0 ? (
-          <p className="p-5 text-sm text-[#64748B]">
-            No incident records were returned by the backend. This is not a placeholder — check the
-            connection and retry.
-          </p>
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {recent.map((inc) => (
-              <li key={inc.id}>
-                <button
-                  type="button"
-                  onClick={() => navigate(`/incidents/${inc.id}`)}
-                  className="w-full text-left px-5 py-4 hover:bg-slate-50 transition flex items-center justify-between gap-3"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
-                      <PriorityBadge priority={inc.priority} size="sm" />
-                      <StatusBadge status={inc.status} size="sm" />
+            <ul className="divide-y divide-slate-100">
+              {recent.map((inc) => (
+                <li key={inc.id}>
+                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="w-full text-left px-4 py-3.5 hover:bg-slate-50 transition flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap"><span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span><PriorityBadge priority={inc.priority} size="sm" /><StatusBadge status={inc.status} size="sm" /></div>
+                      <p className="mt-1 font-semibold text-[#172033] truncate">{inc.title}</p>
+                      <p className="text-xs text-[#64748B] truncate flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 shrink-0" /> {inc.location.address}</p>
                     </div>
-                    <p className="mt-1 font-semibold text-[#172033] truncate">{inc.title}</p>
-                    <p className="text-xs text-[#64748B] truncate flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 shrink-0" /> {inc.location.address}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                    <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* Recent activity */}
+        <section className="rounded-[20px] bg-white border border-slate-200 shadow-sm p-4 sm:p-5 min-w-0">
+          <h2 className="font-bold text-[#172033]">Recent Activity</h2>
+          {activityIncidents.length === 0 ? (<p className="mt-2 text-sm text-[#64748B]">No recent activity returned by the backend.</p>) : (
+            <ul className="mt-3 space-y-2">
+              {activityIncidents.slice(0, 5).map((inc) => (
+                <li key={inc.id} className="flex items-center justify-between gap-3 text-sm min-w-0">
+                  <button type="button" onClick={() => navigate(`/incidents/${inc.id}`)} className="text-left min-w-0">
+                    <span className="font-mono text-xs font-semibold text-[#2563EB]">{inc.id}</span>
+                    <span className="ml-2 font-medium text-[#172033] truncate">{inc.title}</span>
+                  </button>
+                  <StatusBadge status={inc.status} size="sm" />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </div>
   );
 };
