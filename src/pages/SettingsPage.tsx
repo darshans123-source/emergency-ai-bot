@@ -2,13 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, LogOut, User, ShieldAlert, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
 import { deleteProfile } from '../services/localProfile';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { localProfile, localProfiles, user, logout, logoutLocal, refreshLocalProfiles } = useAuth();
-  const { isConnected, wsStatus } = useNotifications();
 
   const handleLogout = async () => {
     try {
@@ -59,10 +57,8 @@ export const SettingsPage: React.FC = () => {
             <dd className="font-semibold text-[#172033] text-right">{localProfiles.length}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#64748B]">Live link</dt>
-            <dd className="font-semibold text-[#172033] text-right">
-              {isConnected ? 'Connected' : wsStatus === 'unavailable' ? 'Unavailable' : 'Reconnecting…'}
-            </dd>
+            <dt className="text-[#64748B]">AI engine</dt>
+            <dd className="font-semibold text-[#172033] text-right">Local engine ready</dd>
           </div>
         </dl>
         <div className="mt-5 flex flex-wrap gap-2">

@@ -48,7 +48,7 @@ export function routeToAgent(text: string): { agent: AgentSlug; mitraText: strin
   const c = classify(text);
   const name = AGENT_META[c.agent].name;
   const sector = AGENT_META[c.agent].sector;
-  return { agent: c.agent, mitraText: `I have classified this as a ${c.category} request. I am connecting you to ${name}, our ${sector.toLowerCase()} assistant, for a simulated demo assessment. No real service has been contacted.` };
+  return { agent: c.agent, mitraText: `I have classified this as a ${c.category} request. I am connecting you to ${name}, our ${sector.toLowerCase()} assistant, for a simulated assessment. No real service has been contacted.` };
 }
 export function generateAgentResponse(agent: AgentSlug, message: string, lang: 'en' | 'hi' | 'kn' = 'en'): DemoAiResult {
   const c = classify(message);
@@ -62,25 +62,25 @@ export function generateAgentResponse(agent: AgentSlug, message: string, lang: '
   const fireUnit = DEMO_FIRE_UNITS.find((u) => u.city === city && u.status === 'AVAILABLE') || DEMO_FIRE_UNITS[0];
   let body = ''; let actions: string[] = []; let demoInfo: string[] = [];
   if (agent === 'agni') {
-    body = `Demo alert received. This report has been classified as a fire emergency (${c.category}, priority ${c.priority} in this simulation). Please move away from the affected area, do not use lifts, do not re-enter the building, and keep exits clear. In a real fire, call 112 immediately.`;
+    body = `Assessment received. This report has been classified as a fire emergency (${c.category}, priority ${c.priority} in this simulation). Please move away from the affected area, do not use lifts, do not re-enter the building, and keep exits clear. In a real fire, call 112 immediately.`;
     actions = ['Leave the building calmly', 'Do not use lifts', 'Call 112 in a real emergency', 'Keep exits and roads clear (demo)'];
     demoInfo = [`Nearest demo fire station: ${fire.name}, ${fire.address}`, `Demo fire unit (simulated): ${fireUnit.name} — ${fireUnit.status}`, `City in demo: ${city}`];
   } else if (agent === 'jeevan') {
-    body = `Demo assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Keep the person still and safe, apply gentle pressure with a clean cloth if there is bleeding, and do not move a seriously injured person unless there is immediate danger. This is general first-aid information only, not a diagnosis. In a real emergency, call 112 immediately.`;
+    body = `Assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Keep the person still and safe, apply gentle pressure with a clean cloth if there is bleeding, and do not move a seriously injured person unless there is immediate danger. This is general first-aid information only, not a diagnosis. In a real emergency, call 112 immediately.`;
     actions = ['Keep the person safe and still', 'Apply pressure for bleeding with a clean cloth', 'Do not give food or drink to an unconscious person', 'Call 112 in a real emergency'];
     demoInfo = [`Nearest demo hospital: ${hospital.name}, ${hospital.address}`, `Demo ambulance unit (simulated): ${ambUnit.name} — ${ambUnit.status}`, `City in demo: ${city}`];
   } else if (agent === 'rakshak') {
-    body = `Demo assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Note down what you saw, the time, location and any vehicle or person details, and stay in a safe place. Do not confront a suspect. In a real crime or danger, call 112 immediately.`;
+    body = `Assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Note down what you saw, the time, location and any vehicle or person details, and stay in a safe place. Do not confront a suspect. In a real crime or danger, call 112 immediately.`;
     actions = ['Stay in a safe place', 'Note time, location and details', 'Do not confront anyone', 'Call 112 in a real emergency'];
     demoInfo = [`Nearest demo police station: ${police.name}, ${police.address}`, `Demo patrol unit (simulated): ${policeUnit.name} — ${policeUnit.status}`, `City in demo: ${city}`];
   } else {
-    body = `Demo assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Move to higher ground if water is rising, avoid flooded roads and damaged power lines, and keep drinking water and a charged phone ready. In a real disaster or danger, call 112 immediately.`;
+    body = `Assessment received. This has been classified as ${c.category} with ${c.priority} priority in this simulation. Move to higher ground if water is rising, avoid flooded roads and damaged power lines, and keep drinking water and a charged phone ready. In a real disaster or danger, call 112 immediately.`;
     actions = ['Avoid flooded roads and damaged lines', 'Move to higher ground if water rises', 'Keep water and a charged phone ready', 'Call 112 in a real emergency'];
     demoInfo = [`Demo infrastructure area: ${city}`, `Demo status: ${c.category} report logged in simulation only`, `No real department has been contacted`];
   }
   if (c.agent !== agent) {
     body += ` Note: this message looks like a ${c.category} request, which ${AGENT_META[c.agent].name} normally routes to ${AGENT_META[c.agent].name === meta.name ? meta.name : AGENT_META[c.agent].name}. You can open that agent from the Agents hub for a more focused demo.`;
   }
-  const text = `${meta.name} — DEMO SIMULATION\n${body}\n\nCategory: ${c.category} · Priority: ${c.priority} (simulated) · Assigned Agent: ${meta.name} · Status: Demo Assessment · Suggested Action: ${actions[0]} · Response Time: Simulated.\nThis is a demo only. No ambulance, police or fire service has actually been dispatched.`;
-  return { text, category: c.category, priority: c.priority, agent, city, actions, demoInfo, status: 'Demo Assessment', responseTime: 'Simulated' };
+  const text = `${meta.name} — Simulated assessment\n${body}\n\nCategory: ${c.category} · Priority: ${c.priority} (simulated) · Assigned Agent: ${meta.name} · Status: Simulated assessment · Suggested Action: ${actions[0]} · Response Time: Simulated.\nSimulated data — no ambulance, police or fire service has actually been dispatched.`;
+  return { text, category: c.category, priority: c.priority, agent, city, actions, demoInfo, status: 'Simulated assessment', responseTime: 'Simulated' };
 }

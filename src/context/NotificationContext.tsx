@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Notification } from '../types';
 import { api } from '../services/api';
 import { useAuth } from './AuthContext';
@@ -27,10 +27,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [wsStatus, setWsStatus] = useState<WsStatus>('reconnecting');
   const [wsAttempts, setWsAttempts] = useState(0);
-  const [wsRetryTick, setWsRetryTick] = useState(0);
-  const retryConnection = () => setWsRetryTick((t) => t + 1);
+  const retryConnection = () => { /* no-op: local mode has no live link to retry */ };
   const [latestEvent, setLatestEvent] = useState<{ type: string; data: any; timestamp: string } | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
 
   const refreshNotifications = useCallback(async () => {
     if (!user || !readSession()) {
@@ -46,120 +44,33 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [user]);
 
   useEffect(() => {
+    // Single load only. Previously this polled the backend every 15s and the
+    // WebSocket below retried a dead /ws endpoint, which produced the
+    // repeated "Reconnecting…" / "Live link unavailable" surfaces. The app
+    // now runs on the local engine, so no live polling or socket is needed.
     refreshNotifications();
-    const timer = setInterval(refreshNotifications, 15000);
-    return () => clearInterval(timer);
   }, [refreshNotifications]);
 
-  // WebSocket Connection — capped, so a dead /ws endpoint (for example on
-  // Vercel, where /ws rewrites to /api) can never leave the UI stuck on
-  // "Reconnecting..." forever. After 5 attempts it reports "unavailable"
-  // and waits for a manual retry instead of reconnecting in the background.
+  // Local mode: no WebSocket connection. The previous implementation opened
+  // /ws on every login and, on Vercel where /ws rewrites to an HTTP function,
+  // closed and retried up to 5 times with backoff, then reported "unavailable".
+  // That loop is removed entirely. Notifications, when present, are local.
+  // wsStatus is kept for compatibility with existing consumers but is no
+  // longer shown as a live-link indicator in the header.
   useEffect(() => {
-    if (!user || !readSession()) {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      setWsStatus('reconnecting');
-      return;
-    }
-
-    let socket: WebSocket | null = null;
-    let reconnectTimeout: any;
-    let stopped = false;
-    let attempt = 0;
-    const MAX_ATTEMPTS = 5;
-
-    function connect() {
-      if (stopped) return;
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
-
-      try {
-        socket = new WebSocket(wsUrl);
-        wsRef.current = socket;
-
-        socket.onopen = () => {
-          setIsConnected(true);
-          setWsStatus('connected');
-          setWsAttempts(0);
-          attempt = 0;
-        };
-
-        socket.onmessage = (event) => {
-          try {
-            const parsed = JSON.parse(event.data);
-            setLatestEvent(parsed);
-            if (
-              parsed.type === 'INCIDENT_CREATED' ||
-              parsed.type === 'AGENT_COMPLETED' ||
-              parsed.type === 'ASSIGNMENT_UPDATED' ||
-              parsed.type === 'DATA_RESET'
-            ) {
-              refreshNotifications();
-            }
-          } catch {
-            // non-json message
-          }
-        };
-
-        socket.onclose = () => {
-          setIsConnected(false);
-          attempt++;
-          setWsAttempts(attempt);
-          if (attempt >= MAX_ATTEMPTS) {
-            setWsStatus('unavailable');
-            return;
-          }
-          setWsStatus('reconnecting');
-          const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
-          reconnectTimeout = setTimeout(connect, delay);
-        };
-
-        socket.onerror = () => {
-          setIsConnected(false);
-        };
-      } catch {
-        setIsConnected(false);
-        attempt++;
-        setWsAttempts(attempt);
-        if (attempt >= MAX_ATTEMPTS) {
-          setWsStatus('unavailable');
-          return;
-        }
-        setWsStatus('reconnecting');
-        const delay = Math.min(3000 * Math.pow(1.5, Math.min(attempt, 6)), 30000);
-        reconnectTimeout = setTimeout(connect, delay);
-      }
-    }
-
-    connect();
-
-    return () => {
-      stopped = true;
-      clearTimeout(reconnectTimeout);
-      if (socket) socket.close();
-    };
-  }, [user, refreshNotifications, wsRetryTick]);
+    setWsStatus('unavailable');
+    setIsConnected(false);
+    setWsAttempts(0);
+  }, [user]);
 
   const markAsRead = async (id: string) => {
-    try {
-      await api.markNotificationRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
-    } catch (err) {
-      console.error(err);
-    }
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    try { await api.markNotificationRead(id); } catch { /* local state already updated; backend optional */ }
   };
 
   const markAllAsRead = async () => {
-    try {
-      await api.markAllNotificationsRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    } catch (err) {
-      console.error(err);
-    }
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    try { await api.markAllNotificationsRead(); } catch { /* local state already updated; backend optional */ }
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;

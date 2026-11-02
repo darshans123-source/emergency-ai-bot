@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { api } from '../services/api';
 import { Incident, Resource, EmergencyFacility, SpecializedAgentId, FacilityType } from '../types';
+import { loadDemoIncidents } from '../demo/demoStore';
+import { demoIncidentToIncident, demoUnitToResource, demoFacilities } from '../demo/localFallback';
+import { allDemoUnits } from '../demo/demoStore';
 import { searchLocations, fetchOsrmRoute, GeocodeResult, OsrmRouteResult } from '../services/mapService';
 import { locationService } from '../services/locationService';
 import { useNotifications } from '../context/NotificationContext';
@@ -243,8 +246,13 @@ export const LiveMapPage: React.FC = () => {
           }
         }
       }
-    } catch (err) {
-      console.error('Failed to load emergency grid map data:', err);
+    } catch {
+      // Backend unavailable: map still loads with local data, no error shown.
+      const localInc = loadDemoIncidents().map(demoIncidentToIncident);
+      setIncidents(localInc);
+      setFacilities(demoFacilities());
+      setResources(allDemoUnits().map(demoUnitToResource));
+      setLastDataSync(new Date());
     } finally {
       setIsLoading(false);
     }
