@@ -215,13 +215,6 @@ export const LocalLoginPage: React.FC = () => {
             </div>
           )}
 
-          <div className="mt-6 rounded-xl bg-amber-50/80 backdrop-blur-md border border-amber-200/70 px-3.5 py-3 text-xs leading-relaxed text-amber-800">
-            <strong>Prototype login only.</strong> Your PIN is stored only as a salted
-            hash in this browser — never in plain text — but browser-only
-            authentication is not secure against device access or browser
-            storage inspection. Do not use it to protect real emergency or
-            administrative operations.
-          </div>
         </div>
 
         <p className="mt-4 text-center text-xs text-blue-100">
