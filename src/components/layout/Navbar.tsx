@@ -8,7 +8,6 @@ import { StatusBadge } from '../common/StatusBadge';
 import {
   Bell,
   Menu,
-  ShieldCheck,
   LogOut,
   User as UserIcon,
   RefreshCw,
@@ -314,9 +313,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           className="hidden sm:flex items-center gap-2 shrink-0"
           title="AegisAI Command Center"
         >
-          <span className="w-8 h-8 rounded-lg bg-[#101B33] flex items-center justify-center text-white">
-            <ShieldCheck className="w-4 h-4" />
-          </span>
+          <img src="/logo-icon.svg" alt="AegisAI logo" className="w-8 h-8 rounded-lg object-cover shrink-0" />
           <span className="font-bold text-[#172033] tracking-tight">AegisAI</span>
         </button>
         <div className="flex items-center gap-2">

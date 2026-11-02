@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, ArrowRight, LogIn } from 'lucide-react';
+import { ArrowRight, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -36,13 +36,11 @@ export const SplashPage: React.FC = () => {
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#101B33] to-transparent" aria-hidden="true" />
 
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#2563EB] flex items-center justify-center shadow-2xl shadow-blue-500/30 animate-[fadeIn_0.6s_ease-out]">
-          <ShieldCheck className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-        </div>
-        <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight">AEGISAI</h1>
-        <p className="mt-3 text-base sm:text-xl text-slate-200 font-medium">
-          One Voice. Four Agents. One Mission.
-        </p>
+        <img
+          src="/logo.svg"
+          alt="AegisAI — One Voice. Four Agents. One Mission."
+          className="w-64 sm:w-80 max-w-full rounded-3xl shadow-2xl shadow-blue-500/30 animate-[fadeIn_0.6s_ease-out]"
+        />
         <p className="mt-3 text-sm sm:text-base text-slate-300 max-w-md leading-relaxed">
           A premium emergency response command centre — coordinate police, medical,
           fire and disaster response from one place.

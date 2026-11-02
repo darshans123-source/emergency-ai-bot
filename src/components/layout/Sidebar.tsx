@@ -7,7 +7,6 @@ import {
   MapPin,
   Ambulance,
   LayoutDashboard,
-  ShieldCheck,
   Bot,
   History,
   Settings,
@@ -22,9 +21,11 @@ import {
 export const AegisEmblem: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const dim = size === 'lg' ? 'w-10 h-10' : size === 'sm' ? 'w-6 h-6' : 'w-8 h-8';
   return (
-    <div className={`${dim} shrink-0 flex items-center justify-center rounded-xl bg-[#2563EB] text-white shadow-sm`}>
-      <ShieldCheck className="w-5 h-5" />
-    </div>
+    <img
+      src="/logo-icon.svg"
+      alt="AegisAI logo"
+      className={`${dim} shrink-0 rounded-xl shadow-sm object-cover`}
+    />
   );
 };
 

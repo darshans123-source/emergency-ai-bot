@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, AlertTriangle, UserPlus, LogIn, Eye, EyeOff, Loader2, User } from 'lucide-react';
+import { AlertTriangle, UserPlus, LogIn, Eye, EyeOff, Loader2, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -98,9 +98,11 @@ export const LocalLoginPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-16 h-16 rounded-3xl bg-white/15 border border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl shadow-blue-900/40">
-            <ShieldCheck className="w-8 h-8 text-white" />
-          </div>
+          <img
+            src="/logo-icon.svg"
+            alt="AegisAI logo"
+            className="w-16 h-16 rounded-3xl shadow-2xl shadow-blue-900/40 object-cover"
+          />
           <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">AEGISAI</h1>
           <p className="mt-1 text-sm text-blue-100">One Voice. Four Agents. One Mission.</p>
         </div>
