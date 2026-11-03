@@ -8,7 +8,6 @@ import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
 import { AGENT_CARDS } from './AgentsPage';
 import { useLanguage } from '../i18n/LanguageContext';
-import { AURORA_CHAT_BG } from '../demo/auroraChatBg';
 
 interface ChatMsg {
   id: string;
@@ -151,7 +150,7 @@ export const AgentChatPage: React.FC = () => {
     try { localStorage.removeItem(`aegis_demo_chat_${resolvedSlug}`); } catch { /* ignore */ }
   };
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-16rem)] sm:h-[calc(100dvh-12rem)] min-h-[420px] text-white rounded-[24px] overflow-hidden shadow-lg shadow-blue-900/20" style={{ backgroundImage: `linear-gradient(rgba(11,13,25,0.72), rgba(11,13,25,0.72)), url(${AURORA_CHAT_BG})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-16rem)] sm:h-[calc(100dvh-12rem)] min-h-[420px] text-white bg-[#071329]/70 backdrop-blur-xl border border-white/15 rounded-[24px] overflow-hidden shadow-lg shadow-blue-900/20">
       <div className={`glass-liquid-strong rounded-t-2xl border-b-0 text-white p-5 sm:p-6 shrink-0 relative overflow-hidden`}>
         <div className={`absolute inset-0 bg-gradient-to-br ${agent.gradient} opacity-40`} aria-hidden="true" />
         <div className="relative flex items-center justify-between gap-2">
