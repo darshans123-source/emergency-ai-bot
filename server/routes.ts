@@ -23,6 +23,7 @@ import {
   routeOperatorCommand
 } from './agents/specializedAgents';
 import { checkAIProviderStatus, SupportedLanguage, extractIncidentParameters } from './aiProviderAdapter';
+import { callGemini, getGeminiConfig, testGeminiConnection } from './gemini';
 
 export const apiRouter = Router();
 
@@ -584,111 +585,38 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
-// AI connection test (POST /api/ai/test). Server-side only.
-// Tests the active provider: OpenRouter first, then Free.ai. An optional
-// `provider` in the body ('openrouter' | 'freeai') forces that provider.
-// If the caller supplies a key in the request body, it is used for this ONE
-// test call only and is never stored, logged or returned. Without a supplied
-// key, the server environment key is tested. A supplied key is NOT saved
-// anywhere: to actually use a provider, its key must be set in the server
-// environment (Vercel Settings -> Environment Variables, or a local .env
-// file) and the deployment redeployed. Returns 503 when no key is available,
-// 502/429/401 when the provider rejects the call. Never returns a key value.
-async function testProviderChat(
-  url: string, key: string, model: string, extraHeaders: Record<string, string>
-): Promise<{ ok: boolean; error?: string; status?: number }> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}`, ...extraHeaders },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: 'You are a connection test. Reply with exactly: OK' },
-          { role: 'user', content: 'Reply with exactly: OK' }
-        ],
-        temperature: 0
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      let detail = '';
-      try { const j: any = await response.json(); detail = j?.error?.message || ''; } catch { /* ignore */ }
-      if (!detail) { try { detail = (await response.text()).slice(0, 200); } catch { /* ignore */ } }
-      return { ok: false, error: `Provider test failed (${response.status}). ${detail}`.trim(), status: response.status };
-    }
-    const data: any = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c.text || '').join('') : '';
-    if (!text.trim()) return { ok: false, error: 'Provider returned an empty response.' };
-    return { ok: true };
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    return { ok: false, error: err?.name === 'AbortError' ? 'Provider test timed out.' : 'Provider test failed. Check the server environment key and retry.' };
-  }
-}
-
+// Gemini connection test (POST /api/ai/test). Server-side only.
+// Tests GEMINI_API_KEY from the server environment, or a caller-supplied key
+// used for this ONE test call only and never stored, logged or returned.
+// A supplied key is NOT saved anywhere: to actually use Gemini, the key must
+// be set in the server environment (Vercel Settings -> Environment Variables,
+// or a local .env file) and the deployment redeployed. Returns 503 when no
+// key is available. Never returns a key value.
 apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
   const suppliedKey = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
-  const hint = typeof req.body?.provider === 'string' ? req.body.provider.toLowerCase() : '';
-  const orEnvKey = process.env.OPENROUTER_API_KEY?.trim() || '';
-  const frEnvKey = process.env.FREE_AI_API_KEY?.trim() || '';
-  let mode: 'openrouter' | 'freeai';
-  if (hint === 'freeai') mode = 'freeai';
-  else if (hint === 'openrouter') mode = 'openrouter';
-  else if (suppliedKey) mode = orEnvKey ? 'openrouter' : frEnvKey ? 'freeai' : 'openrouter';
-  else mode = orEnvKey ? 'openrouter' : frEnvKey ? 'freeai' : 'openrouter';
-  if (mode === 'freeai') {
-    const key = suppliedKey || frEnvKey;
-    if (!key) {
-      res.status(503).json({ error: 'AI Not Configured', message: 'Free.ai is not configured on the server. Set FREE_AI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.' });
-      return;
-    }
-    const model = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
-    const result = await testProviderChat(freeaiChatUrl(process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai'), key, model, {});
-    if (!result.ok) { res.status(result.status === 429 ? 429 : 502).json({ error: 'AI Error', message: result.error }); return; }
-    res.json({ ok: true, provider: 'freeai', model, configured: Boolean(frEnvKey), testedWithProvidedKey: Boolean(suppliedKey) });
+  const result = await testGeminiConnection(suppliedKey || undefined);
+  if (!result.ok) {
+    res.status(result.status || 502).json({ error: 'AI Error', message: result.error });
     return;
   }
-  const key = suppliedKey || orEnvKey;
-  if (!key) {
-    res.status(503).json({ error: 'AI Not Configured', message: 'OpenRouter is not configured on the server. Set OPENROUTER_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.' });
-    return;
-  }
-  const model = process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free';
-  const result = await testProviderChat(openrouterChatUrl(process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1'), key, model, { 'HTTP-Referer': 'https://emergency-ai-bot.vercel.app/', 'X-Title': 'AegisAI', 'X-OpenRouter-Title': 'AegisAI' });
-  if (!result.ok) { res.status(result.status === 429 ? 429 : result.status === 401 ? 401 : 502).json({ error: 'AI Error', message: result.error }); return; }
-  res.json({ ok: true, provider: 'openrouter', model, configured: Boolean(orEnvKey), testedWithProvidedKey: Boolean(suppliedKey) });
+  res.json({ ok: true, provider: 'gemini', model: result.model, configured: result.configured, testedWithProvidedKey: result.testedWithProvidedKey });
 });
 
 // -------------------------------------------------------------
-// AI ENDPOINTS (server-side only, OpenRouter first, then Free.ai, then Qwen/DashScope, then OpenAI)
+// AI ENDPOINTS (server-side only, Google Gemini — the single AI provider)
 // -------------------------------------------------------------
-// Keys are read only from server environment variables:
-//   OPENROUTER_API_KEY (OpenRouter, https://openrouter.ai/api/v1/chat/completions,
-//   model google/gemma-4-26b-a4b-it:free by default, Authorization: Bearer <key>) — used first when set,
-//   FREE_AI_API_KEY (Free.ai, https://api.free.ai/v1/chat/,
-//   model qwen7b by default, Authorization: Bearer <key>) — used first when set,
-//   COHERE_API_KEY (Cohere, https://api.cohere.com/v2/chat,
-//   model command-a-03-2025 by default) — used next when set,
-//   DASHSCOPE_API_KEY (Qwen, via the OpenAI-compatible endpoint
-//   https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1,
-//   model qwen3.8-flash by default, thinking enabled as in the
-//   user-supplied DashScope example) or OPENAI_API_KEY.
+// The single AI key is read only from the server environment variable
+// GEMINI_API_KEY (Google Gemini, model GEMINI_MODEL or gemini-3.8-flash).
 // No key value is ever stored in this repo: a key pasted in chat
 // must be treated as exposed, rotated in the provider dashboard,
 // and the fresh key set directly in Vercel Environment Variables.
-// They are never sent to, or read from, the frontend, never put in
+// It is never sent to, or read from, the frontend, never put in
 // a VITE_ variable, and never committed. When no key is set the
 // endpoints return a clear 503 — never a fake success and never a
-// response pretending to be an AI provider. TTS stays OpenAI-only
-// (see /ai/tts) because DashScope's compatible-mode endpoint does
-// not provide OpenAI's audio/speech API.
+// response pretending to be an AI provider. Voice output in the app
+// uses the browser's built-in speech synthesis, not a server TTS API.
 
-const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
+const AI_AGENTS: Record<string, { name: string; system: string }> = {
   rakshak: {
     name: 'Rakshak AI',
     system:
@@ -711,200 +639,7 @@ const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   }
 };
 
-type ChatProvider = { name: 'cohere' | 'qwen' | 'openai' | 'freeai' | 'openrouter'; key: string; baseUrl: string; model: string };
-
-// OpenRouter: base https://openrouter.ai/api/v1, chat at /chat/completions.
-// Normalises a base that already ends in /chat/completions, or in /v1.
-function openrouterChatUrl(baseUrl: string): string {
-  const base = baseUrl.replace(/\/+$/, '');
-  if (base.endsWith('/chat/completions')) return base;
-  return base.endsWith('/v1') ? `${base}/chat/completions` : `${base}/v1/chat/completions`;
-}
-
-// Returns the provider for one name when its key is set, else null.
-function providerForName(name: string): ChatProvider | null {
-  if (name === 'openrouter') {
-    const key = process.env.OPENROUTER_API_KEY?.trim();
-    if (key) return { name: 'openrouter', key, baseUrl: process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1', model: process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free' };
-  }
-  if (name === 'freeai') {
-    const key = process.env.FREE_AI_API_KEY?.trim();
-    if (key) return { name: 'freeai', key, baseUrl: process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai', model: process.env.FREE_AI_MODEL?.trim() || 'qwen7b' };
-  }
-  return null;
-}
-
-// Free.ai docs (https://free.ai/docs/): base https://api.free.ai, chat at /v1/chat/.
-// If FREE_AI_API_URL already ends in /v1, the chat path is /chat/ instead.
-function freeaiChatUrl(baseUrl: string): string {
-  const base = baseUrl.replace(/\/+$/, '');
-  return base.endsWith('/v1') ? `${base}/chat/` : `${base}/v1/chat/`;
-}
-
-function getChatProvider(hint?: string): ChatProvider | null {
-  if (hint) {
-    const hinted = providerForName(hint.toLowerCase());
-    if (hinted) return hinted;
-    // Hinted provider has no key: fall through to the chain below so the
-    // caller still gets a real provider (labelled by its actual name).
-  }
-  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
-  if (openRouterKey) {
-    return { name: 'openrouter', key: openRouterKey, baseUrl: process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1', model: process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free' };
-  }
-  const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
-  if (freeAiKey) {
-    return { name: 'freeai', key: freeAiKey, baseUrl: process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai', model: process.env.FREE_AI_MODEL?.trim() || 'qwen7b' };
-  }
-  const cohereKey = process.env.COHERE_API_KEY?.trim();
-  if (cohereKey) {
-    return { name: 'cohere', key: cohereKey, baseUrl: 'https://api.cohere.com/v2', model: process.env.COHERE_MODEL?.trim() || 'command-a-03-2025' };
-  }
-  const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
-  if (dashKey) {
-    return {
-      name: 'qwen',
-      key: dashKey,
-      baseUrl: process.env.DASHSCOPE_BASE_URL?.trim() || 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1',
-      model: process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash'
-    };
-  }
-  const openKey = process.env.OPENAI_API_KEY?.trim();
-  if (openKey) {
-    return { name: 'openai', key: openKey, baseUrl: 'https://api.openai.com/v1', model: process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini' };
-  }
-  return null;
-}
-
-async function callOpenAIChat(
-  system: string,
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
-  hint?: string
-): Promise<string> {
-  const provider = getChatProvider(hint);
-  if (!provider) {
-    const err: any = new Error('AI is not configured on the server. Set OPENROUTER_API_KEY, FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
-    err.status = 503;
-    throw err;
-  }
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-  try {
-    if (provider.name === 'openrouter') {
-      // OpenRouter is OpenAI-compatible: { model, messages } in,
-      // choices[0].message.content out. HTTP-Referer / X-Title are the
-      // optional attribution headers OpenRouter documents.
-      const response = await fetch(openrouterChatUrl(provider.baseUrl), {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}`, 'HTTP-Referer': 'https://emergency-ai-bot.vercel.app/', 'X-Title': 'AegisAI', 'X-OpenRouter-Title': 'AegisAI' },
-        body: JSON.stringify({
-          model: provider.model,
-          messages: [{ role: 'system', content: system }, ...messages],
-          temperature: 0.3
-        })
-      });
-      if (!response.ok) {
-        let detail = '';
-        try { const j: any = await response.json(); detail = j?.error?.message || ''; } catch { /* ignore */ }
-        if (!detail) { try { detail = (await response.text()).slice(0, 200); } catch { /* ignore */ } }
-        const err: any = new Error(
-          response.status === 429 ? 'OpenRouter rate limit reached. Please wait a moment and retry.'
-          : response.status === 401 ? 'OpenRouter key is missing or invalid. Check OPENROUTER_API_KEY in the server environment.'
-          : response.status === 402 ? 'OpenRouter credits are exhausted. Add credits or switch to a free model.'
-          : response.status === 404 ? `OpenRouter model not found (${provider.model}). Set OPENROUTER_MODEL to a model from the live OpenRouter models list.`
-          : `openrouter request failed (${response.status}). ${detail}`.trim()
-        );
-        err.status = response.status === 429 || response.status === 401 || response.status === 402 ? response.status : 502;
-        throw err;
-      }
-      const data: any = await response.json();
-      const msg = data.choices?.[0]?.message?.content;
-      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : '';
-      if (!content || !content.trim()) throw new Error('openrouter returned an empty response.');
-      return content.trim();
-    }
-    if (provider.name === 'freeai') {
-      // Free.ai is OpenAI-compatible: { model, messages } in, choices[0].message.content out.
-      const response = await fetch(freeaiChatUrl(provider.baseUrl), {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
-        body: JSON.stringify({
-          model: provider.model,
-          messages: [{ role: 'system', content: system }, ...messages],
-          temperature: 0.3
-        })
-      });
-      if (!response.ok) {
-        const body = await response.text().catch(() => '');
-        const err: any = new Error(`freeai request failed (${response.status}). ${body.slice(0, 200)}`);
-        err.status = 502;
-        throw err;
-      }
-      const data: any = await response.json();
-      const msg = data.choices?.[0]?.message?.content;
-      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : '';
-      if (!content || !content.trim()) throw new Error('freeai returned an empty response.');
-      return content.trim();
-    }
-    if (provider.name === 'cohere') {
-      const response = await fetch(`${provider.baseUrl}/chat`, {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
-        body: JSON.stringify({
-          model: provider.model,
-          messages: [{ role: 'system', content: system }, ...messages],
-          temperature: 0.3
-        })
-      });
-      if (!response.ok) {
-        const body = await response.text().catch(() => '');
-        const err: any = new Error(`cohere request failed (${response.status}). ${body.slice(0, 200)}`);
-        err.status = 502;
-        throw err;
-      }
-      const data: any = await response.json();
-      const msg = data.message?.content;
-      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : data.text || data.generations?.[0]?.text;
-      if (!content || !content.trim()) throw new Error('cohere returned an empty response.');
-      return content.trim();
-    }
-    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
-      body: JSON.stringify({
-        model: provider.model,
-        messages: [{ role: 'system', content: system }, ...messages],
-        temperature: 0.3,
-        ...(provider.name === 'qwen' ? { extra_body: { enable_thinking: true } } : {})
-      })
-    });
-    if (!response.ok) {
-      const body = await response.text().catch(() => '');
-      const err: any = new Error(`${provider.name} request failed (${response.status}). ${body.slice(0, 200)}`);
-      err.status = 502;
-      throw err;
-    }
-    const data: any = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content || !content.trim()) throw new Error(`${provider.name} returned an empty response.`);
-    return content.trim();
-  } catch (err: any) {
-    if (err?.name === 'AbortError') {
-      const e: any = new Error('AI request timed out. Please retry.');
-      e.status = 504;
-      throw e;
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-function openaiError(res: Response, err: any) {
+function geminiError(res: Response, err: any) {
   const status = err?.status || 502;
   res.status(status).json({
     error: status === 503 ? 'AI Not Configured' : 'AI Error',
@@ -912,11 +647,12 @@ function openaiError(res: Response, err: any) {
   });
 }
 
-// Dedicated OpenAI chat for the four named agents (Rakshak / Jeevan / Agni / Sanrakshak)
+// Dedicated Gemini chat for the four named agents (Rakshak / Jeevan / Agni / Sanrakshak)
+// (Route path /ai/openai is kept under its historic name so existing callers keep working; the backend is Gemini-only.)
 apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) => {
-  const { agent, message, history, incidentId, provider: providerHint } = req.body || {};
-  const key = (typeof agent === 'string' ? agent.toLowerCase() : '') as keyof typeof OPENAI_AGENTS;
-  const agentDef = OPENAI_AGENTS[key];
+  const { agent, message, history, incidentId } = req.body || {};
+  const key = (typeof agent === 'string' ? agent.toLowerCase() : '') as keyof typeof AI_AGENTS;
+  const agentDef = AI_AGENTS[key];
   if (!agentDef || !message || typeof message !== 'string' || !message.trim()) {
     res.status(400).json({ error: 'Validation Error', message: 'A valid agent (rakshak, jeevan, agni, sanrakshak) and a non-empty message are required.' });
     return;
@@ -926,17 +662,17 @@ apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) =>
     const context = incident
       ? `Live incident context from the database (do not invent details beyond this): ${incident.id}, ${incident.title}, category ${incident.category}, priority ${incident.priority}, status ${incident.status}, location ${incident.location.address}, description: ${incident.description}.`
       : 'No specific incident is selected. Answer generally and ask for location/category if needed to help.';
-    const reply = await callOpenAIChat(agentDef.system, [
+    const reply = await callGemini(agentDef.system, [
       ...(Array.isArray(history) ? history.slice(-6).map((m: any) => ({ role: m.role === 'user' ? ('user' as const) : ('assistant' as const), content: String(m.content || '').slice(0, 500) })) : []),
       { role: 'user' as const, content: `${context}\n\nUser message: ${message.trim()}` }
-    ], typeof providerHint === 'string' ? providerHint : undefined);
-    res.json({ agent: key, agentName: agentDef.name, reply, provider: getChatProvider(typeof providerHint === 'string' ? providerHint : undefined)?.name || 'openai', timestamp: new Date().toISOString() });
+    ]);
+    res.json({ agent: key, agentName: agentDef.name, reply, provider: 'gemini', timestamp: new Date().toISOString() });
   } catch (err: any) {
-    openaiError(res, err);
+    geminiError(res, err);
   }
 });
 
-// Emergency report summarization / incident analysis / recommendations (OpenAI only)
+// Emergency report summarization / incident analysis / recommendations (Gemini)
 apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response) => {
   const { incidentId, text, task } = req.body || {};
   const input = incidentId ? dbService.getIncidentById(incidentId) : null;
@@ -956,17 +692,17 @@ apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response)
         ? 'Give practical emergency response recommendations for this report: which response units and facilities are relevant, and what the caller should do now. Do not claim any unit has been dispatched.'
         : 'Summarize this emergency report in 3-5 short, clear sentences for a dispatcher.';
   try {
-    const reply = await callOpenAIChat(
+    const reply = await callGemini(
       'You are an emergency dispatch assistant. Be concise, factual and calm. Never invent locations, units, times or outcomes. State when information is missing.',
       [{ role: 'user', content: `${taskText}\n\nReport: ${sourceText.slice(0, 4000)}` }]
     );
-    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: getChatProvider()?.name || 'openai' });
+    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: 'gemini' });
   } catch (err: any) {
-    openaiError(res, err);
+    geminiError(res, err);
   }
 });
 
-// Natural-language incident search: real DB search + optional OpenAI summary
+// Natural-language incident search: real DB search + optional Gemini summary
 apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) => {
   const { query } = req.body || {};
   if (!query || typeof query !== 'string' || !query.trim()) {
@@ -985,9 +721,9 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
     .slice(0, 20);
   let summary: string | null = null;
   let summaryNotice: string | null = null;
-  if (matches.length > 0 && getChatProvider()) {
+  if (matches.length > 0 && getGeminiConfig()) {
     try {
-      summary = await callOpenAIChat(
+      summary = await callGemini(
         'You are an emergency dispatch assistant. Summarize search results factually, without inventing incidents.',
         [
           {
@@ -1001,48 +737,10 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
     } catch {
       summaryNotice = 'AI summary unavailable: AI request failed. Matches below are from the live database.';
     }
-  } else if (!getChatProvider()) {
-    summaryNotice = 'AI summary unavailable: no AI key is configured on the server. Matches below are from the live database.';
+  } else if (!getGeminiConfig()) {
+    summaryNotice = 'AI summary unavailable: no Gemini key is configured on the server. Matches below are from the live database.';
   }
   res.json({ query: query.trim(), total: matches.length, incidents: matches, summary, summaryNotice });
-});
-
-// OpenAI text-to-speech (server-side only, returns audio/mpeg)
-apiRouter.post('/ai/tts', async (req: AuthenticatedRequest, res: Response) => {
-  const { text, voice } = req.body || {};
-  if (!text || typeof text !== 'string' || !text.trim()) {
-    res.status(400).json({ error: 'Validation Error', message: 'Text to speak is required.' });
-    return;
-  }
-  const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) {
-    res.status(503).json({ error: 'OpenAI Not Configured', message: 'OpenAI is not configured on the server. Set OPENAI_API_KEY in the server environment.' });
-    return;
-  }
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({
-        model: process.env.OPENAI_TTS_MODEL?.trim() || 'tts-1',
-        input: text.trim().slice(0, 4000),
-        voice: typeof voice === 'string' && voice ? voice : 'alloy'
-      })
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      res.status(502).json({ error: 'OpenAI Error', message: `OpenAI speech request failed (${response.status}).` });
-      return;
-    }
-    const buffer = Buffer.from(await response.arrayBuffer());
-    res.setHeader('Content-Type', 'audio/mpeg');
-    res.send(buffer);
-  } catch (err: any) {
-    openaiError(res, err);
-  }
 });
 
 // Voice-based incident report creation (POST /api/ai/voice-report)

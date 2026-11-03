@@ -2,7 +2,6 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2, MapPin, Mic, KeyRound } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { getAiSource, setAiSource, type AiSource } from '../demo/aiSource';
 import { api } from '../services/api';
 import { dispatchReplayWelcome, isWelcomeVoiceEnabled, setWelcomeVoiceEnabled } from '../demo/welcomeVoice';
 import { getLaunchPermissions, requestLaunchPermissions, type LaunchPermissions as LaunchPerms } from '../demo/launchPermissions';
@@ -23,7 +22,6 @@ export const SettingsPage: React.FC = () => {
   // AI API Configuration — server status only. No key is ever stored here:
   // the key lives only in the server environment. The optional test key
   // below is used for ONE test call and then cleared from this page.
-  const [aiSource, setAiSourceState] = useState<AiSource>(() => getAiSource());
   const [aiStatus, setAiStatus] = useState<{ provider: string; model: string; isExternalConfigured: boolean; status: string; message: string } | null>(null);
   const [aiStatusError, setAiStatusError] = useState<string | null>(null);
   const [testKey, setTestKey] = useState('');
@@ -38,8 +36,7 @@ export const SettingsPage: React.FC = () => {
     setTesting(true);
     setTestResult(null);
     try {
-      const testProvider = aiStatus && (aiStatus.provider === 'openrouter' || aiStatus.provider === 'freeai') ? aiStatus.provider : undefined;
-      const res = await api.testFreeAI(testKey.trim() || undefined, testProvider);
+      const res = await api.testGemini(testKey.trim() || undefined);
       setTestResult(`Connection works: ${res.provider}, model ${res.model}. ${res.testedWithProvidedKey ? 'This key was NOT saved — paste it in the server environment (below) and redeploy to actually use it.' : 'The server environment key works.'}`);
     } catch (e: any) {
       setTestResult(`Connection failed: ${e?.message || 'Unknown error.'} No key was saved.`);
@@ -230,11 +227,7 @@ export const SettingsPage: React.FC = () => {
           <KeyRound className="w-5 h-5 text-[#2563EB]" /> AI API Configuration
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Free.ai is connected through the backend only. The key is never stored in this browser,
-          in frontend code, in logs or in GitHub. This page only shows the server&apos;s status and
-          can test a key once — it cannot save a key. Saving happens in the server environment
-          (see below), then the app is redeployed.
-        </p>
+          Google Gemini is connected through the backend only. The key is never stored in this browser, </p>
         <dl className="mt-4 space-y-3 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-[#64748B]">Server AI provider</dt>
@@ -252,16 +245,16 @@ export const SettingsPage: React.FC = () => {
           )}
         </dl>
         <div className="mt-5">
-          <label className="block text-sm font-semibold text-[#172033]" htmlFor="freeai-test-key">
-            Test an AI key (optional, not saved)
+          <label className="block text-sm font-semibold text-[#172033]" htmlFor="gemini-test-key">
+            Test a Gemini key (optional, not saved)
           </label>
           <input
-            id="freeai-test-key"
+            id="gemini-test-key"
             type="password"
             autoComplete="off"
             value={testKey}
             onChange={(e) => setTestKey(e.target.value)}
-            placeholder="Leave empty to test the server key, or paste a key here only to test it (tested against the active provider above)"
+            placeholder="Leave empty to test the server key, or paste a Gemini key here only to test it"
             className="mt-2 w-full min-h-12 px-3.5 rounded-xl border border-slate-300 bg-white text-sm text-[#172033] focus:outline-none focus:border-[#2563EB]"
           />
           <p className="mt-1.5 text-xs text-[#64748B]">
@@ -278,21 +271,12 @@ export const SettingsPage: React.FC = () => {
           </button>
           {testResult && (<p className="mt-3 text-sm text-[#172033] leading-relaxed">{testResult}</p>)}
         </div>
-        <div className="mt-5">
-          <p className="text-sm font-semibold text-[#172033]">Preferred AI source for Mitra and the four agents</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button type="button" onClick={() => { setAiSource('local'); setAiSourceState('local'); }} className={`min-h-11 px-4 rounded-xl border text-sm font-semibold ${aiSource === 'local' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-[#172033] border-slate-300 hover:bg-slate-50'}`}>Local engine</button>
-            <button type="button" onClick={() => { setAiSource('freeai'); setAiSourceState('freeai'); }} className={`min-h-11 px-4 rounded-xl border text-sm font-semibold ${aiSource === 'freeai' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-[#172033] border-slate-300 hover:bg-slate-50'}`}>Free.ai (via backend)</button>
-            <button type="button" onClick={() => { setAiSource('openrouter'); setAiSourceState('openrouter'); }} className={`min-h-11 px-4 rounded-xl border text-sm font-semibold ${aiSource === 'openrouter' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-[#172033] border-slate-300 hover:bg-slate-50'}`}>OpenRouter (via backend)</button>
-          </div>
-          <p className="mt-1.5 text-xs text-[#64748B]">Local engine works with no key and answers instantly. Free.ai / OpenRouter are used only when the matching server key is set; otherwise chats fall back to the local engine. If you have never picked a source, the app adopts the server&apos;s active provider automatically.</p>
-        </div>
         <div className="mt-5 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm leading-relaxed text-[#172033]">
-          <p className="font-bold">Where to paste your actual Free.ai key</p>
-          <p className="mt-2"><span className="font-semibold">On Vercel (live site) — OpenRouter:</span> Vercel dashboard → project <span className="font-mono text-xs">emergency-ai-bot</span> → Settings → Environment Variables → Add New → Name <span className="font-mono text-xs">OPENROUTER_API_KEY</span>, Value = your OpenRouter key, Environment = Production (tick Preview too if you want previews) → Save → Deployments → Redeploy the latest deployment. Optional: <span className="font-mono text-xs">OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free</span> (default free model, verified against the live OpenRouter models list on 2026-11-03; free models rotate, so change this if OpenRouter reports it as not found) and <span className="font-mono text-xs">OPENROUTER_BASE_URL=https://openrouter.ai/api/v1</span> (default).</p>
-          <p className="mt-2"><span className="font-semibold">On Vercel (live site) — Free.ai:</span> same steps, Name <span className="font-mono text-xs">FREE_AI_API_KEY</span>, Value = your fresh Free.ai key, Environment = Production. Optional: <span className="font-mono text-xs">FREE_AI_MODEL=qwen7b</span> (default) and <span className="font-mono text-xs">FREE_AI_API_URL=https://api.free.ai</span> (default). When both keys are set, OpenRouter is used first.</p>
-          <p className="mt-2"><span className="font-semibold">Locally:</span> in your copy of the repo, create <span className="font-mono text-xs">.env</span> at the repo root (same folder as <span className="font-mono text-xs">server.ts</span>) and add the line <span className="font-mono text-xs">OPENROUTER_API_KEY=your-openrouter-key</span> (and/or <span className="font-mono text-xs">FREE_AI_API_KEY=your-fresh-key</span>). That file is gitignored and is never committed — do not copy it into <span className="font-mono text-xs">.env.example</span>, which must keep only placeholders.</p>
-          <p className="mt-2 text-amber-800"><span className="font-semibold">Security:</span> never paste a real key in chat, in this Settings box to &quot;save&quot; it, or in any file you commit. A key shared in chat must be treated as exposed: generate a fresh key in Free.ai and delete the shared one.</p>
+          <p className="font-bold">Where to paste your Gemini key</p>
+          <p className="mt-2">Google Gemini is the single AI provider for Mitra and all four agents (Rakshak — police, Jeevan — medical, Agni — fire, Sanrakshak — disaster). There is no provider selector and no other provider to configure.</p>
+          <p className="mt-2"><span className="font-semibold">On Vercel (live site):</span> Vercel dashboard → project <span className="font-mono text-xs">emergency-ai-bot</span> → Settings → Environment Variables → Add New → Name <span className="font-mono text-xs">GEMINI_API_KEY</span>, Value = your Gemini key, Environment = Production (tick Preview too if you want previews) → Save → Deployments → Redeploy the latest deployment. Optional: <span className="font-mono text-xs">GEMINI_MODEL=gemini-3.8-flash</span> (default, a currently supported Flash model; change it only if Gemini reports that model as unavailable).</p>
+          <p className="mt-2"><span className="font-semibold">Locally:</span> in your copy of the repo, create <span className="font-mono text-xs">.env</span> at the repo root (same folder as <span className="font-mono text-xs">server.ts</span>) and add the line <span className="font-mono text-xs">GEMINI_API_KEY=your-gemini-key</span>. That file is gitignored and is never committed — do not copy it into <span className="font-mono text-xs">.env.example</span>, which must keep only the placeholder.</p>
+          <p className="mt-2 text-amber-800"><span className="font-semibold">Security:</span> never paste a real key in chat, in this Settings box to &quot;save&quot; it, or in any file you commit. A key shared in chat must be treated as exposed: generate a fresh key in Google AI Studio and delete the shared one. If Gemini is unavailable, chats show a clear error — no substitute answer is given.</p>
         </div>
       </section>
 

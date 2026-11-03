@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Send, Mic, MicOff, Bot } from 'lucide-react';
 import { AGENT_META } from '../../demo/demoAiEngine';
@@ -6,10 +6,9 @@ import { routeToAgentStructured } from '../../demo/aegisEngine';
 import { speakText, stopSpeaking, startRecognition, recognitionSupported, detectSpeechLang } from '../../demo/speech';
 import { VoiceControls } from './VoiceControls';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { getAiSource, adoptServerAiSource } from '../../demo/aiSource';
 import { api } from '../../services/api';
 
-interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; source?: 'local' | 'freeai' | 'openrouter'; }
+interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; source?: 'local' | 'freeai' | 'openrouter' | 'gemini' | 'error'; }
 export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { t, lang } = useLanguage();
@@ -17,38 +16,38 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [mitraSending, setMitraSending] = useState(false);
-  useEffect(() => {
-    if (open) adoptServerAiSource(() => api.getAIStatus()).catch(() => {});
-  }, [open]);
+
   const recRef = useRef<any>(null);
   if (!open) return null;
   const send = async (raw?: string, fromVoice = false) => {
     const content = (raw ?? input).trim();
     if (!content) return;
     setInput('');
-    const { agent, mitraText } = routeToAgentStructured(content, lang);
+    const { agent } = routeToAgentStructured(content, lang);
     // Mitra always routes locally first. When Free.ai is selected in
     // Settings, the answer itself comes from Free.ai via the backend
     // (the server holds the key); any failure falls back to the local
     // routing text so Mitra never goes silent.
-    let replyText = mitraText;
-    let source: 'local' | 'freeai' | 'openrouter' = 'local';
-    const chosen = getAiSource();
-    if (chosen !== 'local') {
-      setMitraSending(true);
-      try {
-        const live = await api.openaiChat({ agent, message: content, provider: chosen }, 10000);
-        replyText = live.reply;
-        source = live.provider === 'openrouter' ? 'openrouter' : 'freeai';
-      } catch {
-        // keep the local routing text so Mitra never goes silent
-      } finally {
-        setMitraSending(false);
-      }
+    // Gemini is the single provider. The local routing above only picks
+    // which agent's instructions the server uses — it never supplies the
+    // answer. On any Gemini failure an error message is shown instead of
+    // a local reply, so a local answer is never presented as AI.
+    let replyText: string | null = null;
+    let source: 'gemini' | 'error' = 'gemini';
+    setMitraSending(true);
+    try {
+      const live = await api.geminiChat({ agent, message: content }, 10000);
+      replyText = live.reply;
+    } catch (err: any) {
+      source = 'error';
+      replyText = `Gemini is unavailable (${err?.message || 'server error'}). No answer has been substituted — check GEMINI_API_KEY in Settings.`;
+    } finally {
+      setMitraSending(false);
     }
-    const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: replyText, agent, source };
+    const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: replyText || '', agent, source };
     setMessages((p) => [...p, { id: `u-${Date.now()}`, role: 'user', content }, reply]);
-    if (fromVoice) speakText(replyText, detectSpeechLang(replyText));
+    if (fromVoice && source === 'gemini') speakText(replyText || '', detectSpeechLang(replyText || ''));
+    if (fromVoice && source === 'error') speakText('Gemini is unavailable. Please try again.', detectSpeechLang(replyText || ''));
   };
   const toggleMic = () => {
     if (listening) { recRef.current?.stop(); setListening(false); return; }
@@ -75,7 +74,8 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === 'user' ? 'mitra-chrome text-white rounded-br-md' : 'glass-liquid-input text-white rounded-bl-md'}`}>
                 <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                {m.role === 'mitra' && (m.source === 'freeai' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Free.ai'} reply · decision support only, call 112 for real emergencies</p>)}
+                {m.role === 'mitra' && m.source === 'gemini' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Gemini reply · decision support only, call 112 for real emergencies</p>)}
+                {m.role === 'mitra' && m.source === 'error' && (<p className="mt-1.5 text-[11px] font-semibold text-rose-300">Gemini error — no substitute answer given</p>)}
                 {m.role === 'mitra' && <VoiceControls text={m.content} lang={lang} />}
                 {m.role === 'mitra' && m.agent && (
                   <button type="button" onClick={() => { stopSpeaking(); onClose(); navigate(`/agents/${m.agent}`); }} className="mt-2 min-h-10 px-3 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold">Open {AGENT_META[m.agent].name} →</button>
