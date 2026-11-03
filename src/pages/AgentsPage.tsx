@@ -66,7 +66,7 @@ export const AgentsPage: React.FC = () => {
   const [loading] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto text-[#172033]">
+    <div className="space-y-6 max-w-7xl mx-auto text-slate-100">
       <div className="rounded-[24px] bg-gradient-to-br from-[#0B1E46] via-[#143A75] to-[#2563EB] p-6 sm:p-8 text-white shadow-lg shadow-blue-900/20">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
           <Bot className="w-7 h-7 text-cyan-300" /> <span>{t('agents.title')}</span>
@@ -85,7 +85,7 @@ export const AgentsPage: React.FC = () => {
         {loading
           ? [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
           : AGENT_CARDS.map((agent) => (
-              <article key={agent.slug} className="bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition rounded-[24px] overflow-hidden flex flex-col h-full">
+              <article key={agent.slug} className="agent-card-dark hover:-translate-y-0.5 transition rounded-[24px] overflow-hidden flex flex-col h-full">
                 <div className={`h-24 bg-gradient-to-br ${agent.gradient} flex items-end p-4`}>
                   <span className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm">
                     {agent.icon}
@@ -93,15 +93,15 @@ export const AgentsPage: React.FC = () => {
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-bold text-slate-900">{agent.name}</h2>
-                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 shrink-0">Ready</span>
+                    <h2 className="font-bold text-white">{agent.name}</h2>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 shrink-0">Ready</span>
                   </div>
                   <p className={`mt-1 text-xs font-semibold ${agent.accent}`}>{agents[agent.slug]?.sector || agent.sector}</p>
-                  <p className="mt-2 text-sm text-slate-600 leading-relaxed flex-1">{agents[agent.slug]?.description || agent.description}</p>
+                  <p className="mt-2 text-sm text-slate-300 leading-relaxed flex-1">{agents[agent.slug]?.description || agent.description}</p>
                   <button
                     type="button"
                     onClick={() => navigate(`/agents/${agent.slug}`)}
-                    className="mt-auto min-h-11 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
+                    className="mt-auto min-h-11 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:brightness-110 text-white text-sm font-semibold transition inline-flex items-center justify-center gap-1.5"
                   >
                     {t('agents.open_agent')} <ArrowRight className="w-4 h-4" />
                   </button>
@@ -111,7 +111,7 @@ export const AgentsPage: React.FC = () => {
       </div>
 
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-400">
         The older specialised-agent hub (police, hospital, water, power) is still available at{' '}
         <button type="button" onClick={() => navigate('/agents/legacy/POLICE_TACTICAL')} className="font-semibold text-blue-600 hover:underline">
           Legacy agent hub

@@ -110,7 +110,7 @@ export const CommandCenterPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-[#172033]">
+    <div className="space-y-4 max-w-7xl mx-auto min-w-0 text-slate-100">
       {/* Compact welcome banner — white, no large gradient */}
       <section className="rounded-[24px] bg-gradient-to-br from-[#0B1E46] via-[#143A75] to-[#2563EB] border border-blue-900/20 shadow-lg shadow-blue-900/20 p-4 sm:p-6 flex flex-col overflow-hidden relative sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -129,24 +129,24 @@ export const CommandCenterPage: React.FC = () => {
       {/* AI Agents — single column on small screens, 2 on tablets, 4 on desktop */}
       <section aria-label="AI agents">
         <div className="flex items-center justify-between gap-3 mb-2.5 px-0.5">
-          <h2 className="text-lg font-extrabold tracking-tight text-slate-900">{t('dash.ai_agents')}</h2>
-          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline shrink-0 min-h-10">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
+          <h2 className="text-lg font-extrabold tracking-tight text-white">{t('dash.ai_agents')}</h2>
+          <button type="button" onClick={() => navigate('/agents')} className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 hover:underline shrink-0 min-h-10">{t('dash.view_all')} <ArrowRight className="w-4 h-4" /></button>
         </div>
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{[0, 1, 2, 3].map((i) => (<Skeleton key={i} className="h-44" />))}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {agentCards.map((a) => (
-              <article key={a.slug} className={`rounded-[24px] bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-200 p-5 flex flex-col min-w-0 h-full transition`}>
+              <article key={a.slug} className="agent-card-dark rounded-[24px] hover:-translate-y-0.5 p-5 flex flex-col min-w-0 h-full transition">
                 <div className="flex items-center justify-between gap-2">
                   <span className={`w-10 h-10 rounded-xl ${a.chip} flex items-center justify-center shrink-0`}>{a.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-center leading-tight">{a.status}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold px-2 py-1 rounded-full bg-white/10 border border-white/20 text-slate-200 text-center leading-tight">{a.status}</span>
                 </div>
-                <h3 className="mt-3 text-sm font-bold text-slate-900">{a.name}</h3>
-                <p className="text-xs font-medium text-blue-600">{a.role}</p>
-                <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{a.desc}</p>
-                <p className="mt-2 mb-3 text-xs text-slate-600 leading-relaxed"><span className="font-semibold text-slate-900">Task: </span>{a.task}</p>
-                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto min-h-11 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
+                <h3 className="mt-3 text-sm font-bold text-white">{a.name}</h3>
+                <p className="text-xs font-medium text-cyan-300">{a.role}</p>
+                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">{a.desc}</p>
+                <p className="mt-2 mb-3 text-xs text-slate-300 leading-relaxed"><span className="font-semibold text-white">Task: </span>{a.task}</p>
+                <button type="button" onClick={() => navigate(`/agents/${a.slug}`)} className="mt-auto min-h-11 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:brightness-110 text-white text-sm font-semibold transition">{t('dash.open_agent')}</button>
               </article>
             ))}
           </div>
