@@ -17,7 +17,7 @@ const BOTTOM_NAV = [
 ];
 
 const MORE_ITEMS = [
-  { to: '/3d', labelKey: 'menu.tactical_3d', icon: Box },
+  { to: '/tactical-3d', labelKey: 'menu.tactical_3d', icon: Box },
   { to: '/resources', labelKey: 'menu.fleet_resources', icon: Layers },
   { to: '/history', labelKey: 'menu.mission_history', icon: History },
   { to: '/settings', labelKey: 'menu.settings', icon: Settings },

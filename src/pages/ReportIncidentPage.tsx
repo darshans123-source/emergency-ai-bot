@@ -326,7 +326,7 @@ export const ReportIncidentPage: React.FC = () => {
           <p><span className="font-medium text-slate-500">Category:</span> {category.replace('_', ' ')}</p>
           <p><span className="font-medium text-slate-500">Location:</span> {address || 'Coordinates only'}</p>
           <p><span className="font-medium text-slate-500">Coordinates:</span> {typeof latitude === 'number' ? `${latitude}, ${longitude}` : 'Unverified'}</p>
-          <p><span className="font-medium text-slate-500">Status:</span> Triaged and dispatched to AI Emergency Response Agents</p>
+          <p><span className="font-medium text-slate-500">Status:</span> Recorded in the local demo list (simulated — no real dispatch has been made. For real emergencies, call 112.)</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

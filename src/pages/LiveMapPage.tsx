@@ -702,7 +702,7 @@ export const LiveMapPage: React.FC = () => {
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #334155; padding-top: 6px;">
               <span style="color: #64748b; font-size: 10px;">${inc.id}</span>
-              <a href="#/incidents/${inc.id}" style="color: #38bdf8; font-weight: 600; text-decoration: underline; font-size: 11px;">
+              <a href="/incidents/${inc.id}" style="color: #38bdf8; font-weight: 600; text-decoration: underline; font-size: 11px;">
                 Full Dossier &rarr;
               </a>
             </div>

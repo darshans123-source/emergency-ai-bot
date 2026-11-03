@@ -117,7 +117,7 @@ export const CommandCenterPage: React.FC = () => {
           <img src="/logo-icon.svg" alt="AegisAI" className="logo-glow w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
-            <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
+            <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call <a href="tel:112" className="font-semibold text-cyan-300 underline underline-offset-2">112</a> / 911 for life-threatening emergencies.</p>
             <p className="mt-1 text-xs text-blue-200">{t('dash.simulated_data')} · For real emergencies, call 112.</p>
           </div>
         </div>

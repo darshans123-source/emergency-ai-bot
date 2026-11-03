@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { AppLayout } from './components/layout/AppLayout';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { WelcomeVoice } from './components/demo/WelcomeVoice';
 import { SplashPage } from './pages/SplashPage';
 import { LocalLoginPage } from './pages/LocalLoginPage';
@@ -52,6 +54,36 @@ const PageLoading: React.FC = () => (
   </div>
 );
 
+
+// Meaningful page titles + meta descriptions per route (previously every
+// page shared the single index.html title). Runs inside BrowserRouter so
+// it can read the current location. Unknown routes keep the 404 title.
+const PAGE_META: Record<string, { title: string; description: string }> = {
+  '/': { title: 'AegisAI Command Centre', description: 'AegisAI emergency command centre: four demo AI agents, incidents, live map and resources. Decision support only, simulated data — call 112 for real emergencies.' },
+  '/agents': { title: 'AegisAI Agents', description: 'Rakshak, Jeevan, Agni and Sanrakshak AI agents — police, medical, fire and disaster demo assistance. Simulated data, not real dispatch.' },
+  '/incidents': { title: 'AegisAI Incidents', description: 'Incident queue and demo incident records for AegisAI. Simulated data — call 112 for real emergencies.' },
+  '/report': { title: 'Report Emergency — AegisAI', description: 'Report an emergency incident in the AegisAI demo. Records are simulated and no real service is contacted — call 112 for real emergencies.' },
+  '/map': { title: 'Live Map — AegisAI', description: 'Live operations map with demo incidents, units and facilities for AegisAI. Simulated data.' },
+  '/tactical-3d': { title: '3D Tactical View — AegisAI', description: '3D tactical view for AegisAI demo incidents and resources. Simulated data.' },
+  '/resources': { title: 'Fleet & Resources — AegisAI', description: 'Demo fleet, units, hospitals and stations for AegisAI. Simulated data — call 112 for real emergencies.' },
+  '/history': { title: 'Mission History — AegisAI', description: 'Mission history and recent demo activity for AegisAI. Simulated data.' },
+  '/settings': { title: 'Settings — AegisAI', description: 'AegisAI profile, session and welcome voice settings. Nothing here is stored on a server by this page.' },
+  '/profile': { title: 'Profile — AegisAI', description: 'Your local AegisAI profile. Stored only in this browser.' },
+  '/login': { title: 'Login — AegisAI', description: 'Sign in to AegisAI with your name and 4-digit PIN (local prototype profile, this browser only).' },
+  '/splash': { title: 'AegisAI — One Voice. Four Agents. One Mission.', description: 'AegisAI: One Voice. Four Agents. One Mission. Premium emergency response command centre — decision support only, simulated demo data.' },
+};
+const RouteTitle: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const key = pathname.startsWith('/agents/') ? '/agents' : pathname.startsWith('/incidents/') ? '/incidents' : pathname;
+    const meta = PAGE_META[key] || { title: 'Page Not Found — AegisAI', description: 'This AegisAI page does not exist. Return to the Command Centre or call 112 for a real emergency.' };
+    document.title = `${meta.title} | AegisAI`;
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute('content', meta.description);
+  }, [pathname]);
+  return null;
+};
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRoles?: string[] }> = ({
   children,
   requiredRoles
@@ -89,6 +121,7 @@ export default function App() {
       <AuthProvider>
         <LanguageProvider>
         <NotificationProvider>
+          <RouteTitle />
           <WelcomeVoice />
           <Suspense fallback={<PageLoading />}>
             <Routes>
@@ -127,7 +160,7 @@ export default function App() {
                 />
               </Route>
 
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </NotificationProvider>
