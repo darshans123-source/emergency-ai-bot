@@ -46,9 +46,12 @@ export const AppLayout: React.FC = () => {
       <AuroraBackground />
       <div className="relative z-10 flex min-h-[100dvh] w-full">
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapse} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
-      <div className="flex flex-col flex-1 min-w-0">
+      {/* Bottom clearance (mobile only): 4.5rem + safe-area covers the fixed
+          bottom nav even when its labels wrap to two lines on 360px phones,
+          so the footer marquee below sits above the nav, never under it. */}
+      <div className="flex flex-col flex-1 min-w-0 pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
         <Navbar onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-32 lg:pb-16 text-[#172033]">
+        <main className="relative z-10 flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-6 lg:pb-8 text-[#172033]">
           <Outlet />
         </main>
 
@@ -56,7 +59,7 @@ export const AppLayout: React.FC = () => {
         {moreOpen && (
           <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-label="More sections">
             <button type="button" aria-label="Close more menu" className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-20 inset-x-0 bg-[#0B142B] rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
+            <div className="absolute bottom-[calc(110px_+_env(safe-area-inset-bottom))] inset-x-0 bg-[#0B142B] rounded-t-[20px] shadow-xl p-4 pb-[env(safe-area-inset-bottom)]">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-bold text-white">{t('menu.more')}</p>
                 <button type="button" onClick={() => setMoreOpen(false)} className="p-2 rounded-lg text-slate-300 hover:bg-white/10" aria-label="Close"><X className="w-5 h-5" /></button>
@@ -78,8 +81,9 @@ export const AppLayout: React.FC = () => {
           </div>
         )}
 
-        {/* Marquee banner — above the mobile bottom nav, at the bottom on desktop */}
-        <MarqueeBanner aboveNav />
+        {/* Marquee — dedicated footer strip in flow (not a fixed overlay),
+            so it can never cover agent cards or page content. */}
+        <MarqueeBanner footer />
 
         {/* Mobile bottom navigation — 5 main sections + More, safe-area padding */}
         <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0B142B] border-t border-white/15 pb-[env(safe-area-inset-bottom)]" aria-label="Primary">

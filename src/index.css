@@ -259,23 +259,23 @@
   box-shadow: 0 0 8px rgba(25, 213, 232, 0.55); will-change: transform, opacity;
   animation: aurora-particle-float 28s ease-in-out infinite alternate; }
 @keyframes aurora-wave-drift {
-  0% { transform: translate3d(-2%, 0, 0) scale(1); opacity: 0.32; }
-  100% { transform: translate3d(2%, 3%, 0) scale(1.06); opacity: 0.45; }
+  0% { transform: translate3d(-4%, 0, 0) scale(1); opacity: 0.32; }
+  100% { transform: translate3d(4%, 4%, 0) scale(1.06); opacity: 0.45; }
 }
 @keyframes aurora-blob-a {
   0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.45; }
-  50% { transform: translate3d(6vw, 4vh, 0) scale(1.18); opacity: 0.60; }
-  100% { transform: translate3d(-3vw, -2vh, 0) scale(1.05); opacity: 0.50; }
+  50% { transform: translate3d(9vw, 5vh, 0) scale(1.18); opacity: 0.60; }
+  100% { transform: translate3d(-4vw, -3vh, 0) scale(1.05); opacity: 0.50; }
 }
 @keyframes aurora-blob-b {
   0% { transform: translate3d(0, 0, 0) scale(1.05); opacity: 0.50; }
-  50% { transform: translate3d(-7vw, 5vh, 0) scale(0.92); opacity: 0.38; }
-  100% { transform: translate3d(3vw, -3vh, 0) scale(1.15); opacity: 0.55; }
+  50% { transform: translate3d(-9vw, 6vh, 0) scale(0.92); opacity: 0.38; }
+  100% { transform: translate3d(4vw, -4vh, 0) scale(1.15); opacity: 0.55; }
 }
 @keyframes aurora-blob-c {
   0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.50; }
-  50% { transform: translate3d(-4vw, -5vh, 0) scale(1.20); opacity: 0.62; }
-  100% { transform: translate3d(5vw, 2vh, 0) scale(0.95); opacity: 0.45; }
+  50% { transform: translate3d(-6vw, -6vh, 0) scale(1.20); opacity: 0.62; }
+  100% { transform: translate3d(7vw, 3vh, 0) scale(0.95); opacity: 0.45; }
 }
 @keyframes aurora-streak {
   0% { transform: translate3d(0, 0, 0) rotate(0.001deg); }
@@ -289,7 +289,6 @@
   /* Mobile: smaller blur, lower opacity, no particles — same motion, less GPU cost */
   .aurora-blob { filter: blur(60px); opacity: 0.38; }
   .aurora-wave { filter: blur(40px); }
-  .aurora-particle { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-flow-wave, .aurora-blob, .aurora-glass-streak, .aurora-particle { animation: none !important; }
@@ -326,6 +325,25 @@
 .agent-glass-jeevan { background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.40); }
 .agent-glass-agni { background: rgba(249, 115, 22, 0.14); border-color: rgba(249, 115, 22, 0.40); }
 .agent-glass-sanrakshak { background: rgba(34, 211, 238, 0.14); border-color: rgba(34, 211, 238, 0.40); }
+/* Agent cards — dark navy glass (root-cause fix for white cards).
+   Used INSTEAD of bg-white on agent cards: the old bg-white class was
+   also forced to 0.88-white by the `main .bg-white` rule below, which
+   hid the aurora behind opaque white. Removing bg-white from the card
+   (not layering over it) is what lets the aurora show through.
+   0.82 navy keeps white headings and light-gray descriptions readable
+   while the blue/cyan aurora still glows faintly through the card. */
+.agent-card-dark {
+  background: rgba(15, 30, 65, 0.82);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+.agent-card-dark:hover { border-color: rgba(34, 211, 238, 0.60); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+@media (max-width: 640px) {
+  /* Phones: keep the 0.82 navy (no blur cost), so motion stays cheap */
+  .agent-card-dark { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+}
 /* Liquid Chrome — subtle, only for logo, agent icons, Mitra button, active nav */
 .chrome-text {
   background: linear-gradient(120deg, #ffffff 0%, #93c5fd 30%, #22d3ee 55%, #a78bfa 80%, #ffffff 100%);
@@ -377,6 +395,7 @@
 }
 
 /* ---- Premium marquee banner (bottom of every page, CSS only) ---- */
+.marquee-banner-footer { padding-bottom: 0; }
 .marquee-banner {
   background: rgba(7, 20, 46, 0.88);
   backdrop-filter: blur(14px) saturate(1.2);

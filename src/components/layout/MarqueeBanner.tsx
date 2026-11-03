@@ -16,7 +16,26 @@ const SEGMENT = (
   </>
 );
 
-export const MarqueeBanner: React.FC<{ aboveNav?: boolean }> = ({ aboveNav = false }) => {
+export const MarqueeBanner: React.FC<{ aboveNav?: boolean; footer?: boolean }> = ({ aboveNav = false, footer = false }) => {
+  if (footer) {
+    // Dedicated footer strip: in normal flow, never a fixed overlay, so it
+    // cannot cover cards or page content. The app shell reserves space
+    // above the fixed bottom nav for it (see AppLayout).
+    return (
+      <div className="marquee-banner marquee-banner-footer relative w-full shrink-0 z-10" role="note" aria-label="AI agents are under development. We are working to make them better. Designed and developed by Darshan.">
+        <div className="marquee-accent-line" aria-hidden="true" />
+        <div className="flex items-center gap-2.5 h-9 px-3 sm:px-4">
+          <span className="marquee-dot shrink-0" aria-hidden="true" />
+          <div className="marquee-viewport flex-1 min-w-0 overflow-hidden">
+            <div className="marquee-track">
+              <div className="marquee-segment">{SEGMENT}</div>
+              <div className="marquee-segment" aria-hidden="true">{SEGMENT}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className={`marquee-banner fixed inset-x-0 z-30 ${aboveNav ? 'bottom-16 lg:bottom-0' : 'bottom-0'}`}
