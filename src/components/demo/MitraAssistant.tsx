@@ -6,6 +6,7 @@ import { routeToAgentStructured } from '../../demo/aegisEngine';
 import { speakText, stopSpeaking, startRecognition, recognitionSupported, detectSpeechLang } from '../../demo/speech';
 import { VoiceControls } from './VoiceControls';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { AURORA_CHAT_BG } from '../../demo/auroraChatBg';
 
 interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; }
 export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
@@ -36,7 +37,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-6" role="dialog" aria-label="Mitra AI assistant">
       <button type="button" aria-label="Close Mitra" className="absolute inset-0 bg-black/40" onClick={() => { stopSpeaking(); onClose(); }} />
-      <div className="relative w-full max-w-lg glass-liquid-strong rounded-[20px] shadow-xl flex flex-col max-h-[85dvh] overflow-hidden text-white">
+      <div className="relative w-full max-w-lg rounded-[20px] shadow-xl flex flex-col max-h-[85dvh] overflow-hidden text-white" style={{ backgroundImage: `linear-gradient(rgba(11,13,25,0.78), rgba(11,13,25,0.78)), url(${AURORA_CHAT_BG})`, backgroundSize: "cover", backgroundPosition: "center" }}>
         <div className="p-4 border-b border-white/15 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <span className="w-10 h-10 rounded-xl chrome-icon flex items-center justify-center shrink-0"><Bot className="w-5 h-5" /></span>
