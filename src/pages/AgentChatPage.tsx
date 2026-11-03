@@ -4,7 +4,7 @@ import { Send, Mic, MicOff, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { AGENT_META, AgentSlug } from '../demo/demoAiEngine';
 import { generateStructuredResponse, structuredToText, ConversationContext, StructuredResponse } from '../demo/aegisEngine';
 import { loadDemoIncidents, saveDemoIncidents } from '../demo/demoStore';
-import { getAiSource, setAiSource, type AiSource } from '../demo/aiSource';
+import { getAiSource, setAiSource, adoptServerAiSource, type AiSource } from '../demo/aiSource';
 import { api } from '../services/api';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
@@ -15,7 +15,7 @@ interface ChatMsg {
   id: string;
   role: 'user' | 'agent';
   content: string;
-  source?: 'local' | 'freeai';
+  source?: 'local' | 'freeai' | 'openrouter';
   demoMeta?: { category: string; priority: string; actions: string[]; demoInfo: string[] };
   structured?: StructuredResponse;
   savedAsIncident?: boolean;
@@ -38,6 +38,10 @@ export const AgentChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [aiSource, setAiSourceState] = useState<AiSource>(() => getAiSource());
+  useEffect(() => {
+    adoptServerAiSource(() => api.getAIStatus()).then(() => setAiSourceState(getAiSource())).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
@@ -103,15 +107,19 @@ export const AgentChatPage: React.FC = () => {
     // server holds the key, so no key is ever sent from this page. Any
     // failure (no key configured, backend offline) falls back to the local
     // engine instead of showing a dead end. Default is the local engine.
-    if (aiSource === 'freeai') {
+    if (aiSource !== 'local') {
       try {
         const history = messages.slice(-6).map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), content: m.content }));
-        const live = await api.openaiChat({ agent: resolvedSlug, message: content, history });
-        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: 'freeai' }]);
+        const live = await api.openaiChat({ agent: resolvedSlug, message: content, history, provider: aiSource });
+        const src: 'freeai' | 'openrouter' = live.provider === 'openrouter' ? 'openrouter' : 'freeai';
+        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: src }]);
         setIsSending(false);
         return;
       } catch (err: any) {
-        setError(`Free.ai is unavailable (${err?.message || 'server error'}). Answering with the local engine instead — set FREE_AI_API_KEY in the server environment to use Free.ai.`);
+        // Real error surfaced, then the local engine answers so the chat
+        // never goes silent: rate limits, timeouts and bad keys are shown
+        // as-is, never replaced by a fake AI reply.
+        setError(`${aiSource === 'openrouter' ? 'OpenRouter' : 'Free.ai'} is unavailable (${err?.message || 'server error'}). Answering with the local engine instead — check the server key in Settings.`);
       }
     }
     const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current, lang);
@@ -186,7 +194,8 @@ export const AgentChatPage: React.FC = () => {
           <span className="text-xs font-semibold text-white/85">AI source:</span>
           <button type="button" onClick={() => { setAiSource('local'); setAiSourceState('local'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'local' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Local engine</button>
           <button type="button" onClick={() => { setAiSource('freeai'); setAiSourceState('freeai'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'freeai' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Free.ai (via backend)</button>
-          <span className="text-[11px] text-white/70">Free.ai needs FREE_AI_API_KEY set on the server — see Settings.</span>
+          <button type="button" onClick={() => { setAiSource('openrouter'); setAiSourceState('openrouter'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'openrouter' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>OpenRouter (via backend)</button>
+          <span className="text-[11px] text-white/70">OpenRouter needs OPENROUTER_API_KEY, Free.ai needs FREE_AI_API_KEY, both set on the server — see Settings.</span>
         </div>
         <p className="relative mt-2 text-xs text-white/70">
           {t('chat.voice_note')}
@@ -264,7 +273,7 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && m.source === 'freeai' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Free.ai reply · decision support only, call 112 for real emergencies</p>)}
+              {m.role === 'agent' && (m.source === 'freeai' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Free.ai'} reply · decision support only, call 112 for real emergencies</p>)}
               {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} lang={lang} />}
             </div>
           </div>

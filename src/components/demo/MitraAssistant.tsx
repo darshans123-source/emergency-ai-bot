@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Send, Mic, MicOff, Bot } from 'lucide-react';
 import { AGENT_META } from '../../demo/demoAiEngine';
@@ -6,16 +6,20 @@ import { routeToAgentStructured } from '../../demo/aegisEngine';
 import { speakText, stopSpeaking, startRecognition, recognitionSupported, detectSpeechLang } from '../../demo/speech';
 import { VoiceControls } from './VoiceControls';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { getAiSource } from '../../demo/aiSource';
+import { getAiSource, adoptServerAiSource } from '../../demo/aiSource';
 import { api } from '../../services/api';
 
-interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; source?: 'local' | 'freeai'; }
+interface Msg { id: string; role: 'user' | 'mitra'; content: string; agent?: keyof typeof AGENT_META; source?: 'local' | 'freeai' | 'openrouter'; }
 export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { t, lang } = useLanguage();
   const [messages, setMessages] = useState<Msg[]>([{ id: 'w', role: 'mitra', content: 'Namaste, I am Mitra AI, your central assistant. Tell me what happened — for example, "There is a fire near my location" or "Show me a medical emergency" — and I will route you to the right agent. Simulated data · For real emergencies, call 112.' }]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
+  const [mitraSending, setMitraSending] = useState(false);
+  useEffect(() => {
+    if (open) adoptServerAiSource(() => api.getAIStatus()).catch(() => {});
+  }, [open]);
   const recRef = useRef<any>(null);
   if (!open) return null;
   const send = async (raw?: string, fromVoice = false) => {
@@ -28,14 +32,18 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
     // (the server holds the key); any failure falls back to the local
     // routing text so Mitra never goes silent.
     let replyText = mitraText;
-    let source: 'local' | 'freeai' = 'local';
-    if (getAiSource() === 'freeai') {
+    let source: 'local' | 'freeai' | 'openrouter' = 'local';
+    const chosen = getAiSource();
+    if (chosen !== 'local') {
+      setMitraSending(true);
       try {
-        const live = await api.openaiChat({ agent, message: content }, 10000);
+        const live = await api.openaiChat({ agent, message: content, provider: chosen }, 10000);
         replyText = live.reply;
-        source = 'freeai';
+        source = live.provider === 'openrouter' ? 'openrouter' : 'freeai';
       } catch {
-        // keep the local routing text
+        // keep the local routing text so Mitra never goes silent
+      } finally {
+        setMitraSending(false);
       }
     }
     const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: replyText, agent, source };
@@ -67,7 +75,7 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === 'user' ? 'mitra-chrome text-white rounded-br-md' : 'glass-liquid-input text-white rounded-bl-md'}`}>
                 <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                {m.role === 'mitra' && m.source === 'freeai' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Free.ai reply · decision support only, call 112 for real emergencies</p>)}
+                {m.role === 'mitra' && (m.source === 'freeai' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Free.ai'} reply · decision support only, call 112 for real emergencies</p>)}
                 {m.role === 'mitra' && <VoiceControls text={m.content} lang={lang} />}
                 {m.role === 'mitra' && m.agent && (
                   <button type="button" onClick={() => { stopSpeaking(); onClose(); navigate(`/agents/${m.agent}`); }} className="mt-2 min-h-10 px-3 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold">Open {AGENT_META[m.agent].name} →</button>
@@ -75,6 +83,13 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
               </div>
             </div>
           ))}
+          {mitraSending && (
+            <div className="flex justify-start">
+              <div className="glass-liquid-input rounded-2xl rounded-bl-md px-4 py-3 text-sm text-slate-300 flex items-center gap-2">
+                <span className="demo-typing"><span /><span /><span /></span> Mitra is thinking…
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap gap-1.5 pt-1">
             {['There is a fire near my location', 'Show me a medical emergency', 'Report a theft', 'My area is flooding'].map((q) => (
               <button key={q} type="button" onClick={() => send(q)} className="px-2.5 py-1.5 rounded-full glass-liquid-input text-xs font-medium text-white hover:border-cyan-300 hover:text-cyan-300">{q}</button>
