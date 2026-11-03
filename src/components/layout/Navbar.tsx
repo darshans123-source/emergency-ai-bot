@@ -300,13 +300,23 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className={`mx-2 sm:mx-6 mt-2 sm:mt-4 rounded-2xl bg-[rgba(11,20,43,0.85)] backdrop-blur-xl border border-white/15 shadow-lg shadow-blue-950/20 px-2 sm:px-6 flex items-center gap-1 sm:gap-4 min-h-14 py-1.5 sm:py-2 shrink-0 sticky top-2 sm:top-4 z-30 transition-all duration-300 ${isMobileSearchOpen ? 'flex-wrap' : 'flex-nowrap'}`}>
-      {/* Left: menu (mobile) + brand + live-link status (desktop row) */}
+    <header className="aegis-header relative mx-2 sm:mx-6 mt-2 sm:mt-4 rounded-[20px] sm:rounded-[24px] px-2 sm:px-4 py-2 sm:py-2.5 shrink-0 sticky top-2 sm:top-4 z-30 transition-all duration-300 flex flex-col">
+      {/* Animated aurora glow + floating particles inside the pill (real CSS, no image) */}
+      <div className="aegis-header-glow" aria-hidden="true">
+        <span className="aegis-header-blob aegis-header-blob-cyan" />
+        <span className="aegis-header-blob aegis-header-blob-purple" />
+        <span className="aegis-header-particle" style={{ left: '18%', top: '30%' }} />
+        <span className="aegis-header-particle" style={{ left: '52%', top: '65%', animationDelay: '4s' }} />
+        <span className="aegis-header-particle" style={{ left: '82%', top: '25%', animationDelay: '8s' }} />
+      </div>
+      {/* Icon row */}
+      <div className={`relative z-10 flex items-center gap-1 sm:gap-3 ${isMobileSearchOpen ? 'flex-wrap' : 'flex-nowrap'}`}>
+      {/* Left: menu + brand */}
       <div className="flex items-center gap-1 sm:gap-3 shrink-0 order-1 min-w-0">
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-9 min-h-9 flex items-center justify-center transition-colors duration-200"
+          className="aegis-header-btn lg:hidden p-2 rounded-xl min-w-9 min-h-9 flex items-center justify-center"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -317,25 +327,15 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           className="flex items-center gap-2 shrink-0 relative"
           title="AegisAI Command Center"
         >
-          <img src="/logo-icon.svg" alt="AegisAI logo" className="logo-glow w-8 h-8 rounded-lg object-cover shrink-0" />
-          {/* Local AI Ready — small elegant status badge on the logo (mobile):
-              a green dot replaces the old full-width status row, so the
-              header no longer needs a third row. Desktop keeps its pill. */}
-          <span className="sm:hidden absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#0B142B] animate-pulse" title={t('nav.local_ai_ready')} aria-label={t('nav.local_ai_ready')} />
-          <span className="hidden sm:inline font-bold text-[#172033] tracking-tight">AegisAI</span>
+          <img src="/logo-icon.svg" alt="AegisAI logo" className="aegis-header-logo logo-glow w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shrink-0" />
+          <span className="hidden sm:inline font-bold text-white tracking-tight">AegisAI</span>
         </button>
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>{t('nav.local_ai_ready')}</span>
-          </span>
-        </div>
       </div>
 
       {/* Center: Global Search Bar — full-width row on mobile, centre column on desktop */}
       <div className={`${isMobileSearchOpen ? "flex" : "hidden"} sm:flex relative flex-1 max-w-lg mx-auto min-w-0 order-3 sm:order-2 w-full sm:w-auto`} ref={searchContainerRef}>
         <div className="relative flex items-center">
-          <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+          <Search className="w-4 h-4 absolute left-3.5 text-slate-300 pointer-events-none" />
           <input
             ref={searchInputRef}
             type="text"
@@ -347,10 +347,10 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             }}
             onKeyDown={handleSearchKeyDown}
             placeholder={isListening ? "Listening... speak command or search query" : t('nav.search_placeholder')}
-            className={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-24 py-2 sm:py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
+            className={`w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-24 py-2 sm:py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none transition ${
               isListening
-                ? 'border-blue-500 ring-2 ring-blue-100'
-                : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                ? 'border-cyan-400 ring-2 ring-cyan-400/30'
+                : 'focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30'
             }`}
           />
 
@@ -363,7 +363,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                   setSearchResults([]);
                   searchInputRef.current?.focus();
                 }}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded transition"
+                className="p-1 text-slate-300 hover:text-white rounded transition"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
@@ -376,8 +376,8 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               onClick={toggleListening}
               className={`p-1.5 rounded-md transition flex items-center justify-center ${
                 isListening
-                  ? 'bg-rose-100 text-rose-600 border border-rose-300'
-                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200/60'
+                  ? 'aegis-header-btn-primary aegis-header-mic-pulse'
+                  : 'text-slate-300 hover:text-white hover:bg-white/15'
               }`}
               title={isListening ? 'Stop voice recognition' : 'Voice search (Alt+V)'}
             >
@@ -385,7 +385,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             </button>
 
             {!searchQuery && (
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white text-[11px] text-slate-500 font-mono rounded border border-slate-200 shadow-2xs">
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white/10 text-[11px] text-slate-300 font-mono rounded border border-white/20">
                 <Command className="w-2.5 h-2.5" /> K
               </kbd>
             )}
@@ -417,13 +417,13 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
         {/* Global Search Results Dropdown */}
         {isSearchOpen && searchQuery.trim().length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 text-xs">
-            <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
+          <div className="aegis-dropdown absolute left-0 right-0 mt-2 bg-[#0B142B]/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl overflow-hidden z-50 text-xs text-slate-200">
+            <div className="px-3.5 py-2.5 bg-white/5 border-b border-white/10 flex items-center justify-between text-xs text-slate-400 font-medium">
               <span>Matching Incidents</span>
               <span>{isSearching ? 'Searching...' : `${searchResults.length} found`}</span>
             </div>
 
-            <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+            <div className="max-h-72 overflow-y-auto divide-y divide-white/10">
               {isSearching ? (
                 <div className="p-6 text-center text-slate-500">Searching records...</div>
               ) : searchResults.length === 0 ? (
@@ -447,12 +447,12 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                   >
                     <div className="min-w-0 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-semibold text-blue-600">{inc.id}</span>
+                        <span className="font-mono text-xs font-semibold text-cyan-300">{inc.id}</span>
                         <PriorityBadge priority={inc.priority} size="sm" />
                         <StatusBadge status={inc.status} size="sm" />
                       </div>
-                      <p className="text-slate-800 font-medium text-sm truncate">{inc.title}</p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
+                      <p className="text-white font-medium text-sm truncate">{inc.title}</p>
+                      <p className="text-xs text-slate-400 flex items-center gap-1 truncate">
                         <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                         <span>{inc.location.address}</span>
                       </p>
@@ -463,7 +463,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               )}
             </div>
 
-            <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 px-3">
+            <div className="p-2.5 bg-white/5 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 px-3">
               <span>Press Enter to select</span>
               <button
                 type="button"
@@ -472,7 +472,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                   setIsSearchOpen(false);
                   setIsMobileSearchOpen(false);
                 }}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-cyan-300 hover:text-cyan-200 font-medium"
               >
                 View all in queue →
               </button>
@@ -494,7 +494,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
               return !v;
             });
           }}
-          className="sm:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-9 min-w-9 flex items-center justify-center"
+          className="aegis-header-btn sm:hidden p-2 rounded-xl min-h-9 min-w-9 flex items-center justify-center"
           title="Search incidents"
           aria-label="Search incidents"
           aria-expanded={isMobileSearchOpen}
@@ -506,7 +506,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold transition-all cursor-pointer min-h-9 sm:min-h-10"
+          className="aegis-header-btn-primary flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl text-white text-xs font-semibold transition-all cursor-pointer min-h-9 sm:min-h-10"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ / తెలుగు)"
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-5 h-5 text-blue-200" /></span>
@@ -517,7 +517,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => dispatchReplayWelcome()}
-          className="hidden min-[400px]:flex p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 items-center justify-center"
+          className="aegis-header-btn hidden min-[400px]:flex p-2 rounded-xl min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 items-center justify-center"
           title="Replay welcome greeting"
           aria-label="Replay welcome greeting"
         >
@@ -529,7 +529,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           <button
             type="button"
             onClick={() => setIsNotifOpen(!isNotifOpen)}
-            className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200 min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 flex items-center justify-center"
+            className="aegis-header-btn relative p-2 rounded-xl min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 flex items-center justify-center"
             aria-label={t('nav.notifications')}
           >
             <Bell className="w-5 h-5" />
@@ -542,14 +542,14 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
 
           {/* Notifications Dropdown */}
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-slate-800">
-              <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+            <div className="aegis-dropdown absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-96 bg-[#0B142B]/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl py-2 z-50 text-slate-200">
+              <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wide">
                     {t('nav.notifications')}
                   </h3>
                   {unreadCount > 0 && (
-                    <span className="bg-rose-50 text-rose-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    <span className="bg-rose-500/20 text-rose-300 text-xs font-semibold px-2 py-0.5 rounded-full">
                       {unreadCount} new
                     </span>
                   )}
@@ -558,14 +558,14 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                   <button
                     type="button"
                     onClick={markAllAsRead}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-xs text-cyan-300 hover:text-cyan-200 font-medium"
                   >
                     {t('nav.mark_all_read')}
                   </button>
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+              <div className="max-h-80 overflow-y-auto divide-y divide-white/10">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center text-xs text-slate-400">
                     {t('nav.no_notifications')}
@@ -581,23 +581,23 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                           setIsNotifOpen(false);
                         }
                       }}
-                      className={`p-3 text-xs transition cursor-pointer hover:bg-slate-50 flex items-start gap-3 ${
-                        !item.isRead ? 'bg-blue-50/50' : ''
+                      className={`p-3 text-xs transition cursor-pointer hover:bg-white/10 flex items-start gap-3 ${
+                        !item.isRead ? 'bg-cyan-400/10' : ''
                       }`}
                     >
                       <div className="mt-1 shrink-0">
-                        <div className={`w-2 h-2 rounded-full ${item.isRead ? 'bg-slate-300' : 'bg-blue-600'}`} />
+                        <div className={`w-2 h-2 rounded-full ${item.isRead ? 'bg-slate-500' : 'bg-cyan-400'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <p className="text-xs font-semibold text-slate-900 truncate">{item.title}</p>
+                          <p className="text-xs font-semibold text-white truncate">{item.title}</p>
                           <span className="text-[11px] text-slate-400 shrink-0">
                             {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">{item.message}</p>
+                        <p className="text-xs text-slate-400 line-clamp-2 mt-0.5">{item.message}</p>
                         {item.incidentId && (
-                          <span className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                          <span className="mt-1 inline-flex items-center gap-1 text-xs text-cyan-300 hover:underline">
                             <span>Open {item.incidentId}</span>
                             <ExternalLink className="w-2.5 h-2.5" />
                           </span>
@@ -617,34 +617,34 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           <button
             type="button"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-2 rounded-lg text-slate-700 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-10 sm:min-h-11"
+            className="aegis-header-btn flex items-center gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-2 rounded-xl text-slate-100 min-h-10 sm:min-h-11"
             aria-label="Profile menu"
           >
-            <span className="w-8 h-8 rounded-full bg-[#101B33] text-white flex items-center justify-center shrink-0">
+            <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] border border-cyan-300/60 text-white flex items-center justify-center shrink-0">
               <UserIcon className="w-5 h-5" />
             </span>
             <span className="hidden md:block text-left leading-tight">
               <span className="block text-xs font-semibold truncate max-w-[120px]">{localProfile?.name || user?.name || 'Command User'}</span>
-              <span className="block text-[11px] text-slate-500">{t('nav.profile')}</span>
+              <span className="block text-[11px] text-slate-400">{t('nav.profile')}</span>
             </span>
           </button>
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-slate-800">
-              <div className="px-4 py-3 border-b border-slate-100">
-                <p className="text-sm font-semibold text-[#172033] truncate">{localProfile?.name || user?.name}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{localProfile ? 'Local prototype profile' : user?.organization}</p>
+            <div className="aegis-dropdown absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-[#0B142B]/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/20 py-2 z-50 text-slate-200">
+              <div className="px-4 py-3 border-b border-white/10">
+                <p className="text-sm font-semibold text-white truncate">{localProfile?.name || user?.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{localProfile ? 'Local prototype profile' : user?.organization}</p>
               </div>
               <button
                 type="button"
                 onClick={() => { setIsProfileOpen(false); navigate('/profile'); }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/10"
               >
                 {t('menu.user_profile')}
               </button>
               <button
                 type="button"
                 onClick={() => { setIsProfileOpen(false); navigate('/settings'); }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50"
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/10"
               >
                 {t('menu.settings')}
               </button>
@@ -656,13 +656,25 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                   setIsProfileOpen(false);
                   navigate('/login', { replace: true });
                 }}
-                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-2"
               >
                 <LogOut className="w-4 h-4" /> {t('nav.logout')}
               </button>
             </div>
           )}
         </div>
+
+      </div>
+
+      {/* Local AI Ready status badge — centred second row, as in the reference.
+          Compact on phones (small text, tight padding) so the header stays
+          a floating pill, not a tall bar. */}
+      <div className="relative z-10 flex justify-center pt-1.5 sm:pt-2">
+        <span className="aegis-header-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold">
+          <span className="aegis-header-badge-dot" aria-hidden="true" />
+          <span>{t('nav.local_ai_ready')}</span>
+        </span>
+      </div>
 
       {/* Multilingual Voice Assistant Modal */}
       <MitraAssistant open={isVoiceModalOpen} onClose={() => setIsVoiceModalOpen(false)} />
