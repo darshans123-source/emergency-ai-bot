@@ -316,7 +316,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           className="flex items-center gap-2 shrink-0"
           title="AegisAI Command Center"
         >
-          <img src="/logo-icon.svg" alt="AegisAI logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover shrink-0" />
+          <img src="/logo-icon.svg" alt="AegisAI logo" className="logo-glow w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover shrink-0" />
           <span className="hidden sm:inline font-bold text-[#172033] tracking-tight">AegisAI</span>
         </button>
         <div className="hidden sm:flex items-center gap-2">
