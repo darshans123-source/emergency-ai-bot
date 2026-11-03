@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { AppLayout } from './components/layout/AppLayout';
+import { WelcomeVoice } from './components/demo/WelcomeVoice';
 import { SplashPage } from './pages/SplashPage';
 import { LocalLoginPage } from './pages/LocalLoginPage';
 import { CommandCenterPage } from './pages/CommandCenterPage';
@@ -88,6 +89,7 @@ export default function App() {
       <AuthProvider>
         <LanguageProvider>
         <NotificationProvider>
+          <WelcomeVoice />
           <Suspense fallback={<PageLoading />}>
             <Routes>
               {/* Premium splash — initial load only */}
