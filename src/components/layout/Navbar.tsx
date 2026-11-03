@@ -20,10 +20,10 @@ import {
   Mic,
   MicOff,
   AlertCircle,
-  Sparkles
-} from 'lucide-react';
+  Sparkles, Volume2} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MitraAssistant } from '../demo/MitraAssistant';
+import { dispatchReplayWelcome } from '../../demo/welcomeVoice';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '../../i18n/LanguageContext';
 
@@ -486,6 +486,17 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         >
           <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
           <span className="hidden lg:inline">{t('nav.mitra')} (Voice)</span>
+        </button>
+
+        {/* Replay welcome greeting — small speaker button, user-initiated only */}
+        <button
+          type="button"
+          onClick={() => dispatchReplayWelcome()}
+          className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-10 min-w-10 flex items-center justify-center"
+          title="Replay welcome greeting"
+          aria-label="Replay welcome greeting"
+        >
+          <Volume2 className="w-4 h-4" />
         </button>
 
         {/* Notifications Button */}

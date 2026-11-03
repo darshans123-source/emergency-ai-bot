@@ -1,7 +1,8 @@
-import React from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, LogOut, User, ShieldAlert, Trash2 } from 'lucide-react';
+import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { dispatchReplayWelcome, isWelcomeVoiceEnabled, setWelcomeVoiceEnabled } from '../demo/welcomeVoice';
 import { useAuth } from '../context/AuthContext';
 import { deleteProfile } from '../services/localProfile';
 
@@ -9,6 +10,7 @@ export const SettingsPage: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { localProfile, localProfiles, user, logout, logoutLocal, refreshLocalProfiles } = useAuth();
+  const [voiceOn, setVoiceOn] = useState<boolean>(() => isWelcomeVoiceEnabled());
 
   const handleLogout = async () => {
     try {
@@ -89,6 +91,39 @@ export const SettingsPage: React.FC = () => {
         <p className="mt-3 text-xs text-[#64748B]">
           Switch profile returns you to the login screen, where you can pick a saved profile or create
           a new one. Your PIN is never shown here.
+        </p>
+      </section>
+
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm p-6">
+        <h2 className="font-bold text-[#172033] flex items-center gap-2">
+          <Volume2 className="w-5 h-5 text-[#2563EB]" /> Welcome voice
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+          A short greeting plays once per browser session when you open AegisAI, in your selected
+          language (English, Kannada, Hindi or Telugu). It uses only your browser&apos;s built-in
+          speech — no API keys, no external service, no server. It never interrupts Mitra AI or
+          agent voice chat.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { const next = !voiceOn; setVoiceOn(next); setWelcomeVoiceEnabled(next); }}
+            className={`min-h-11 px-4 rounded-xl text-sm font-semibold transition ${voiceOn ? 'bg-[#2563EB] text-white hover:bg-blue-700' : 'border border-slate-300 bg-white text-[#172033] hover:bg-slate-50'}`}
+            aria-pressed={voiceOn}
+          >
+            Welcome voice: {voiceOn ? 'ON' : 'OFF'}
+          </button>
+          <button
+            type="button"
+            onClick={() => dispatchReplayWelcome()}
+            className="min-h-11 px-4 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-[#172033] hover:bg-slate-50 inline-flex items-center gap-2"
+          >
+            <Volume2 className="w-4 h-4" /> Hear welcome greeting
+          </button>
+        </div>
+        <p className="mt-3 text-xs text-[#64748B]">
+          When OFF, the greeting won&apos;t play automatically on launch. You can still tap
+          &ldquo;Hear welcome greeting&rdquo; or the speaker button in the top bar to replay it.
         </p>
       </section>
 
