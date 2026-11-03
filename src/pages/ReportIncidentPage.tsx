@@ -74,11 +74,12 @@ export const ReportIncidentPage: React.FC = () => {
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
 
+  // Quick-fill presets for the demo region (Bengaluru), not San Francisco.
   const presets = [
-    { label: 'Market & 4th St', lat: 37.7858, lng: -122.4065, addr: 'Market St & 4th St, Downtown' },
-    { label: 'East Industrial 16th', lat: 37.7650, lng: -122.3910, addr: 'East Industrial Corridor, 3rd & 16th St' },
-    { label: 'Pier 14 Waterfront', lat: 37.7935, lng: -122.3925, addr: 'Embarcadero Pier 14 Waterfront' },
-    { label: 'Westside Transit Hub', lat: 37.7812, lng: -122.4215, addr: 'Westside Transit Center, Van Ness Ave' }
+    { label: 'MG Road', lat: 12.9757, lng: 77.6053, addr: 'MG Road, Bengaluru' },
+    { label: 'Majestic Bus Station', lat: 12.9773, lng: 77.5718, addr: 'Majestic, Bengaluru' },
+    { label: 'Hebbal Flyover', lat: 13.0358, lng: 77.5970, addr: 'Hebbal, Bengaluru' },
+    { label: 'Electronic City', lat: 12.8452, lng: 77.6602, addr: 'Electronic City, Bengaluru' }
   ];
 
   // Initialize Map with OpenStreetMap Standard Tiles
