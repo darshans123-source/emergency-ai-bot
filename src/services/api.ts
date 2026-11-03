@@ -325,11 +325,23 @@ export const api = {
   // Health — lightweight, used to tell a real backend failure apart from a blank page
   getHealth: () => request<{ status: string; system?: string; timestamp?: string }>('/health'),
 
-  // OpenAI (server-side only — no key ever reaches the frontend)
-  openaiChat: (data: { agent: string; message: string; history?: Array<{ role: 'user' | 'agent'; content: string }>; incidentId?: string | null }) =>
+  // Free.ai / OpenAI chat via the backend (server-side only — no key ever
+  // reaches the frontend; the server picks Free.ai first when
+  // FREE_AI_API_KEY is set in its environment).
+  openaiChat: (data: { agent: string; message: string; history?: Array<{ role: 'user' | 'agent'; content: string }>; incidentId?: string | null }, timeoutMs?: number) =>
     request<{ agent: string; agentName: string; reply: string; provider: string; timestamp: string }>('/ai/openai', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      ...(timeoutMs ? { timeoutMs } : {})
+    }),
+
+  // Free.ai connection test via the backend. An optional key passed here is
+  // used for ONE test call only and is never stored, logged or returned by
+  // the server. Without a key, the server environment key is tested.
+  testFreeAI: (key?: string) =>
+    request<{ ok: boolean; provider: string; model: string; configured: boolean; testedWithProvidedKey: boolean }>('/ai/test', {
+      method: 'POST',
+      body: JSON.stringify(key ? { key } : {})
     }),
 
   summarize: (data: { incidentId?: string; text?: string; task?: 'summary' | 'analysis' | 'recommendations' }) =>

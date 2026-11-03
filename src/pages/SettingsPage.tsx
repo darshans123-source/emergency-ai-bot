@@ -1,7 +1,9 @@
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2, MapPin, Mic } from 'lucide-react';
-import React, { useState } from 'react';
+import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2, MapPin, Mic, KeyRound } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { getAiSource, setAiSource, type AiSource } from '../demo/aiSource';
+import { api } from '../services/api';
 import { dispatchReplayWelcome, isWelcomeVoiceEnabled, setWelcomeVoiceEnabled } from '../demo/welcomeVoice';
 import { getLaunchPermissions, requestLaunchPermissions, type LaunchPermissions as LaunchPerms } from '../demo/launchPermissions';
 import { locationService } from '../services/locationService';
@@ -18,6 +20,33 @@ export const SettingsPage: React.FC = () => {
     try { return locationService.getConfirmedLocation(); } catch { return null; }
   });
   const [permChecking, setPermChecking] = useState(false);
+  // AI API Configuration — server status only. No key is ever stored here:
+  // the key lives only in the server environment. The optional test key
+  // below is used for ONE test call and then cleared from this page.
+  const [aiSource, setAiSourceState] = useState<AiSource>(() => getAiSource());
+  const [aiStatus, setAiStatus] = useState<{ provider: string; model: string; isExternalConfigured: boolean; status: string; message: string } | null>(null);
+  const [aiStatusError, setAiStatusError] = useState<string | null>(null);
+  const [testKey, setTestKey] = useState('');
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  useEffect(() => {
+    api.getAIStatus()
+      .then((st) => setAiStatus(st))
+      .catch((e: any) => setAiStatusError(e?.message || 'Server status unavailable.'));
+  }, []);
+  const handleTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const res = await api.testFreeAI(testKey.trim() || undefined);
+      setTestResult(`Connection works: Free.ai, model ${res.model}. ${res.testedWithProvidedKey ? 'This key was NOT saved — paste it in the server environment (below) and redeploy to actually use it.' : 'The server environment key works.'}`);
+    } catch (e: any) {
+      setTestResult(`Connection failed: ${e?.message || 'Unknown error.'} No key was saved.`);
+    } finally {
+      setTestKey('');
+      setTesting(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -193,6 +222,75 @@ export const SettingsPage: React.FC = () => {
           When OFF, the greeting won&apos;t play automatically on launch. You can still tap
           &ldquo;Hear welcome greeting&rdquo; or the speaker button in the top bar to replay it.
         </p>
+      </section>
+
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm p-6">
+        <h2 className="font-bold text-[#172033] flex items-center gap-2">
+          <KeyRound className="w-5 h-5 text-[#2563EB]" /> AI API Configuration
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+          Free.ai is connected through the backend only. The key is never stored in this browser,
+          in frontend code, in logs or in GitHub. This page only shows the server&apos;s status and
+          can test a key once — it cannot save a key. Saving happens in the server environment
+          (see below), then the app is redeployed.
+        </p>
+        <dl className="mt-4 space-y-3 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#64748B]">Server AI provider</dt>
+            <dd className="font-semibold text-[#172033] text-right">{aiStatus ? `${aiStatus.provider} · ${aiStatus.model}` : aiStatusError || 'Checking…'}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#64748B]">External AI configured on server</dt>
+            <dd className="font-semibold text-[#172033] text-right">{aiStatus ? (aiStatus.isExternalConfigured ? 'Yes' : 'No') : '—'}</dd>
+          </div>
+          {aiStatus && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#64748B]">Server message</dt>
+              <dd className="font-semibold text-[#172033] text-right">{aiStatus.message}</dd>
+            </div>
+          )}
+        </dl>
+        <div className="mt-5">
+          <label className="block text-sm font-semibold text-[#172033]" htmlFor="freeai-test-key">
+            Test a Free.ai key (optional, not saved)
+          </label>
+          <input
+            id="freeai-test-key"
+            type="password"
+            autoComplete="off"
+            value={testKey}
+            onChange={(e) => setTestKey(e.target.value)}
+            placeholder="Leave empty to test the server key, or paste a key here only to test it"
+            className="mt-2 w-full min-h-12 px-3.5 rounded-xl border border-slate-300 bg-white text-sm text-[#172033] focus:outline-none focus:border-[#2563EB]"
+          />
+          <p className="mt-1.5 text-xs text-[#64748B]">
+            A key typed here is sent once to the server for a test call, then cleared from this
+            page. It is never stored in this browser, never logged, and never committed.
+          </p>
+          <button
+            type="button"
+            onClick={handleTest}
+            disabled={testing}
+            className="mt-3 min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
+          >
+            {testing ? 'Testing…' : 'Test Connection'}
+          </button>
+          {testResult && (<p className="mt-3 text-sm text-[#172033] leading-relaxed">{testResult}</p>)}
+        </div>
+        <div className="mt-5">
+          <p className="text-sm font-semibold text-[#172033]">Preferred AI source for Mitra and the four agents</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" onClick={() => { setAiSource('local'); setAiSourceState('local'); }} className={`min-h-11 px-4 rounded-xl border text-sm font-semibold ${aiSource === 'local' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-[#172033] border-slate-300 hover:bg-slate-50'}`}>Local engine</button>
+            <button type="button" onClick={() => { setAiSource('freeai'); setAiSourceState('freeai'); }} className={`min-h-11 px-4 rounded-xl border text-sm font-semibold ${aiSource === 'freeai' ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-[#172033] border-slate-300 hover:bg-slate-50'}`}>Free.ai (via backend)</button>
+          </div>
+          <p className="mt-1.5 text-xs text-[#64748B]">Local engine works with no key and answers instantly. Free.ai is used only when the server key is set; otherwise chats fall back to the local engine.</p>
+        </div>
+        <div className="mt-5 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm leading-relaxed text-[#172033]">
+          <p className="font-bold">Where to paste your actual Free.ai key</p>
+          <p className="mt-2"><span className="font-semibold">On Vercel (live site):</span> Vercel dashboard → project <span className="font-mono text-xs">emergency-ai-bot</span> → Settings → Environment Variables → Add New → Name <span className="font-mono text-xs">FREE_AI_API_KEY</span>, Value = your fresh Free.ai key, Environment = Production (tick Preview too if you want previews) → Save → Deployments → Redeploy the latest deployment. Optional: <span className="font-mono text-xs">FREE_AI_MODEL=qwen7b</span> (default) and <span className="font-mono text-xs">FREE_AI_API_URL=https://api.free.ai</span> (default).</p>
+          <p className="mt-2"><span className="font-semibold">Locally:</span> in your copy of the repo, create <span className="font-mono text-xs">.env</span> at the repo root (same folder as <span className="font-mono text-xs">server.ts</span>) and add the line <span className="font-mono text-xs">FREE_AI_API_KEY=your-fresh-key</span>. That file is gitignored and is never committed — do not copy it into <span className="font-mono text-xs">.env.example</span>, which must keep only the placeholder.</p>
+          <p className="mt-2 text-amber-800"><span className="font-semibold">Security:</span> never paste a real key in chat, in this Settings box to &quot;save&quot; it, or in any file you commit. A key shared in chat must be treated as exposed: generate a fresh key in Free.ai and delete the shared one.</p>
+        </div>
       </section>
 
       <section className="bg-amber-50 border border-amber-200 rounded-[20px] p-6">

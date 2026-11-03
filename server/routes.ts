@@ -584,12 +584,69 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
+// Free.ai connection test (POST /api/ai/test). Server-side only.
+// If the caller supplies a key in the request body, it is used for this ONE
+// test call only and is never stored, logged or returned. Without a supplied
+// key, the server environment key (FREE_AI_API_KEY) is tested. A supplied key
+// is NOT saved anywhere: to actually use Free.ai, the key must be set in the
+// server environment (Vercel Settings -> Environment Variables, or a local
+// .env file) and the deployment redeployed. Returns 503 when no key is
+// available, 502 when Free.ai rejects the call. Never returns a key value.
+apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
+  const suppliedKey = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
+  const envKey = process.env.FREE_AI_API_KEY?.trim() || '';
+  const key = suppliedKey || envKey;
+  if (!key) {
+    res.status(503).json({
+      error: 'AI Not Configured',
+      message: 'Free.ai is not configured on the server. Set FREE_AI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.'
+    });
+    return;
+  }
+  const model = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const response = await fetch(freeaiChatUrl(process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai'), {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: 'You are a connection test. Reply with exactly: OK' },
+          { role: 'user', content: 'Reply with exactly: OK' }
+        ],
+        temperature: 0
+      })
+    });
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      res.status(502).json({ error: 'AI Error', message: `Free.ai test failed (${response.status}). ${body.slice(0, 200)}` });
+      return;
+    }
+    const data: any = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c.text || '').join('') : '';
+    if (!text.trim()) {
+      res.status(502).json({ error: 'AI Error', message: 'Free.ai returned an empty response.' });
+      return;
+    }
+    res.json({ ok: true, provider: 'freeai', model, configured: Boolean(envKey), testedWithProvidedKey: Boolean(suppliedKey) });
+  } catch (err: any) {
+    res.status(502).json({ error: 'AI Error', message: err?.name === 'AbortError' ? 'Free.ai test timed out.' : 'Free.ai test failed. Check the server environment key and retry.' });
+  }
+});
+
 // -------------------------------------------------------------
-// AI ENDPOINTS (server-side only, Qwen/DashScope first, then OpenAI)
+// AI ENDPOINTS (server-side only, Free.ai first, then Qwen/DashScope, then OpenAI)
 // -------------------------------------------------------------
 // Keys are read only from server environment variables:
+//   FREE_AI_API_KEY (Free.ai, https://api.free.ai/v1/chat/,
+//   model qwen7b by default, Authorization: Bearer <key>) — used first when set,
 //   COHERE_API_KEY (Cohere, https://api.cohere.com/v2/chat,
-//   model command-a-03-2025 by default) — used first when set,
+//   model command-a-03-2025 by default) — used next when set,
 //   DASHSCOPE_API_KEY (Qwen, via the OpenAI-compatible endpoint
 //   https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1,
 //   model qwen3.8-flash by default, thinking enabled as in the
@@ -627,9 +684,20 @@ const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   }
 };
 
-type ChatProvider = { name: 'cohere' | 'qwen' | 'openai'; key: string; baseUrl: string; model: string };
+type ChatProvider = { name: 'cohere' | 'qwen' | 'openai' | 'freeai'; key: string; baseUrl: string; model: string };
+
+// Free.ai docs (https://free.ai/docs/): base https://api.free.ai, chat at /v1/chat/.
+// If FREE_AI_API_URL already ends in /v1, the chat path is /chat/ instead.
+function freeaiChatUrl(baseUrl: string): string {
+  const base = baseUrl.replace(/\/+$/, '');
+  return base.endsWith('/v1') ? `${base}/chat/` : `${base}/v1/chat/`;
+}
 
 function getChatProvider(): ChatProvider | null {
+  const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
+  if (freeAiKey) {
+    return { name: 'freeai', key: freeAiKey, baseUrl: process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai', model: process.env.FREE_AI_MODEL?.trim() || 'qwen7b' };
+  }
   const cohereKey = process.env.COHERE_API_KEY?.trim();
   if (cohereKey) {
     return { name: 'cohere', key: cohereKey, baseUrl: 'https://api.cohere.com/v2', model: process.env.COHERE_MODEL?.trim() || 'command-a-03-2025' };
@@ -656,13 +724,37 @@ async function callOpenAIChat(
 ): Promise<string> {
   const provider = getChatProvider();
   if (!provider) {
-    const err: any = new Error('AI is not configured on the server. Set COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
+    const err: any = new Error('AI is not configured on the server. Set FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
     err.status = 503;
     throw err;
   }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
+    if (provider.name === 'freeai') {
+      // Free.ai is OpenAI-compatible: { model, messages } in, choices[0].message.content out.
+      const response = await fetch(freeaiChatUrl(provider.baseUrl), {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
+        body: JSON.stringify({
+          model: provider.model,
+          messages: [{ role: 'system', content: system }, ...messages],
+          temperature: 0.3
+        })
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        const err: any = new Error(`freeai request failed (${response.status}). ${body.slice(0, 200)}`);
+        err.status = 502;
+        throw err;
+      }
+      const data: any = await response.json();
+      const msg = data.choices?.[0]?.message?.content;
+      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : '';
+      if (!content || !content.trim()) throw new Error('freeai returned an empty response.');
+      return content.trim();
+    }
     if (provider.name === 'cohere') {
       const response = await fetch(`${provider.baseUrl}/chat`, {
         method: 'POST',

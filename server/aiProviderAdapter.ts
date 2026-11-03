@@ -4,7 +4,7 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'built-in-domain';
+  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'freeai' | 'built-in-domain';
   model: string;
   isExternalConfigured: boolean;
   status: 'Online' | 'Degraded' | 'Offline' | 'LocalFallback';
@@ -61,10 +61,26 @@ export function detectLanguage(text: string, preferred: SupportedLanguage = 'en'
  * Validates AI provider status without exposing secrets
  */
 export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
+  const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
   const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
   const cohereKey = process.env.COHERE_API_KEY?.trim();
+
+  // Free.ai takes precedence when FREE_AI_API_KEY is set (user-requested provider).
+  // Docs: https://free.ai/docs/ — POST https://api.free.ai/v1/chat/ with
+  // Authorization: Bearer <key> and an OpenAI-style { model, messages } body.
+  if (freeAiKey) {
+    const configuredModel = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
+    return {
+      provider: 'freeai',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `Free.ai Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
 
   // Cohere takes precedence when COHERE_API_KEY is set (user-requested provider).
   if (cohereKey) {
@@ -122,7 +138,7 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
     model: 'Aegis-Multilingual-Emergency-NLP-v2',
     isExternalConfigured: false,
     status: 'LocalFallback',
-    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
+    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }
