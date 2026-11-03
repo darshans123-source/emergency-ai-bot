@@ -210,21 +210,90 @@
    Cyan #22D3EE, Violet #7956E8. CSS gradients only, no libraries, no video.
    Animation uses transform/opacity only (no background-position) to avoid
    flicker and keep scrolling smooth. */
+/* ---- Animated Aurora background (real-time, continuous, CSS only) ----
+   Palette: #071329 deep navy, #102B65 midnight blue, #176BFF electric
+   blue, #19D5E8 cyan, #7048FF violet. No image, GIF or video.
+   All motion is transform/opacity only (GPU-friendly, no
+   background-position animation, no animated filter), and every
+   animation is `alternate`, so it reverses smoothly and never jumps
+   back to its start. Layers stay behind content (z-0, pointer-events
+   none) and never animate cards, buttons, text or navigation. */
 .aurora-flow {
   position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-  background: linear-gradient(180deg, #E9F0FA 0%, #F4F7FB 55%, #F2F5FA 100%);
+  background: #071329;
 }
 .aurora-flow-absolute { position: absolute; }
-.aurora-wash { position: absolute; inset: 0; opacity: 0.12; will-change: transform; animation: aurora-calm 90s ease-in-out infinite alternate;
-  background:
-    radial-gradient(900px 500px at 20% 15%, rgba(37, 99, 235, 0.14), transparent 65%),
-    radial-gradient(900px 500px at 80% 35%, rgba(6, 182, 212, 0.12), transparent 65%); }
-@keyframes aurora-calm {
-  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.10; }
-  100% { transform: translate3d(2vw, 1vh, 0) scale(1.02); opacity: 0.14; }
+.aurora-base { position: absolute; inset: 0;
+  background: linear-gradient(180deg, #071329 0%, #102B65 55%, #071329 100%); }
+/* Aurora Flow: two large northern-lights waves, very slow, very faint */
+.aurora-flow-wave { position: absolute; left: -10%; width: 120%; height: 55%; filter: blur(60px); will-change: transform, opacity; }
+.aurora-flow-wave-1 { top: -8%; opacity: 0.45;
+  background: radial-gradient(60% 100% at 30% 0%, rgba(23, 107, 255, 0.55), transparent 70%),
+    radial-gradient(50% 100% at 70% 20%, rgba(25, 213, 232, 0.40), transparent 70%);
+  animation: aurora-wave-drift 48s ease-in-out infinite alternate; }
+.aurora-flow-wave-2 { bottom: -12%; opacity: 0.35;
+  background: radial-gradient(60% 100% at 65% 100%, rgba(112, 72, 255, 0.50), transparent 70%),
+    radial-gradient(50% 100% at 25% 80%, rgba(23, 107, 255, 0.35), transparent 70%);
+  animation: aurora-wave-drift 64s ease-in-out infinite alternate-reverse; }
+/* Animated Mesh Gradient: four blurred blobs that drift, expand, merge */
+.aurora-blob { position: absolute; border-radius: 9999px; filter: blur(90px); will-change: transform, opacity; }
+.aurora-blob-1 { width: 55vw; height: 55vw; left: -8%; top: 8%; opacity: 0.55;
+  background: radial-gradient(circle, rgba(23, 107, 255, 0.65), transparent 65%);
+  animation: aurora-blob-a 62s ease-in-out infinite alternate; }
+.aurora-blob-2 { width: 48vw; height: 48vw; right: -10%; top: 22%; opacity: 0.50;
+  background: radial-gradient(circle, rgba(25, 213, 232, 0.55), transparent 65%);
+  animation: aurora-blob-b 78s ease-in-out infinite alternate; }
+.aurora-blob-3 { width: 52vw; height: 52vw; left: 28%; bottom: -18%; opacity: 0.50;
+  background: radial-gradient(circle, rgba(112, 72, 255, 0.60), transparent 65%);
+  animation: aurora-blob-c 72s ease-in-out infinite alternate; }
+.aurora-blob-4 { width: 38vw; height: 38vw; left: 55%; top: -12%; opacity: 0.40;
+  background: radial-gradient(circle, rgba(16, 43, 101, 0.90), transparent 65%);
+  animation: aurora-blob-a 88s ease-in-out infinite alternate-reverse; }
+/* Liquid Glass reflection: one faint diagonal light streak */
+.aurora-glass-streak { position: absolute; left: -20%; top: -10%; width: 45%; height: 130%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+  filter: blur(12px); will-change: transform;
+  animation: aurora-streak 84s ease-in-out infinite alternate; }
+/* Floating Particles: very small, slow, desktop only (hidden on phones) */
+.aurora-particle { position: absolute; border-radius: 9999px; background: rgba(180, 230, 255, 0.65);
+  box-shadow: 0 0 8px rgba(25, 213, 232, 0.55); will-change: transform, opacity;
+  animation: aurora-particle-float 28s ease-in-out infinite alternate; }
+@keyframes aurora-wave-drift {
+  0% { transform: translate3d(-2%, 0, 0) scale(1); opacity: 0.32; }
+  100% { transform: translate3d(2%, 3%, 0) scale(1.06); opacity: 0.45; }
 }
-.aurora-texture { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
+@keyframes aurora-blob-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.45; }
+  50% { transform: translate3d(6vw, 4vh, 0) scale(1.18); opacity: 0.60; }
+  100% { transform: translate3d(-3vw, -2vh, 0) scale(1.05); opacity: 0.50; }
+}
+@keyframes aurora-blob-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.05); opacity: 0.50; }
+  50% { transform: translate3d(-7vw, 5vh, 0) scale(0.92); opacity: 0.38; }
+  100% { transform: translate3d(3vw, -3vh, 0) scale(1.15); opacity: 0.55; }
+}
+@keyframes aurora-blob-c {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.50; }
+  50% { transform: translate3d(-4vw, -5vh, 0) scale(1.20); opacity: 0.62; }
+  100% { transform: translate3d(5vw, 2vh, 0) scale(0.95); opacity: 0.45; }
+}
+@keyframes aurora-streak {
+  0% { transform: translate3d(0, 0, 0) rotate(0.001deg); }
+  100% { transform: translate3d(12vw, 4vh, 0) rotate(0.001deg); }
+}
+@keyframes aurora-particle-float {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.25; }
+  100% { transform: translate3d(1vw, -4vh, 0) scale(1.4); opacity: 0.65; }
+}
+@media (max-width: 640px) {
+  /* Mobile: smaller blur, lower opacity, no particles — same motion, less GPU cost */
+  .aurora-blob { filter: blur(60px); opacity: 0.38; }
+  .aurora-wave { filter: blur(40px); }
+  .aurora-particle { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-flow-wave, .aurora-blob, .aurora-glass-streak, .aurora-particle { animation: none !important; }
+}
 @keyframes aurora-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .animate-aurora-float { animation: none; }
 
@@ -302,7 +371,6 @@
   img, video, canvas, svg { max-width: 100%; }
   /* Keep the calm navy/blue background subtle on phones: faint wash only,
      no glow, no particles (already removed), so text stays readable. */
-  .aurora-wash { opacity: 0.08; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-wash, .aurora-wave span, .demo-wave-bar, .demo-typing span { animation: none !important; }

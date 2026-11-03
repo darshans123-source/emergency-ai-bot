@@ -88,7 +88,7 @@ export const LocalLoginPage: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[#F2F5FA] flex items-center justify-center px-4 py-8 pb-16">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#071329] flex items-center justify-center px-4 py-8 pb-16">
       <AuroraBackground absolute />
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">
@@ -97,8 +97,8 @@ export const LocalLoginPage: React.FC = () => {
             alt="AegisAI logo"
             className="w-16 h-16 rounded-3xl shadow-2xl shadow-blue-900/40 object-cover"
           />
-          <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">AEGISAI</h1>
-          <p className="mt-1 text-sm text-slate-500">One Voice. Four Agents. One Mission.</p>
+          <h1 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">AEGISAI</h1>
+          <p className="mt-1 text-sm text-blue-100">One Voice. Four Agents. One Mission.</p>
         </div>
 
         <div className="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8">
