@@ -4,6 +4,8 @@ import { Send, Mic, MicOff, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { AGENT_META, AgentSlug } from '../demo/demoAiEngine';
 import { generateStructuredResponse, structuredToText, ConversationContext, StructuredResponse } from '../demo/aegisEngine';
 import { loadDemoIncidents, saveDemoIncidents } from '../demo/demoStore';
+import { getAiSource, setAiSource, type AiSource } from '../demo/aiSource';
+import { api } from '../services/api';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
 import { AGENT_CARDS } from './AgentsPage';
@@ -13,6 +15,7 @@ interface ChatMsg {
   id: string;
   role: 'user' | 'agent';
   content: string;
+  source?: 'local' | 'freeai';
   demoMeta?: { category: string; priority: string; actions: string[]; demoInfo: string[] };
   structured?: StructuredResponse;
   savedAsIncident?: boolean;
@@ -34,6 +37,7 @@ export const AgentChatPage: React.FC = () => {
 
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
+  const [aiSource, setAiSourceState] = useState<AiSource>(() => getAiSource());
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
@@ -95,14 +99,25 @@ export const AgentChatPage: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
-    // Local engine only: no external AI endpoint is called, so no API-key
-    // or backend error can appear here. The previous Live mode called
-    // /ai/openai and showed "OpenAI not configured" when no key was set;
-    // that option has been removed.
+    // Free.ai via the backend, when the user selected it in Settings: the
+    // server holds the key, so no key is ever sent from this page. Any
+    // failure (no key configured, backend offline) falls back to the local
+    // engine instead of showing a dead end. Default is the local engine.
+    if (aiSource === 'freeai') {
+      try {
+        const history = messages.slice(-6).map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), content: m.content }));
+        const live = await api.openaiChat({ agent: resolvedSlug, message: content, history });
+        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: 'freeai' }]);
+        setIsSending(false);
+        return;
+      } catch (err: any) {
+        setError(`Free.ai is unavailable (${err?.message || 'server error'}). Answering with the local engine instead — set FREE_AI_API_KEY in the server environment to use Free.ai.`);
+      }
+    }
     const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current, lang);
     contextRef.current = context;
     window.setTimeout(() => {
-      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: structuredToText(response), structured: response }]);
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: structuredToText(response), structured: response, source: 'local' }]);
       setIsSending(false);
     }, 700);
     return;
@@ -167,6 +182,12 @@ export const AgentChatPage: React.FC = () => {
           </div>
         </div>
         <p className="relative mt-3 text-sm text-white/85 leading-relaxed">{agentTranslations[agent.slug]?.description || agent.description}</p>
+        <div className="relative mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-white/85">AI source:</span>
+          <button type="button" onClick={() => { setAiSource('local'); setAiSourceState('local'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'local' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Local engine</button>
+          <button type="button" onClick={() => { setAiSource('freeai'); setAiSourceState('freeai'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'freeai' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Free.ai (via backend)</button>
+          <span className="text-[11px] text-white/70">Free.ai needs FREE_AI_API_KEY set on the server — see Settings.</span>
+        </div>
         <p className="relative mt-2 text-xs text-white/70">
           {t('chat.voice_note')}
           {isListening && (<span className="ml-2 inline-flex items-center gap-1 text-cyan-300 font-semibold"><span className="aurora-wave"><span /><span /><span /><span /><span /></span> Listening…</span>)}
@@ -243,6 +264,7 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
+              {m.role === 'agent' && m.source === 'freeai' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Free.ai reply · decision support only, call 112 for real emergencies</p>)}
               {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} lang={lang} />}
             </div>
           </div>
