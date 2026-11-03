@@ -579,3 +579,28 @@ html, body { overflow-x: clip; }
   .aegis-dropdown { animation: none !important; }
   .aegis-header-btn { transition: none; }
 }
+
+/* ---- Command Centre redesign (mobile reference) ---- */
+.cc-welcome {
+  background: linear-gradient(135deg, rgba(11, 30, 70, 0.92), rgba(20, 58, 117, 0.88), rgba(37, 99, 235, 0.75));
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 18px 40px rgba(2, 6, 23, 0.45), 0 0 32px rgba(34, 211, 238, 0.15);
+}
+.cc-welcome::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(60% 120% at 100% 0%, rgba(34, 211, 238, 0.28), transparent 60%),
+    radial-gradient(50% 100% at 0% 100%, rgba(121, 86, 232, 0.25), transparent 60%);
+}
+.cc-logo-ring { position: absolute; inset: 0; border-radius: 9999px; border: 1px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 18px rgba(34, 211, 238, 0.35); }
+.cc-logo-ring-2 { inset: 10px; border-color: rgba(34, 211, 238, 0.25); box-shadow: none; }
+.cc-logo-float { animation: cc-float 6s ease-in-out infinite; }
+@keyframes cc-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.cc-agent { transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease; }
+.cc-agent:hover { box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(34, 211, 238, 0.12); }
+@media (max-width: 640px) {
+  .cc-welcome { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-logo-float { animation: none !important; }
+}

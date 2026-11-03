@@ -328,7 +328,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           title="AegisAI Command Center"
         >
           <img src="/logo-icon.svg" alt="AegisAI logo" className="aegis-header-logo logo-glow w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shrink-0" />
-          <span className="hidden sm:inline font-bold text-white tracking-tight">AegisAI</span>
+          <span className="hidden min-[380px]:inline font-bold text-white tracking-tight">AegisAI</span>
         </button>
       </div>
 
@@ -486,21 +486,6 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         {/* Mobile search toggle: search lives behind this icon on phones,
             so the header stays one compact row by default. Desktop keeps
             the full search bar (see the search container above). */}
-        <button
-          type="button"
-          onClick={() => {
-            setIsMobileSearchOpen((v) => {
-              if (!v) window.setTimeout(() => searchInputRef.current?.focus(), 50);
-              return !v;
-            });
-          }}
-          className="aegis-header-btn sm:hidden p-2 rounded-xl min-h-9 min-w-9 flex items-center justify-center"
-          title="Search incidents"
-          aria-label="Search incidents"
-          aria-expanded={isMobileSearchOpen}
-        >
-          <Search className="w-5 h-5" />
-        </button>
         <LanguageSelector />
         {/* Multilingual Voice AI Assistant Trigger Button — icon only on mobile so the row never overflows */}
         <button
@@ -669,11 +654,44 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
       {/* Local AI Ready status badge — centred second row, as in the reference.
           Compact on phones (small text, tight padding) so the header stays
           a floating pill, not a tall bar. */}
-      <div className="relative z-10 flex justify-center pt-1.5 sm:pt-2">
-        <span className="aegis-header-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold">
-          <span className="aegis-header-badge-dot" aria-hidden="true" />
-          <span>{t('nav.local_ai_ready')}</span>
-        </span>
+      <div className="relative z-10 flex items-center gap-2 pt-1.5 sm:pt-2">
+        {/* Mobile only: search + speaker live in the badge row, so the icon
+            row matches the reference (menu, logo, name, language, mic, bell,
+            profile) without overflowing on a phone. Desktop keeps its full
+            search bar and speaker button in the icon row. */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsMobileSearchOpen((v) => {
+              if (!v) window.setTimeout(() => searchInputRef.current?.focus(), 50);
+              return !v;
+            });
+          }}
+          className="aegis-header-btn sm:hidden p-2 rounded-xl min-h-9 min-w-9 flex items-center justify-center shrink-0"
+          title="Search incidents"
+          aria-label="Search incidents"
+          aria-expanded={isMobileSearchOpen}
+        >
+          <Search className="w-5 h-5" />
+        </button>
+        <span className="hidden sm:block w-9 shrink-0" aria-hidden="true" />
+        <div className="flex-1 flex justify-center min-w-0">
+          <span className="aegis-header-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap">
+            <span className="aegis-header-badge-dot" aria-hidden="true" />
+            <span>{t('nav.local_ai_ready')}</span>
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => dispatchReplayWelcome()}
+          className="aegis-header-btn flex min-[400px]:hidden p-2 rounded-xl min-h-9 min-w-9 items-center justify-center shrink-0"
+          title="Replay welcome greeting"
+          aria-label="Replay welcome greeting"
+        >
+          <Volume2 className="w-5 h-5" />
+        </button>
+        {/* Spacer keeps the badge centred on desktop, where both side buttons are hidden */}
+        <span className="hidden sm:block w-9 shrink-0" aria-hidden="true" />
       </div>
 
       {/* Multilingual Voice Assistant Modal */}

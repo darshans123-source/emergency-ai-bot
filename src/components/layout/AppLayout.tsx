@@ -91,12 +91,12 @@ export const AppLayout: React.FC = () => {
             {BOTTOM_NAV.map((item) => {
               const Icon = item.icon;
               return (
-                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
+                <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 m-1 rounded-xl transition ${isActive ? 'bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] text-white shadow-lg shadow-blue-600/40' : 'text-slate-400'}`}>
                   <Icon className="w-5 h-5" /><span>{t(item.labelKey)}</span>
                 </NavLink>
               );
             })}
-            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 ${moreOpen ? 'text-cyan-300' : 'text-slate-400'}`} aria-expanded={moreOpen}>
+            <button type="button" onClick={() => setMoreOpen((v) => !v)} className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium leading-tight text-center min-h-14 m-1 rounded-xl transition ${moreOpen ? 'bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] text-white shadow-lg shadow-blue-600/40' : 'text-slate-400'}`} aria-expanded={moreOpen}>
               <MoreHorizontal className="w-5 h-5" /><span>{t('menu.more')}</span>
             </button>
           </div>
