@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { MultilingualVoiceModal } from '../components/common/MultilingualVoiceModal';
 import { loadDemoIncidents, saveDemoIncidents, randomDemoIncident } from '../demo/demoStore';
+import { locationService } from '../services/locationService';
 
 export const ReportIncidentPage: React.FC = () => {
   const { user } = useAuth();
@@ -31,8 +32,22 @@ export const ReportIncidentPage: React.FC = () => {
   const [category, setCategory] = useState<IncidentCategory>('ROAD_ACCIDENT');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
-  const [latitude, setLatitude] = useState<number | ''>(37.7858);
-  const [longitude, setLongitude] = useState<number | ''>(-122.4065);
+  const [latitude, setLatitude] = useState<number | ''>(() => {
+    // Launch detection already saved the user's location if granted;
+    // start the form there instead of San Francisco. Otherwise Bengaluru.
+    try {
+      const saved = locationService.getConfirmedLocation();
+      if (saved) return Number(saved.coordinates.latitude.toFixed(5));
+    } catch { /* ignore */ }
+    return 12.9716;
+  });
+  const [longitude, setLongitude] = useState<number | ''>(() => {
+    try {
+      const saved = locationService.getConfirmedLocation();
+      if (saved) return Number(saved.coordinates.longitude.toFixed(5));
+    } catch { /* ignore */ }
+    return 77.5946;
+  });
   const [hasCoordinates, setHasCoordinates] = useState(true);
   const [casualtiesCount, setCasualtiesCount] = useState<number>(0);
   const [reporterName, setReporterName] = useState(user?.name || '');
@@ -71,8 +86,8 @@ export const ReportIncidentPage: React.FC = () => {
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      const initialLat = typeof latitude === 'number' ? latitude : 37.7749;
-      const initialLng = typeof longitude === 'number' ? longitude : -122.4194;
+      const initialLat = typeof latitude === 'number' ? latitude : 12.9716;
+      const initialLng = typeof longitude === 'number' ? longitude : 77.5946;
 
       const map = L.map(mapContainerRef.current, {
         center: [initialLat, initialLng],
