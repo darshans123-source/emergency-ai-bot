@@ -43,6 +43,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Global Search State
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Incident[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -299,13 +300,13 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
   };
 
   return (
-    <header className="mx-3 sm:mx-6 mt-3 sm:mt-4 rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-6 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 min-h-14 py-2 shrink-0 sticky top-3 sm:top-4 z-30">
+    <header className={`mx-2 sm:mx-6 mt-2 sm:mt-4 rounded-2xl bg-[rgba(11,20,43,0.85)] backdrop-blur-xl border border-white/15 shadow-lg shadow-blue-950/20 px-2 sm:px-6 flex items-center gap-1 sm:gap-4 min-h-14 py-1.5 sm:py-2 shrink-0 sticky top-2 sm:top-4 z-30 transition-all duration-300 ${isMobileSearchOpen ? 'flex-wrap' : 'flex-nowrap'}`}>
       {/* Left: menu (mobile) + brand + live-link status (desktop row) */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 order-1 min-w-0">
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0 order-1 min-w-0">
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-10 min-h-10 flex items-center justify-center"
+          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 min-w-9 min-h-9 flex items-center justify-center transition-colors duration-200"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -313,10 +314,14 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 shrink-0"
+          className="flex items-center gap-2 shrink-0 relative"
           title="AegisAI Command Center"
         >
-          <img src="/logo-icon.svg" alt="AegisAI logo" className="logo-glow w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover shrink-0" />
+          <img src="/logo-icon.svg" alt="AegisAI logo" className="logo-glow w-8 h-8 rounded-lg object-cover shrink-0" />
+          {/* Local AI Ready — small elegant status badge on the logo (mobile):
+              a green dot replaces the old full-width status row, so the
+              header no longer needs a third row. Desktop keeps its pill. */}
+          <span className="sm:hidden absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#0B142B] animate-pulse" title={t('nav.local_ai_ready')} aria-label={t('nav.local_ai_ready')} />
           <span className="hidden sm:inline font-bold text-[#172033] tracking-tight">AegisAI</span>
         </button>
         <div className="hidden sm:flex items-center gap-2">
@@ -328,7 +333,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
       </div>
 
       {/* Center: Global Search Bar — full-width row on mobile, centre column on desktop */}
-      <div className="relative flex-1 max-w-lg mx-auto min-w-0 order-3 sm:order-2 w-full sm:w-auto" ref={searchContainerRef}>
+      <div className={`${isMobileSearchOpen ? "flex" : "hidden"} sm:flex relative flex-1 max-w-lg mx-auto min-w-0 order-3 sm:order-2 w-full sm:w-auto`} ref={searchContainerRef}>
         <div className="relative flex items-center">
           <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
           <input
@@ -342,7 +347,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
             }}
             onKeyDown={handleSearchKeyDown}
             placeholder={isListening ? "Listening... speak command or search query" : t('nav.search_placeholder')}
-            className={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-24 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
+            className={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-24 py-2 sm:py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition ${
               isListening
                 ? 'border-blue-500 ring-2 ring-blue-100'
                 : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
@@ -433,6 +438,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                     onClick={() => {
                       navigate(`/incidents/${inc.id}`);
                       setIsSearchOpen(false);
+                      setIsMobileSearchOpen(false);
                       setSearchQuery('');
                     }}
                     className={`p-3 transition cursor-pointer flex items-center justify-between gap-3 ${
@@ -464,6 +470,7 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
                 onClick={() => {
                   navigate(`/incidents?search=${encodeURIComponent(searchQuery.trim())}`);
                   setIsSearchOpen(false);
+                  setIsMobileSearchOpen(false);
                 }}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
@@ -475,16 +482,34 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
       </div>
 
       {/* Right: Voice AI Assistant & Notifications — row 1 on mobile, right column on desktop */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
+        {/* Mobile search toggle: search lives behind this icon on phones,
+            so the header stays one compact row by default. Desktop keeps
+            the full search bar (see the search container above). */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsMobileSearchOpen((v) => {
+              if (!v) window.setTimeout(() => searchInputRef.current?.focus(), 50);
+              return !v;
+            });
+          }}
+          className="sm:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-9 min-w-9 flex items-center justify-center"
+          title="Search incidents"
+          aria-label="Search incidents"
+          aria-expanded={isMobileSearchOpen}
+        >
+          <Search className="w-5 h-5" />
+        </button>
         <LanguageSelector />
         {/* Multilingual Voice AI Assistant Trigger Button — icon only on mobile so the row never overflows */}
         <button
           type="button"
           onClick={() => setIsVoiceModalOpen(true)}
-          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold transition-all cursor-pointer min-h-10"
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-semibold transition-all cursor-pointer min-h-9 sm:min-h-10"
           title="Open Mitra AI Voice Assistant (English / हिन्दी / ಕನ್ನಡ / తెలుగు)"
         >
-          <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-3.5 h-3.5 text-blue-200" /></span>
+          <span className="mic-ring rounded-full flex items-center justify-center"><Mic className="w-5 h-5 text-blue-200" /></span>
           <span className="hidden lg:inline">{t('nav.mitra')} (Voice)</span>
         </button>
 
@@ -492,11 +517,11 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         <button
           type="button"
           onClick={() => dispatchReplayWelcome()}
-          className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-10 min-w-10 flex items-center justify-center"
+          className="hidden min-[400px]:flex p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 items-center justify-center"
           title="Replay welcome greeting"
           aria-label="Replay welcome greeting"
         >
-          <Volume2 className="w-4 h-4" />
+          <Volume2 className="w-5 h-5" />
         </button>
 
         {/* Notifications Button */}
@@ -504,10 +529,10 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
           <button
             type="button"
             onClick={() => setIsNotifOpen(!isNotifOpen)}
-            className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200"
+            className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200 min-h-9 sm:min-h-10 min-w-9 sm:min-w-10 flex items-center justify-center"
             aria-label={t('nav.notifications')}
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -587,24 +612,16 @@ export const Navbar: React.FC<{ onOpenMobileMenu?: () => void }> = ({ onOpenMobi
         </div>
       </div>
 
-        {/* Mobile-only status row: Local AI Ready sits on its own line so it never crowds the icon row */}
-        <div className="sm:hidden w-full order-4 flex justify-center pb-1">
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>{t('nav.local_ai_ready')}</span>
-          </span>
-        </div>
-
         {/* Profile + Logout */}
-        <div className="relative order-2 sm:order-4" ref={profileRef}>
+        <div className="relative shrink-0 order-2 sm:order-4" ref={profileRef}>
           <button
             type="button"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 p-1.5 pr-2 rounded-lg text-slate-700 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-11"
+            className="flex items-center gap-2 p-1 sm:p-1.5 pr-1.5 sm:pr-2 rounded-lg text-slate-700 hover:bg-slate-100 transition border border-transparent hover:border-slate-200 min-h-10 sm:min-h-11"
             aria-label="Profile menu"
           >
             <span className="w-8 h-8 rounded-full bg-[#101B33] text-white flex items-center justify-center shrink-0">
-              <UserIcon className="w-4 h-4" />
+              <UserIcon className="w-5 h-5" />
             </span>
             <span className="hidden md:block text-left leading-tight">
               <span className="block text-xs font-semibold truncate max-w-[120px]">{localProfile?.name || user?.name || 'Command User'}</span>
