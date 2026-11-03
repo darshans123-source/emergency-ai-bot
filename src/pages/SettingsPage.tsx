@@ -1,8 +1,10 @@
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2 } from 'lucide-react';
+import { Settings, LogOut, User, ShieldAlert, Trash2, Volume2, MapPin, Mic } from 'lucide-react';
 import React, { useState } from 'react';
 import { dispatchReplayWelcome, isWelcomeVoiceEnabled, setWelcomeVoiceEnabled } from '../demo/welcomeVoice';
+import { getLaunchPermissions, requestLaunchPermissions, type LaunchPermissions as LaunchPerms } from '../demo/launchPermissions';
+import { locationService } from '../services/locationService';
 import { useAuth } from '../context/AuthContext';
 import { deleteProfile } from '../services/localProfile';
 
@@ -11,6 +13,11 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { localProfile, localProfiles, user, logout, logoutLocal, refreshLocalProfiles } = useAuth();
   const [voiceOn, setVoiceOn] = useState<boolean>(() => isWelcomeVoiceEnabled());
+  const [permStatus, setPermStatus] = useState<LaunchPerms | null>(() => getLaunchPermissions());
+  const [savedLoc, setSavedLoc] = useState(() => {
+    try { return locationService.getConfirmedLocation(); } catch { return null; }
+  });
+  const [permChecking, setPermChecking] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -91,6 +98,67 @@ export const SettingsPage: React.FC = () => {
         <p className="mt-3 text-xs text-[#64748B]">
           Switch profile returns you to the login screen, where you can pick a saved profile or create
           a new one. Your PIN is never shown here.
+        </p>
+      </section>
+
+      <section className="bg-white rounded-[20px] border border-slate-200 shadow-sm p-6">
+        <h2 className="font-bold text-[#172033] flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-[#2563EB]" /> Location &amp; microphone
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+          When you open AegisAI, it asks for your device location and microphone permission.
+          Location is used for the Live Map, the Report form and nearby demo facilities;
+          the microphone is used for voice input and Mitra AI. Location is stored only in
+          this browser session (1 hour) and the microphone is never recorded by this check —
+          the permission stream is stopped immediately.
+        </p>
+        <dl className="mt-4 space-y-3 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#64748B]">Location permission</dt>
+            <dd className="font-semibold text-[#172033] text-right">{permStatus?.location || 'Not checked yet'}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#64748B]">Microphone permission</dt>
+            <dd className="font-semibold text-[#172033] text-right">{permStatus?.mic || 'Not checked yet'}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#64748B]">Saved location</dt>
+            <dd className="font-semibold text-[#172033] text-right">{savedLoc ? `${savedLoc.coordinates.latitude.toFixed(5)}, ${savedLoc.coordinates.longitude.toFixed(5)}` : '—'}</dd>
+          </div>
+          {savedLoc?.address && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#64748B]">Saved address</dt>
+              <dd className="font-semibold text-[#172033] text-right">{savedLoc.address}</dd>
+            </div>
+          )}
+        </dl>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={permChecking}
+            onClick={async () => {
+              setPermChecking(true);
+              try {
+                const res = await requestLaunchPermissions();
+                setPermStatus(res);
+                try { setSavedLoc(locationService.getConfirmedLocation()); } catch { /* ignore */ }
+              } finally { setPermChecking(false); }
+            }}
+            className="min-h-11 px-4 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 inline-flex items-center gap-2 disabled:opacity-50"
+          >
+            <MapPin className="w-4 h-4" /> <Mic className="w-4 h-4" /> {permChecking ? 'Checking…' : 'Detect location & microphone again'}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/map')}
+            className="min-h-11 px-4 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-[#172033] hover:bg-slate-50"
+          >
+            Open Live Map
+          </button>
+        </div>
+        <p className="mt-3 text-xs text-[#64748B]">
+          If you denied a permission, your browser may not ask again — use your browser&apos;s
+          site settings (lock icon in the address bar) to allow it, then tap the button above.
         </p>
       </section>
 

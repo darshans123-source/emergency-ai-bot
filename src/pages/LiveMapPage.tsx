@@ -291,7 +291,16 @@ export const LiveMapPage: React.FC = () => {
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [37.7785, -122.4115], // Central Operations Sector
+        center: (() => {
+          // Launch detection (App open) already saves the user's location
+          // through locationService; use it if present, otherwise fall
+          // back to Bengaluru (the demo's home region) — not San Francisco.
+          try {
+            const saved = locationService.getConfirmedLocation();
+            if (saved) return [saved.coordinates.latitude, saved.coordinates.longitude] as [number, number];
+          } catch { /* ignore */ }
+          return [12.9716, 77.5946] as [number, number];
+        })(),
         zoom: 13,
         zoomControl: false,
         attributionControl: true

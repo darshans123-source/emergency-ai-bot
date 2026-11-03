@@ -7,6 +7,7 @@ import { LanguageProvider } from './i18n/LanguageContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { WelcomeVoice } from './components/demo/WelcomeVoice';
+import { LaunchPermissions } from './components/demo/LaunchPermissions';
 import { SplashPage } from './pages/SplashPage';
 import { LocalLoginPage } from './pages/LocalLoginPage';
 import { CommandCenterPage } from './pages/CommandCenterPage';
@@ -123,6 +124,7 @@ export default function App() {
         <NotificationProvider>
           <RouteTitle />
           <WelcomeVoice />
+          <LaunchPermissions />
           <Suspense fallback={<PageLoading />}>
             <Routes>
               {/* Premium splash — initial load only */}
