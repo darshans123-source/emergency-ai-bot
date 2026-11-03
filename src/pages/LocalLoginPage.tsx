@@ -212,8 +212,11 @@ export const LocalLoginPage: React.FC = () => {
         </div>
 
         <p className="mt-4 text-center text-xs text-blue-100">
-          For life-threatening emergencies, always call 112 / 911 directly.
+          For life-threatening emergencies, always call{' '}
+          <a href="tel:112" className="font-semibold text-cyan-300 underline underline-offset-2">112</a>{' '}
+          / 911 directly.
         </p>
+        <p className="mt-2 text-center text-xs text-blue-200/70">© {new Date().getFullYear()} AegisAI · Designed &amp; Developed by Darshan</p>
       </div>
       <MarqueeBanner />
     </div>

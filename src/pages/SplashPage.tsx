@@ -15,7 +15,7 @@ import { AuroraBackground } from '../components/layout/AuroraBackground';
  * Get Started / Login, or continues as a saved profile.
  */
 const SPLASH_PHOTO =
-  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1600&q=80';
+  'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=75';
 
 export const SplashPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +33,7 @@ export const SplashPage: React.FC = () => {
           aria-hidden="true"
           onError={() => setPhotoFailed(true)}
           className="absolute inset-0 w-full h-full object-cover"
+          decoding="async"
         />
       )}
       <div className="absolute inset-0 bg-[#101B33]/75 sm:bg-[#101B33]/65" aria-hidden="true" />
@@ -77,8 +78,11 @@ export const SplashPage: React.FC = () => {
         </div>
 
         <p className="mt-8 text-xs text-slate-400">
-          Decision support only. For life-threatening emergencies, call 112 / 911 directly.
+          Decision support only. For life-threatening emergencies, call{' '}
+          <a href="tel:112" className="font-semibold text-cyan-300 underline underline-offset-2">112</a>{' '}
+          / 911 directly.
         </p>
+        <p className="mt-2 text-xs text-slate-500">© {new Date().getFullYear()} AegisAI · Designed &amp; Developed by Darshan</p>
       </div>
 
       <MarqueeBanner />

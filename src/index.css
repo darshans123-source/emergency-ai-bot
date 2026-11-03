@@ -516,3 +516,9 @@ main select option, header select option, aside select option, .login-shell sele
 @media (prefers-reduced-motion: reduce) {
   .logo-glow { animation: none !important; }
 }
+
+/* QA audit: stop any horizontal scrolling at the document level.
+   `clip` (not `hidden`) is used deliberately so sticky positioning
+   (the header) keeps working. Page-level scroll containers (tables,
+   maps, chat) keep their own overflow-x-auto where they need it. */
+html, body { overflow-x: clip; }
