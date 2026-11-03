@@ -325,23 +325,24 @@ export const api = {
   // Health — lightweight, used to tell a real backend failure apart from a blank page
   getHealth: () => request<{ status: string; system?: string; timestamp?: string }>('/health'),
 
-  // Free.ai / OpenAI chat via the backend (server-side only — no key ever
-  // reaches the frontend; the server picks Free.ai first when
-  // FREE_AI_API_KEY is set in its environment).
-  openaiChat: (data: { agent: string; message: string; history?: Array<{ role: 'user' | 'agent'; content: string }>; incidentId?: string | null; provider?: string }, timeoutMs?: number) =>
+  // Gemini chat via the backend (server-side only — no key ever reaches
+  // the frontend; Gemini is the single provider, GEMINI_API_KEY on the
+  // server). Route path /ai/openai is kept under its historic name so
+  // existing callers keep working; the backend behind it is Gemini-only.
+  geminiChat: (data: { agent: string; message: string; history?: Array<{ role: 'user' | 'agent'; content: string }>; incidentId?: string | null }, timeoutMs?: number) =>
     request<{ agent: string; agentName: string; reply: string; provider: string; timestamp: string }>('/ai/openai', {
       method: 'POST',
       body: JSON.stringify(data),
       ...(timeoutMs ? { timeoutMs } : {})
     }),
 
-  // Free.ai connection test via the backend. An optional key passed here is
+  // Gemini connection test via the backend. An optional key passed here is
   // used for ONE test call only and is never stored, logged or returned by
   // the server. Without a key, the server environment key is tested.
-  testFreeAI: (key?: string, provider?: string) =>
+  testGemini: (key?: string) =>
     request<{ ok: boolean; provider: string; model: string; configured: boolean; testedWithProvidedKey: boolean }>('/ai/test', {
       method: 'POST',
-      body: JSON.stringify({ ...(key ? { key } : {}), ...(provider ? { provider } : {}) })
+      body: JSON.stringify(key ? { key } : {})
     }),
 
   summarize: (data: { incidentId?: string; text?: string; task?: 'summary' | 'analysis' | 'recommendations' }) =>
@@ -355,26 +356,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ query })
     }),
-
-  speak: async (text: string): Promise<Blob> => {
-    const token = localStorage.getItem('er_token');
-    const res = await fetch('/api/ai/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ text })
-    });
-    if (!res.ok) {
-      let msg = `Speech failed (${res.status})`;
-      try {
-        const j = await res.json();
-        if (j.message) msg = j.message;
-      } catch {
-        // ignore
-      }
-      throw new Error(msg);
-    }
-    return res.blob();
-  },
 
   // Dashboard
   getDashboardSummary: () => request<DashboardSummary>('/dashboard/summary'),

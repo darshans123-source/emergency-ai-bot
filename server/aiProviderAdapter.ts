@@ -4,10 +4,10 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'freeai' | 'openrouter' | 'built-in-domain';
+  provider: 'gemini';
   model: string;
   isExternalConfigured: boolean;
-  status: 'Online' | 'Degraded' | 'Offline' | 'LocalFallback';
+  status: 'Online' | 'NotConfigured';
   message: string;
   supportedLanguages: Array<{ code: SupportedLanguage; name: string; nativeName: string; speechCode: string }>;
 }
@@ -61,103 +61,25 @@ export function detectLanguage(text: string, preferred: SupportedLanguage = 'en'
  * Validates AI provider status without exposing secrets
  */
 export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
-  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
-  const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
+  // Gemini is the single AI provider. No other provider is checked here.
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
-  const openAiKey = process.env.OPENAI_API_KEY?.trim();
-  const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
-  const cohereKey = process.env.COHERE_API_KEY?.trim();
-
-  // OpenRouter takes precedence when OPENROUTER_API_KEY is set (user-requested provider).
-  // Docs: POST https://openrouter.ai/api/v1/chat/completions with
-  // Authorization: Bearer <key> and an OpenAI-style { model, messages } body.
-  // Default model is a free model verified against the live OpenRouter
-  // models list on 2026-11-03; free-model availability rotates, so
-  // OPENROUTER_MODEL can override it without a code change.
-  if (openRouterKey) {
-    const configuredModel = process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free';
-    return {
-      provider: 'openrouter',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `OpenRouter Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
-  // Free.ai takes precedence when FREE_AI_API_KEY is set (user-requested provider).
-  // Docs: https://free.ai/docs/ — POST https://api.free.ai/v1/chat/ with
-  // Authorization: Bearer <key> and an OpenAI-style { model, messages } body.
-  if (freeAiKey) {
-    const configuredModel = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
-    return {
-      provider: 'freeai',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `Free.ai Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
-  // Cohere takes precedence when COHERE_API_KEY is set (user-requested provider).
-  if (cohereKey) {
-    const configuredModel = process.env.COHERE_MODEL?.trim() || 'command-a-03-2025';
-    return {
-      provider: 'cohere',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `Cohere Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
-  // Qwen (DashScope) takes precedence when DASHSCOPE_API_KEY is set (user-requested provider).
-  if (dashKey) {
-    const configuredModel = process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash';
-    return {
-      provider: 'qwen',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `Qwen (DashScope) Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
-  // OpenAI takes precedence when OPENAI_API_KEY is set (user-requested provider).
-  if (openAiKey) {
-    const configuredModel = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
-    return {
-      provider: 'openai',
-      model: configuredModel,
-      isExternalConfigured: true,
-      status: 'Online',
-      message: `OpenAI Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
-      supportedLanguages: SUPPORTED_LANGUAGES
-    };
-  }
-
+  const configuredModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
   if (geminiKey) {
-    const configuredModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
     return {
       provider: 'gemini',
       model: configuredModel,
       isExternalConfigured: true,
       status: 'Online',
-      message: `Gemini AI Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      message: `Gemini Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
       supportedLanguages: SUPPORTED_LANGUAGES
     };
   }
-
   return {
-    provider: 'built-in-domain',
-    model: 'Aegis-Multilingual-Emergency-NLP-v2',
+    provider: 'gemini',
+    model: configuredModel,
     isExternalConfigured: false,
-    status: 'LocalFallback',
-    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure OPENROUTER_API_KEY, FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
+    status: 'NotConfigured',
+    message: 'Gemini is not configured. Set GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }

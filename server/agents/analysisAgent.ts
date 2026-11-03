@@ -8,7 +8,7 @@ export interface AnalysisOutput {
   missingInformation: string[];
   resourceNeeds: string[];
   explanation: string;
-  source: 'OPENAI' | 'GEMINI_AI' | 'RULE_BASED_ENGINE';
+  source: 'GEMINI_AI' | 'RULE_BASED_ENGINE';
 }
 
 export async function runIncidentAnalysisAgent(incident: Incident): Promise<AnalysisOutput> {
@@ -32,68 +32,11 @@ Return a valid JSON object matching this schema:
   "explanation": "concise objective summary of situation"
 }`;
 
-  // 1. If OPENAI_API_KEY is available, attempt structured extraction via OpenAI
-  const openAiKey = process.env.OPENAI_API_KEY;
-  if (openAiKey) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openAiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an emergency command center triage AI. Respond strictly in valid JSON.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          response_format: { type: 'json_object' },
-          temperature: 0.2
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content;
-        if (content) {
-          const parsed = JSON.parse(content);
-          if (parsed.extractedFacts && parsed.normalizedCategory) {
-            return {
-              normalizedCategory: parsed.normalizedCategory,
-              extractedFacts: Array.isArray(parsed.extractedFacts) ? parsed.extractedFacts : [],
-              knownUncertainties: Array.isArray(parsed.knownUncertainties) ? parsed.knownUncertainties : [],
-              missingInformation: Array.isArray(parsed.missingInformation) ? parsed.missingInformation : [],
-              resourceNeeds: Array.isArray(parsed.resourceNeeds) ? parsed.resourceNeeds : [],
-              explanation: parsed.explanation || 'Extracted structured facts using OpenAI.',
-              source: 'OPENAI'
-            };
-          }
-        }
-      } else {
-        console.warn(`[AnalysisAgent] OpenAI request returned status ${response.status}`);
-      }
-    } catch (err) {
-      console.warn('[AnalysisAgent] OpenAI extraction failed or timed out, checking fallbacks:', err);
-    }
-  }
-
-  // 2. If GEMINI_API_KEY is available, attempt structured extraction via Gemini
+  // Gemini is the single AI provider for structured extraction.
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   if (geminiKey) {
-    const candidateModels = [
-      process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash'
-    ].filter(Boolean);
-
-    for (const model of candidateModels) {
+    const model = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
+    { // single model, no deprecated-model fallback chain
       try {
         const ai = new GoogleGenAI({
           apiKey: geminiKey,
@@ -122,7 +65,6 @@ Return a valid JSON object matching this schema:
             };
           }
         }
-        break;
       } catch (err: any) {
         console.warn(`[AnalysisAgent] Gemini model ${model} failed:`, err?.message || err);
       }

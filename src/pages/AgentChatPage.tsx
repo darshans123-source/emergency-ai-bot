@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Send, Mic, MicOff, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { AGENT_META, AgentSlug } from '../demo/demoAiEngine';
-import { generateStructuredResponse, structuredToText, ConversationContext, StructuredResponse } from '../demo/aegisEngine';
+import { structuredToText, ConversationContext, StructuredResponse } from '../demo/aegisEngine';
 import { loadDemoIncidents, saveDemoIncidents } from '../demo/demoStore';
-import { getAiSource, setAiSource, adoptServerAiSource, type AiSource } from '../demo/aiSource';
 import { api } from '../services/api';
 import { VoiceControls } from '../components/demo/VoiceControls';
 import { speakText, stopSpeaking, detectSpeechLang } from '../demo/speech';
@@ -15,7 +14,7 @@ interface ChatMsg {
   id: string;
   role: 'user' | 'agent';
   content: string;
-  source?: 'local' | 'freeai' | 'openrouter';
+  source?: 'local' | 'freeai' | 'openrouter' | 'gemini';
   demoMeta?: { category: string; priority: string; actions: string[]; demoInfo: string[] };
   structured?: StructuredResponse;
   savedAsIncident?: boolean;
@@ -37,11 +36,9 @@ export const AgentChatPage: React.FC = () => {
 
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
-  const [aiSource, setAiSourceState] = useState<AiSource>(() => getAiSource());
-  useEffect(() => {
-    adoptServerAiSource(() => api.getAIStatus()).then(() => setAiSourceState(getAiSource())).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Gemini is the single provider: no source selector, no local-engine
+  // fallback. A failed Gemini call shows a clear error and no reply is
+  // substituted, so a local answer is never presented as AI.
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
@@ -103,31 +100,19 @@ export const AgentChatPage: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
-    // Free.ai via the backend, when the user selected it in Settings: the
-    // server holds the key, so no key is ever sent from this page. Any
-    // failure (no key configured, backend offline) falls back to the local
-    // engine instead of showing a dead end. Default is the local engine.
-    if (aiSource !== 'local') {
-      try {
-        const history = messages.slice(-6).map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), content: m.content }));
-        const live = await api.openaiChat({ agent: resolvedSlug, message: content, history, provider: aiSource });
-        const src: 'freeai' | 'openrouter' = live.provider === 'openrouter' ? 'openrouter' : 'freeai';
-        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: src }]);
-        setIsSending(false);
-        return;
-      } catch (err: any) {
-        // Real error surfaced, then the local engine answers so the chat
-        // never goes silent: rate limits, timeouts and bad keys are shown
-        // as-is, never replaced by a fake AI reply.
-        setError(`${aiSource === 'openrouter' ? 'OpenRouter' : 'Free.ai'} is unavailable (${err?.message || 'server error'}). Answering with the local engine instead — check the server key in Settings.`);
-      }
-    }
-    const { response, context } = generateStructuredResponse(resolvedSlug as AgentSlug, content, contextRef.current, lang);
-    contextRef.current = context;
-    window.setTimeout(() => {
-      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: structuredToText(response), structured: response, source: 'local' }]);
+    // Gemini via the backend: the server holds the key, so no key is ever
+    // sent from this page. On any failure (no key configured, backend
+    // offline, rate limit, timeout) a clear error is shown and NO reply is
+    // substituted — a local answer must never be presented as AI.
+    try {
+      const history = messages.slice(-6).map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), content: m.content }));
+      const live = await api.geminiChat({ agent: resolvedSlug, message: content, history });
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: 'gemini' }]);
+    } catch (err: any) {
+      setError(`Gemini is unavailable (${err?.message || 'server error'}). No answer has been substituted — check GEMINI_API_KEY in Settings.`);
+    } finally {
       setIsSending(false);
-    }, 700);
+    }
     return;
   };
 
@@ -190,13 +175,7 @@ export const AgentChatPage: React.FC = () => {
           </div>
         </div>
         <p className="relative mt-3 text-sm text-white/85 leading-relaxed">{agentTranslations[agent.slug]?.description || agent.description}</p>
-        <div className="relative mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-white/85">AI source:</span>
-          <button type="button" onClick={() => { setAiSource('local'); setAiSourceState('local'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'local' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Local engine</button>
-          <button type="button" onClick={() => { setAiSource('freeai'); setAiSourceState('freeai'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'freeai' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>Free.ai (via backend)</button>
-          <button type="button" onClick={() => { setAiSource('openrouter'); setAiSourceState('openrouter'); }} className={`min-h-9 px-3 rounded-full text-xs font-semibold border ${aiSource === 'openrouter' ? 'bg-white text-[#172033] border-white' : 'bg-white/10 text-white border-white/25 hover:bg-white/20'}`}>OpenRouter (via backend)</button>
-          <span className="text-[11px] text-white/70">OpenRouter needs OPENROUTER_API_KEY, Free.ai needs FREE_AI_API_KEY, both set on the server — see Settings.</span>
-        </div>
+        <p className="relative mt-3 text-[11px] text-white/70">Answers come from Google Gemini via the backend (GEMINI_API_KEY on the server — see Settings). If Gemini is unavailable, a clear error is shown instead of a substitute answer.</p>
         <p className="relative mt-2 text-xs text-white/70">
           {t('chat.voice_note')}
           {isListening && (<span className="ml-2 inline-flex items-center gap-1 text-cyan-300 font-semibold"><span className="aurora-wave"><span /><span /><span /><span /><span /></span> Listening…</span>)}
@@ -273,7 +252,7 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && (m.source === 'freeai' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Free.ai'} reply · decision support only, call 112 for real emergencies</p>)}
+              {m.role === 'agent' && m.source === 'gemini' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Gemini reply · decision support only, call 112 for real emergencies</p>)}
               {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} lang={lang} />}
             </div>
           </div>

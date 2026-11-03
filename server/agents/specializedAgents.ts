@@ -848,183 +848,44 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
       recentHistoryText ? `RECENT CONVERSATION:\n${recentHistoryText}\n\n` : ''
     }CALLER MESSAGE:\n${trimmedMessage}`;
 
+    // Gemini is the single AI provider. No other provider is tried, and no
+    // built-in reply is substituted when Gemini is unavailable: the error is
+    // thrown so callers surface it instead of presenting a local reply as AI.
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
-    const openAiKey = process.env.OPENAI_API_KEY?.trim();
-    const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
-    const cohereKey = process.env.COHERE_API_KEY?.trim();
-
-    // 1. Cohere / Qwen (DashScope) / OpenAI take precedence when configured (see blocks below).
-    //    Gemini is only tried when none of those keys is set.
-    if (geminiKey && !openAiKey && !dashKey && !cohereKey) {
-      const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
-      try {
-        const ai = new GoogleGenAI({
-          apiKey: geminiKey,
-          httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-        });
-
-        // Set 5-second timeout to prevent blocking user interactions
-        const generatePromise = ai.models.generateContent({
-          model: activeModel,
-          contents: fullPrompt,
-          config: {
-            systemInstruction
-          }
-        });
-
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('AI Request Timeout (5000ms)')), 5000)
-        );
-
-        const response: any = await Promise.race([generatePromise, timeoutPromise]);
-
-        if (response?.text && response.text.trim()) {
-          replyText = response.text.trim();
-          providerStatus = 'Online';
-          providerNotice = null;
-        }
-      } catch (err: any) {
-        console.warn(`[SpecializedAgent:${agentId}] Gemini model notice:`, err?.message || err);
-        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
-      }
+    if (!geminiKey) {
+      throw new Error('Gemini is not configured on the server. Set GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.');
     }
-
-    // 1a. Try Cohere if reply not yet generated and COHERE_API_KEY is configured
-    if (!replyText && cohereKey) {
-      try {
-        const cohereModel = process.env.COHERE_MODEL?.trim() || 'command-a-03-2025';
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch('https://api.cohere.com/v2/chat', {
-          method: 'POST',
-          signal: controller.signal,
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cohereKey}` },
-          body: JSON.stringify({
-            model: cohereModel,
-            messages: [
-              { role: 'system', content: systemInstruction },
-              ...history.slice(-4).map((m) => ({
-                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
-                content: m.content.slice(0, 250)
-              })),
-              { role: 'user', content: trimmedMessage }
-            ],
-            temperature: 0.3
-          })
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          const data = await response.json();
-          const msg = data.message?.content;
-          const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : data.text;
-          if (content && content.trim()) {
-            replyText = content.trim();
-            providerStatus = 'Online';
-            providerNotice = null;
-          }
+    const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
+    try {
+      const ai = new GoogleGenAI({
+        apiKey: geminiKey,
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+      });
+      const generatePromise = ai.models.generateContent({
+        model: activeModel,
+        contents: fullPrompt,
+        config: {
+          systemInstruction
         }
-      } catch (err: any) {
-        console.warn(`[SpecializedAgent:${agentId}] Cohere model notice:`, err?.message || err);
-        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
-      }
-    }
-
-    // 1b. Try Qwen (DashScope, OpenAI-compatible) if reply not yet generated and DASHSCOPE_API_KEY is configured
-    if (!replyText && dashKey) {
-      try {
-        const qwenModel = process.env.DASHSCOPE_MODEL?.trim() || process.env.QWEN_MODEL?.trim() || 'qwen3.8-flash';
-        const qwenBase = process.env.DASHSCOPE_BASE_URL?.trim() || 'https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1';
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch(`${qwenBase}/chat/completions`, {
-          method: 'POST',
-          signal: controller.signal,
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${dashKey}` },
-          body: JSON.stringify({
-            model: qwenModel,
-            messages: [
-              { role: 'system', content: systemInstruction },
-              ...history.slice(-4).map((m) => ({
-                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
-                content: m.content.slice(0, 250)
-              })),
-              { role: 'user', content: trimmedMessage }
-            ],
-            temperature: 0.3,
-            extra_body: { enable_thinking: true }
-          })
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          const data = await response.json();
-          const content = data.choices?.[0]?.message?.content;
-          if (content && content.trim()) {
-            replyText = content.trim();
-            providerStatus = 'Online';
-            providerNotice = null;
-          }
-        }
-      } catch (err: any) {
-        console.warn(`[SpecializedAgent:${agentId}] Qwen model notice:`, err?.message || err);
-        providerNotice = `AI engine notice: ${err?.message || 'High load'}. Operating via high-availability emergency engine.`;
-      }
-    }
-
-    // 2. Try OpenAI API if reply not yet generated and OPENAI_API_KEY is configured
-    if (!replyText && openAiKey) {
-      try {
-        const openAiModel = process.env.OPENAI_MODEL?.trim() || 'gpt-4o-mini';
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          signal: controller.signal,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${openAiKey}`
-          },
-          body: JSON.stringify({
-            model: openAiModel,
-            messages: [
-              { role: 'system', content: systemInstruction },
-              ...history.slice(-4).map((m) => ({
-                role: m.role === 'user' ? ('user' as const) : ('assistant' as const),
-                content: m.content.slice(0, 250)
-              })),
-              { role: 'user', content: trimmedMessage }
-            ],
-            temperature: 0.3
-          })
-        });
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          const content = data.choices?.[0]?.message?.content;
-          if (content && content.trim()) {
-            replyText = content.trim();
-            providerStatus = 'Online';
-            providerNotice = null;
-          }
-        }
-      } catch (err: any) {
-        console.warn(`[SpecializedAgent:${agentId}] OpenAI error:`, err?.message || err);
-      }
-    }
-
-    // 3. Built-in Multilingual Emergency Agent Engine (sub-millisecond high-availability fallback)
-    if (!replyText) {
-      if (!geminiKey && !openAiKey) {
-        providerNotice = 'Built-in Multilingual Emergency Agent active (Hindi, Kannada, English).';
-      }
-      replyText = await generateDomainSpecificFallback(
-        agentId,
-        trimmedMessage,
-        incident,
-        language,
-        userLocation
+      });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('AI Request Timeout (5000ms)')), 5000)
       );
+      const response: any = await Promise.race([generatePromise, timeoutPromise]);
+      if (response?.text && response.text.trim()) {
+        replyText = response.text.trim();
+        providerStatus = 'Online';
+        providerNotice = null;
+      } else {
+        throw new Error('Gemini returned an empty response.');
+      }
+    } catch (err: any) {
+      const msg = String(err?.message || err);
+      if (/timeout/i.test(msg)) throw new Error('Gemini request timed out. Please retry.');
+      if (/404|not found/i.test(msg)) throw new Error(`Gemini model not found (${activeModel}). Set GEMINI_MODEL to a currently supported Flash model.`);
+      if (/429|quota|rate limit/i.test(msg)) throw new Error('Gemini rate limit or quota reached. Please wait a moment and retry.');
+      if (/400|api key not valid/i.test(msg)) throw new Error('Gemini key is invalid. Check GEMINI_API_KEY in the server environment.');
+      throw new Error(`Gemini is unavailable: ${msg.slice(0, 200)}`);
     }
   }
 
