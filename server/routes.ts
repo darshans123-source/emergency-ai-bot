@@ -584,33 +584,26 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
-// Free.ai connection test (POST /api/ai/test). Server-side only.
+// AI connection test (POST /api/ai/test). Server-side only.
+// Tests the active provider: OpenRouter first, then Free.ai. An optional
+// `provider` in the body ('openrouter' | 'freeai') forces that provider.
 // If the caller supplies a key in the request body, it is used for this ONE
 // test call only and is never stored, logged or returned. Without a supplied
-// key, the server environment key (FREE_AI_API_KEY) is tested. A supplied key
-// is NOT saved anywhere: to actually use Free.ai, the key must be set in the
-// server environment (Vercel Settings -> Environment Variables, or a local
-// .env file) and the deployment redeployed. Returns 503 when no key is
-// available, 502 when Free.ai rejects the call. Never returns a key value.
-apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
-  const suppliedKey = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
-  const envKey = process.env.FREE_AI_API_KEY?.trim() || '';
-  const key = suppliedKey || envKey;
-  if (!key) {
-    res.status(503).json({
-      error: 'AI Not Configured',
-      message: 'Free.ai is not configured on the server. Set FREE_AI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.'
-    });
-    return;
-  }
-  const model = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
+// key, the server environment key is tested. A supplied key is NOT saved
+// anywhere: to actually use a provider, its key must be set in the server
+// environment (Vercel Settings -> Environment Variables, or a local .env
+// file) and the deployment redeployed. Returns 503 when no key is available,
+// 502/429/401 when the provider rejects the call. Never returns a key value.
+async function testProviderChat(
+  url: string, key: string, model: string, extraHeaders: Record<string, string>
+): Promise<{ ok: boolean; error?: string; status?: number }> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-    const response = await fetch(freeaiChatUrl(process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai'), {
+    const response = await fetch(url, {
       method: 'POST',
       signal: controller.signal,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}`, ...extraHeaders },
       body: JSON.stringify({
         model,
         messages: [
@@ -622,27 +615,61 @@ apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
     });
     clearTimeout(timeoutId);
     if (!response.ok) {
-      const body = await response.text().catch(() => '');
-      res.status(502).json({ error: 'AI Error', message: `Free.ai test failed (${response.status}). ${body.slice(0, 200)}` });
-      return;
+      let detail = '';
+      try { const j: any = await response.json(); detail = j?.error?.message || ''; } catch { /* ignore */ }
+      if (!detail) { try { detail = (await response.text()).slice(0, 200); } catch { /* ignore */ } }
+      return { ok: false, error: `Provider test failed (${response.status}). ${detail}`.trim(), status: response.status };
     }
     const data: any = await response.json();
     const content = data.choices?.[0]?.message?.content;
     const text = typeof content === 'string' ? content : Array.isArray(content) ? content.map((c: any) => c.text || '').join('') : '';
-    if (!text.trim()) {
-      res.status(502).json({ error: 'AI Error', message: 'Free.ai returned an empty response.' });
+    if (!text.trim()) return { ok: false, error: 'Provider returned an empty response.' };
+    return { ok: true };
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    return { ok: false, error: err?.name === 'AbortError' ? 'Provider test timed out.' : 'Provider test failed. Check the server environment key and retry.' };
+  }
+}
+
+apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
+  const suppliedKey = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
+  const hint = typeof req.body?.provider === 'string' ? req.body.provider.toLowerCase() : '';
+  const orEnvKey = process.env.OPENROUTER_API_KEY?.trim() || '';
+  const frEnvKey = process.env.FREE_AI_API_KEY?.trim() || '';
+  let mode: 'openrouter' | 'freeai';
+  if (hint === 'freeai') mode = 'freeai';
+  else if (hint === 'openrouter') mode = 'openrouter';
+  else if (suppliedKey) mode = orEnvKey ? 'openrouter' : frEnvKey ? 'freeai' : 'openrouter';
+  else mode = orEnvKey ? 'openrouter' : frEnvKey ? 'freeai' : 'openrouter';
+  if (mode === 'freeai') {
+    const key = suppliedKey || frEnvKey;
+    if (!key) {
+      res.status(503).json({ error: 'AI Not Configured', message: 'Free.ai is not configured on the server. Set FREE_AI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.' });
       return;
     }
-    res.json({ ok: true, provider: 'freeai', model, configured: Boolean(envKey), testedWithProvidedKey: Boolean(suppliedKey) });
-  } catch (err: any) {
-    res.status(502).json({ error: 'AI Error', message: err?.name === 'AbortError' ? 'Free.ai test timed out.' : 'Free.ai test failed. Check the server environment key and retry.' });
+    const model = process.env.FREE_AI_MODEL?.trim() || 'qwen7b';
+    const result = await testProviderChat(freeaiChatUrl(process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai'), key, model, {});
+    if (!result.ok) { res.status(result.status === 429 ? 429 : 502).json({ error: 'AI Error', message: result.error }); return; }
+    res.json({ ok: true, provider: 'freeai', model, configured: Boolean(frEnvKey), testedWithProvidedKey: Boolean(suppliedKey) });
+    return;
   }
+  const key = suppliedKey || orEnvKey;
+  if (!key) {
+    res.status(503).json({ error: 'AI Not Configured', message: 'OpenRouter is not configured on the server. Set OPENROUTER_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.' });
+    return;
+  }
+  const model = process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free';
+  const result = await testProviderChat(openrouterChatUrl(process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1'), key, model, { 'HTTP-Referer': 'https://emergency-ai-bot.vercel.app/', 'X-Title': 'AegisAI', 'X-OpenRouter-Title': 'AegisAI' });
+  if (!result.ok) { res.status(result.status === 429 ? 429 : result.status === 401 ? 401 : 502).json({ error: 'AI Error', message: result.error }); return; }
+  res.json({ ok: true, provider: 'openrouter', model, configured: Boolean(orEnvKey), testedWithProvidedKey: Boolean(suppliedKey) });
 });
 
 // -------------------------------------------------------------
-// AI ENDPOINTS (server-side only, Free.ai first, then Qwen/DashScope, then OpenAI)
+// AI ENDPOINTS (server-side only, OpenRouter first, then Free.ai, then Qwen/DashScope, then OpenAI)
 // -------------------------------------------------------------
 // Keys are read only from server environment variables:
+//   OPENROUTER_API_KEY (OpenRouter, https://openrouter.ai/api/v1/chat/completions,
+//   model google/gemma-4-26b-a4b-it:free by default, Authorization: Bearer <key>) — used first when set,
 //   FREE_AI_API_KEY (Free.ai, https://api.free.ai/v1/chat/,
 //   model qwen7b by default, Authorization: Bearer <key>) — used first when set,
 //   COHERE_API_KEY (Cohere, https://api.cohere.com/v2/chat,
@@ -684,7 +711,28 @@ const OPENAI_AGENTS: Record<string, { name: string; system: string }> = {
   }
 };
 
-type ChatProvider = { name: 'cohere' | 'qwen' | 'openai' | 'freeai'; key: string; baseUrl: string; model: string };
+type ChatProvider = { name: 'cohere' | 'qwen' | 'openai' | 'freeai' | 'openrouter'; key: string; baseUrl: string; model: string };
+
+// OpenRouter: base https://openrouter.ai/api/v1, chat at /chat/completions.
+// Normalises a base that already ends in /chat/completions, or in /v1.
+function openrouterChatUrl(baseUrl: string): string {
+  const base = baseUrl.replace(/\/+$/, '');
+  if (base.endsWith('/chat/completions')) return base;
+  return base.endsWith('/v1') ? `${base}/chat/completions` : `${base}/v1/chat/completions`;
+}
+
+// Returns the provider for one name when its key is set, else null.
+function providerForName(name: string): ChatProvider | null {
+  if (name === 'openrouter') {
+    const key = process.env.OPENROUTER_API_KEY?.trim();
+    if (key) return { name: 'openrouter', key, baseUrl: process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1', model: process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free' };
+  }
+  if (name === 'freeai') {
+    const key = process.env.FREE_AI_API_KEY?.trim();
+    if (key) return { name: 'freeai', key, baseUrl: process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai', model: process.env.FREE_AI_MODEL?.trim() || 'qwen7b' };
+  }
+  return null;
+}
 
 // Free.ai docs (https://free.ai/docs/): base https://api.free.ai, chat at /v1/chat/.
 // If FREE_AI_API_URL already ends in /v1, the chat path is /chat/ instead.
@@ -693,7 +741,17 @@ function freeaiChatUrl(baseUrl: string): string {
   return base.endsWith('/v1') ? `${base}/chat/` : `${base}/v1/chat/`;
 }
 
-function getChatProvider(): ChatProvider | null {
+function getChatProvider(hint?: string): ChatProvider | null {
+  if (hint) {
+    const hinted = providerForName(hint.toLowerCase());
+    if (hinted) return hinted;
+    // Hinted provider has no key: fall through to the chain below so the
+    // caller still gets a real provider (labelled by its actual name).
+  }
+  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (openRouterKey) {
+    return { name: 'openrouter', key: openRouterKey, baseUrl: process.env.OPENROUTER_BASE_URL?.trim() || 'https://openrouter.ai/api/v1', model: process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free' };
+  }
   const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
   if (freeAiKey) {
     return { name: 'freeai', key: freeAiKey, baseUrl: process.env.FREE_AI_API_URL?.trim() || 'https://api.free.ai', model: process.env.FREE_AI_MODEL?.trim() || 'qwen7b' };
@@ -720,17 +778,52 @@ function getChatProvider(): ChatProvider | null {
 
 async function callOpenAIChat(
   system: string,
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+  hint?: string
 ): Promise<string> {
-  const provider = getChatProvider();
+  const provider = getChatProvider(hint);
   if (!provider) {
-    const err: any = new Error('AI is not configured on the server. Set FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
+    const err: any = new Error('AI is not configured on the server. Set OPENROUTER_API_KEY, FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in the server environment.');
     err.status = 503;
     throw err;
   }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
+    if (provider.name === 'openrouter') {
+      // OpenRouter is OpenAI-compatible: { model, messages } in,
+      // choices[0].message.content out. HTTP-Referer / X-Title are the
+      // optional attribution headers OpenRouter documents.
+      const response = await fetch(openrouterChatUrl(provider.baseUrl), {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}`, 'HTTP-Referer': 'https://emergency-ai-bot.vercel.app/', 'X-Title': 'AegisAI', 'X-OpenRouter-Title': 'AegisAI' },
+        body: JSON.stringify({
+          model: provider.model,
+          messages: [{ role: 'system', content: system }, ...messages],
+          temperature: 0.3
+        })
+      });
+      if (!response.ok) {
+        let detail = '';
+        try { const j: any = await response.json(); detail = j?.error?.message || ''; } catch { /* ignore */ }
+        if (!detail) { try { detail = (await response.text()).slice(0, 200); } catch { /* ignore */ } }
+        const err: any = new Error(
+          response.status === 429 ? 'OpenRouter rate limit reached. Please wait a moment and retry.'
+          : response.status === 401 ? 'OpenRouter key is missing or invalid. Check OPENROUTER_API_KEY in the server environment.'
+          : response.status === 402 ? 'OpenRouter credits are exhausted. Add credits or switch to a free model.'
+          : response.status === 404 ? `OpenRouter model not found (${provider.model}). Set OPENROUTER_MODEL to a model from the live OpenRouter models list.`
+          : `openrouter request failed (${response.status}). ${detail}`.trim()
+        );
+        err.status = response.status === 429 || response.status === 401 || response.status === 402 ? response.status : 502;
+        throw err;
+      }
+      const data: any = await response.json();
+      const msg = data.choices?.[0]?.message?.content;
+      const content = typeof msg === 'string' ? msg : Array.isArray(msg) ? msg.map((c: any) => c.text || '').join('') : '';
+      if (!content || !content.trim()) throw new Error('openrouter returned an empty response.');
+      return content.trim();
+    }
     if (provider.name === 'freeai') {
       // Free.ai is OpenAI-compatible: { model, messages } in, choices[0].message.content out.
       const response = await fetch(freeaiChatUrl(provider.baseUrl), {
@@ -799,6 +892,13 @@ async function callOpenAIChat(
     const content = data.choices?.[0]?.message?.content;
     if (!content || !content.trim()) throw new Error(`${provider.name} returned an empty response.`);
     return content.trim();
+  } catch (err: any) {
+    if (err?.name === 'AbortError') {
+      const e: any = new Error('AI request timed out. Please retry.');
+      e.status = 504;
+      throw e;
+    }
+    throw err;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -814,7 +914,7 @@ function openaiError(res: Response, err: any) {
 
 // Dedicated OpenAI chat for the four named agents (Rakshak / Jeevan / Agni / Sanrakshak)
 apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) => {
-  const { agent, message, history, incidentId } = req.body || {};
+  const { agent, message, history, incidentId, provider: providerHint } = req.body || {};
   const key = (typeof agent === 'string' ? agent.toLowerCase() : '') as keyof typeof OPENAI_AGENTS;
   const agentDef = OPENAI_AGENTS[key];
   if (!agentDef || !message || typeof message !== 'string' || !message.trim()) {
@@ -829,8 +929,8 @@ apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) =>
     const reply = await callOpenAIChat(agentDef.system, [
       ...(Array.isArray(history) ? history.slice(-6).map((m: any) => ({ role: m.role === 'user' ? ('user' as const) : ('assistant' as const), content: String(m.content || '').slice(0, 500) })) : []),
       { role: 'user' as const, content: `${context}\n\nUser message: ${message.trim()}` }
-    ]);
-    res.json({ agent: key, agentName: agentDef.name, reply, provider: getChatProvider()?.name || 'openai', timestamp: new Date().toISOString() });
+    ], typeof providerHint === 'string' ? providerHint : undefined);
+    res.json({ agent: key, agentName: agentDef.name, reply, provider: getChatProvider(typeof providerHint === 'string' ? providerHint : undefined)?.name || 'openai', timestamp: new Date().toISOString() });
   } catch (err: any) {
     openaiError(res, err);
   }

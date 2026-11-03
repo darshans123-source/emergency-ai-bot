@@ -4,7 +4,7 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'freeai' | 'built-in-domain';
+  provider: 'gemini' | 'openai' | 'qwen' | 'cohere' | 'freeai' | 'openrouter' | 'built-in-domain';
   model: string;
   isExternalConfigured: boolean;
   status: 'Online' | 'Degraded' | 'Offline' | 'LocalFallback';
@@ -61,11 +61,30 @@ export function detectLanguage(text: string, preferred: SupportedLanguage = 'en'
  * Validates AI provider status without exposing secrets
  */
 export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
+  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
   const freeAiKey = process.env.FREE_AI_API_KEY?.trim();
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
   const dashKey = process.env.DASHSCOPE_API_KEY?.trim();
   const cohereKey = process.env.COHERE_API_KEY?.trim();
+
+  // OpenRouter takes precedence when OPENROUTER_API_KEY is set (user-requested provider).
+  // Docs: POST https://openrouter.ai/api/v1/chat/completions with
+  // Authorization: Bearer <key> and an OpenAI-style { model, messages } body.
+  // Default model is a free model verified against the live OpenRouter
+  // models list on 2026-11-03; free-model availability rotates, so
+  // OPENROUTER_MODEL can override it without a code change.
+  if (openRouterKey) {
+    const configuredModel = process.env.OPENROUTER_MODEL?.trim() || 'google/gemma-4-26b-a4b-it:free';
+    return {
+      provider: 'openrouter',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `OpenRouter Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
 
   // Free.ai takes precedence when FREE_AI_API_KEY is set (user-requested provider).
   // Docs: https://free.ai/docs/ — POST https://api.free.ai/v1/chat/ with
@@ -138,7 +157,7 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
     model: 'Aegis-Multilingual-Emergency-NLP-v2',
     isExternalConfigured: false,
     status: 'LocalFallback',
-    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
+    message: 'Running built-in high-availability multilingual emergency agent engine (English, Hindi, Kannada). Configure OPENROUTER_API_KEY, FREE_AI_API_KEY, COHERE_API_KEY, DASHSCOPE_API_KEY or OPENAI_API_KEY in server environment for cloud LLM reasoning.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }
