@@ -375,7 +375,8 @@
    (desktop/tablet only). Dark text stays readable on the 0.78-white surface,
    and layout, routes and functionality are unchanged. */
 @media (min-width: 641px) {
-  main .bg-white { background-color: rgba(255, 255, 255, 0.88) !important; backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); }
+  /* Superseded by the global dark-glass theme at the end of this file. */
+  main .bg-white { background-color: rgba(15, 30, 65, 0.82) !important; backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); }
 }
 @media (max-width: 640px) {
   .glass-liquid, .glass-liquid-strong, .glass-liquid-input { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(11, 20, 43, 0.94) !important; }
@@ -425,4 +426,93 @@
 }
 @media (max-width: 640px) {
   .marquee-banner, .marquee-banner .glass-liquid-strong { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+}
+
+/* =====================================================================
+   PREMIUM DARK-GLASS THEME — global, root-cause fix (master redesign)
+   Problem: dozens of pages/shell components still used Tailwind light
+   utilities (bg-white, bg-slate-50, text-slate-900, border-slate-200,
+   …) left over from the old light theme. Editing every panel one by
+   one would risk breaking logic and would drift again on the next
+   edit, so the theme is applied here, once, at the CSS root:
+   every legacy light panel inside the app shell (main, header, aside)
+   and the login shell becomes dark navy glass, and its legacy dark
+   text becomes light text. No component logic, routes, demo data,
+   language, voice or API behaviour is touched by this layer.
+   Accent utilities (bg-white/10, bg-blue-500/20, emerald/rose pills
+   with /-opacity, gradient headers) are NOT matched here, so agent
+   accent colours, status pills and glass panels keep their own look.
+   Phones: backdrop blur is off (performance), the 0.82 navy stays.
+   Reduced motion: aurora + logo glow already stop above; this layer
+   adds no motion of its own.
+   ===================================================================== */
+main .bg-white, header .bg-white, aside .bg-white, .login-shell .bg-white,
+main .focus\:bg-white:focus, header .focus\:bg-white:focus, aside .focus\:bg-white:focus, .login-shell .focus\:bg-white:focus {
+  background-color: rgba(15, 30, 65, 0.82) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+main .bg-slate-50, header .bg-slate-50, aside .bg-slate-50, .login-shell .bg-slate-50,
+main .bg-slate-100, header .bg-slate-100, aside .bg-slate-100, .login-shell .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+main .bg-blue-50, header .bg-blue-50, aside .bg-blue-50, .login-shell .bg-blue-50 { background-color: rgba(37, 99, 235, 0.22) !important; }
+main .bg-emerald-50, header .bg-emerald-50, aside .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.18) !important; }
+main .bg-rose-50, header .bg-rose-50, aside .bg-rose-50 { background-color: rgba(244, 63, 94, 0.18) !important; }
+main .bg-amber-50, header .bg-amber-50, aside .bg-amber-50 { background-color: rgba(245, 158, 11, 0.18) !important; }
+main .border-slate-200, header .border-slate-200, aside .border-slate-200, .login-shell .border-slate-200,
+main .border-slate-100, header .border-slate-100, aside .border-slate-100, .login-shell .border-slate-100,
+main .border-slate-300, header .border-slate-300, aside .border-slate-300, .login-shell .border-slate-300,
+main .divide-slate-100 > :not([hidden]) ~ :not([hidden]), header .divide-slate-100 > :not([hidden]) ~ :not([hidden]), aside .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+main .divide-slate-200 > :not([hidden]) ~ :not([hidden]), header .divide-slate-200 > :not([hidden]) ~ :not([hidden]), aside .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+main .text-slate-900, header .text-slate-900, aside .text-slate-900, .login-shell .text-slate-900,
+main .text-\[\#172033\], header .text-\[\#172033\], aside .text-\[\#172033\], .login-shell .text-\[\#172033\] { color: #ffffff !important; }
+main .text-slate-800, header .text-slate-800, aside .text-slate-800, .login-shell .text-slate-800 { color: #e2e8f0 !important; }
+main .text-slate-700, header .text-slate-700, aside .text-slate-700, .login-shell .text-slate-700 { color: #cbd5e1 !important; }
+main .text-slate-600, header .text-slate-600, aside .text-slate-600, .login-shell .text-slate-600 { color: #cbd5e1 !important; }
+main .text-slate-500, header .text-slate-500, aside .text-slate-500, .login-shell .text-slate-500,
+main .text-\[\#64748B\], header .text-\[\#64748B\], aside .text-\[\#64748B\], .login-shell .text-\[\#64748B\] { color: #94a3b8 !important; }
+main .text-blue-600, header .text-blue-600, aside .text-blue-600 { color: #7dd3fc !important; }
+main .text-blue-700, header .text-blue-700, aside .text-blue-700 { color: #38bdf8 !important; }
+main .text-emerald-700, header .text-emerald-700, aside .text-emerald-700 { color: #6ee7b7 !important; }
+main .text-rose-700, header .text-rose-700, aside .text-rose-700 { color: #fda4af !important; }
+main .text-amber-700, header .text-amber-700, aside .text-amber-700 { color: #fcd34d !important; }
+main .hover\:bg-slate-50:hover, header .hover\:bg-slate-50:hover, aside .hover\:bg-slate-50:hover,
+main .hover\:bg-slate-100:hover, header .hover\:bg-slate-100:hover, aside .hover\:bg-slate-100:hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
+/* Forms inside the shell: dark glass inputs, light text, readable placeholders.
+   Glass inputs (glass-liquid-input) already look like this; this covers the
+   legacy light inputs on Report, Incidents, Settings, Profile and the hub. */
+main input, main select, main textarea,
+header input, header select, header textarea,
+aside input, aside select, aside textarea,
+.login-shell input, .login-shell select, .login-shell textarea {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+main input::placeholder, main textarea::placeholder,
+header input::placeholder, header textarea::placeholder,
+.login-shell input::placeholder, .login-shell textarea::placeholder { color: #94a3b8 !important; }
+main select option, header select option, aside select option, .login-shell select option { color: #0f1e41; }
+@media (max-width: 640px) {
+  main .bg-white, header .bg-white, aside .bg-white, .login-shell .bg-white {
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  }
+}
+/* Animated AegisAI logo glow (dashboard welcome + header logo only).
+   Small drop-shadow pulse, transform/opacity-free, so it never affects
+   scrolling or layout. Stops under prefers-reduced-motion. */
+.logo-glow { animation: logo-glow-pulse 4s ease-in-out infinite alternate; }
+@keyframes logo-glow-pulse {
+  from { filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.45)); }
+  to { filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.80)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-glow { animation: none !important; }
 }

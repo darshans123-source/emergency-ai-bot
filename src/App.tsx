@@ -41,7 +41,7 @@ const Tactical3DPage = lazy(() =>
 );
 
 const PageLoading: React.FC = () => (
-  <div className="min-h-[100dvh] w-full flex items-center justify-center bg-[#F5F7FB] text-[#64748B] text-sm">
+  <div className="min-h-[100dvh] w-full flex items-center justify-center bg-[#071329] text-slate-400 text-sm">
     <div className="flex flex-col items-center gap-3 px-4 text-center">
       <div className="w-10 h-10 rounded-2xl bg-[#101C35] text-white flex items-center justify-center animate-pulse">
         <span className="font-bold">A</span>

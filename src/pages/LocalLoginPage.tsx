@@ -88,7 +88,7 @@ export const LocalLoginPage: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[#071329] flex items-center justify-center px-4 py-8 pb-16">
+    <div className="login-shell relative min-h-[100dvh] overflow-hidden bg-[#071329] flex items-center justify-center px-4 py-8 pb-16">
       <AuroraBackground absolute />
       <div className="relative z-10 w-full max-w-md animate-glass-fade-up">
         <div className="flex flex-col items-center text-center mb-6">

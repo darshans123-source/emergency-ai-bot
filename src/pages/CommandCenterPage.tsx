@@ -114,7 +114,7 @@ export const CommandCenterPage: React.FC = () => {
       {/* Compact welcome banner — white, no large gradient */}
       <section className="rounded-[24px] bg-gradient-to-br from-[#0B1E46] via-[#143A75] to-[#2563EB] border border-blue-900/20 shadow-lg shadow-blue-900/20 p-4 sm:p-6 flex flex-col overflow-hidden relative sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <img src="/logo-icon.svg" alt="AegisAI" className="w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+          <img src="/logo-icon.svg" alt="AegisAI" className="logo-glow w-10 h-10 rounded-xl shrink-0" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">{t('dash.welcome_back')}, {displayName}</h1>
             <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">One Voice. Four Agents. One Mission. — Decision support only, call 112 / 911 for life-threatening emergencies.</p>
