@@ -21,33 +21,35 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
   if (!open) return null;
   const send = async (raw?: string, fromVoice = false) => {
     const content = (raw ?? input).trim();
-    if (!content) return;
+    if (!content || mitraSending) return;
     setInput('');
     const { agent } = routeToAgentStructured(content, lang);
     // Mitra always routes locally first. When Free.ai is selected in
     // Settings, the answer itself comes from Free.ai via the backend
     // (the server holds the key); any failure falls back to the local
     // routing text so Mitra never goes silent.
-    // Gemini is the single provider. The local routing above only picks
-    // which agent's instructions the server uses — it never supplies the
-    // answer. On any Gemini failure an error message is shown instead of
-    // a local reply, so a local answer is never presented as AI.
+    // The local routing above only picks which agent's instructions the
+    // server uses — it never supplies the answer. The server uses OpenRouter
+    // when its key is set, otherwise Gemini. On any failure an error message
+    // is shown instead of a local reply, so a local answer is never
+    // presented as AI.
     let replyText: string | null = null;
-    let source: 'gemini' | 'error' = 'gemini';
+    let source: 'gemini' | 'openrouter' | 'error' = 'gemini';
     setMitraSending(true);
     try {
-      const live = await api.geminiChat({ agent, message: content }, 10000);
+      const live = await api.aiChat({ agent, message: content }, 10000);
       replyText = live.reply;
+      source = live.provider === 'openrouter' ? 'openrouter' : 'gemini';
     } catch (err: any) {
       source = 'error';
-      replyText = `Gemini is unavailable (${err?.message || 'server error'}). No answer has been substituted — check GEMINI_API_KEY in Settings.`;
+      replyText = `The AI assistant is unavailable (${err?.message || 'server error'}). No answer has been substituted — check the AI key in Settings.`;
     } finally {
       setMitraSending(false);
     }
     const reply: Msg = { id: `m-${Date.now()}`, role: 'mitra', content: replyText || '', agent, source };
     setMessages((p) => [...p, { id: `u-${Date.now()}`, role: 'user', content }, reply]);
-    if (fromVoice && source === 'gemini') speakText(replyText || '', detectSpeechLang(replyText || ''));
-    if (fromVoice && source === 'error') speakText('Gemini is unavailable. Please try again.', detectSpeechLang(replyText || ''));
+    if (fromVoice && source !== 'error') speakText(replyText || '', detectSpeechLang(replyText || ''));
+    if (fromVoice && source === 'error') speakText('The AI assistant is unavailable. Please try again.', detectSpeechLang(replyText || ''));
   };
   const toggleMic = () => {
     if (listening) { recRef.current?.stop(); setListening(false); return; }
@@ -74,8 +76,8 @@ export const MitraAssistant: React.FC<{ open: boolean; onClose: () => void }> = 
             <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${m.role === 'user' ? 'mitra-chrome text-white rounded-br-md' : 'glass-liquid-input text-white rounded-bl-md'}`}>
                 <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                {m.role === 'mitra' && m.source === 'gemini' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Gemini reply · decision support only, call 112 for real emergencies</p>)}
-                {m.role === 'mitra' && m.source === 'error' && (<p className="mt-1.5 text-[11px] font-semibold text-rose-300">Gemini error — no substitute answer given</p>)}
+                {m.role === 'mitra' && (m.source === 'gemini' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Gemini'} reply · decision support only, call 112 for real emergencies</p>)}
+                {m.role === 'mitra' && m.source === 'error' && (<p className="mt-1.5 text-[11px] font-semibold text-rose-300">AI error — no substitute answer given</p>)}
                 {m.role === 'mitra' && <VoiceControls text={m.content} lang={lang} />}
                 {m.role === 'mitra' && m.agent && (
                   <button type="button" onClick={() => { stopSpeaking(); onClose(); navigate(`/agents/${m.agent}`); }} className="mt-2 min-h-10 px-3 rounded-xl mitra-chrome btn-glow text-white text-xs font-semibold">Open {AGENT_META[m.agent].name} →</button>

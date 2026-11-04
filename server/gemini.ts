@@ -1,10 +1,9 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Single AI provider for AegisAI: Google Gemini, via the official
-// Google Gen AI SDK for TypeScript (@google/genai, already a dependency).
-// This is the ONLY place that talks to an AI provider. There is no
-// OpenRouter, Free.ai, Cohere, DashScope/Qwen or OpenAI provider left in
-// the app, and no provider-switching logic anywhere else.
+// Google Gemini provider for AegisAI, via the official Google Gen AI SDK
+// for TypeScript (@google/genai, already a dependency). This is the ONLY
+// place that talks to Gemini. OpenRouter lives in server/openrouter.ts;
+// routes dispatch between them (OpenRouter first when its key is set).
 // The key is read only from the server environment (GEMINI_API_KEY):
 // never hardcoded, never sent to the frontend, never in a VITE_ variable,
 // never committed. The model default is a currently supported Flash model
