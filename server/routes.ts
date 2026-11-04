@@ -23,7 +23,8 @@ import {
   routeOperatorCommand
 } from './agents/specializedAgents';
 import { checkAIProviderStatus, SupportedLanguage, extractIncidentParameters } from './aiProviderAdapter';
-import { callGemini, getGeminiConfig, testGeminiConnection } from './gemini';
+import { callGemini, testGeminiConnection } from './gemini';
+import { callOpenRouter, getActiveProvider, testOpenRouterConnection } from './openrouter';
 
 export const apiRouter = Router();
 
@@ -585,28 +586,56 @@ apiRouter.get('/ai/status', async (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
-// Gemini connection test (POST /api/ai/test). Server-side only.
-// Tests GEMINI_API_KEY from the server environment, or a caller-supplied key
-// used for this ONE test call only and never stored, logged or returned.
-// A supplied key is NOT saved anywhere: to actually use Gemini, the key must
-// be set in the server environment (Vercel Settings -> Environment Variables,
-// or a local .env file) and the deployment redeployed. Returns 503 when no
-// key is available. Never returns a key value.
+// AI connection test (POST /api/ai/test). Server-side only.
+// Tests the active provider (OpenRouter when its key is set, else Gemini),
+// or a forced provider from the body ('openrouter' | 'gemini'). A
+// caller-supplied key is used for this ONE test call only and never stored,
+// logged or returned. A supplied key is NOT saved anywhere: to actually use
+// a provider, its key must be set in the server environment (Vercel Settings
+// -> Environment Variables, or a local .env file) and the deployment
+// redeployed. Returns 503 when no key is available. Never returns a key value.
 apiRouter.post('/ai/test', async (req: AuthenticatedRequest, res: Response) => {
   const suppliedKey = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
-  const result = await testGeminiConnection(suppliedKey || undefined);
+  const hint = typeof req.body?.provider === 'string' ? req.body.provider.toLowerCase() : '';
+  const provider = hint === 'openrouter' || hint === 'gemini' ? hint : (getActiveProvider() || 'openrouter');
+  const result = provider === 'openrouter'
+    ? await testOpenRouterConnection(suppliedKey || undefined)
+    : await testGeminiConnection(suppliedKey || undefined);
   if (!result.ok) {
     res.status(result.status || 502).json({ error: 'AI Error', message: result.error });
     return;
   }
-  res.json({ ok: true, provider: 'gemini', model: result.model, configured: result.configured, testedWithProvidedKey: result.testedWithProvidedKey });
+  res.json({ ok: true, provider, model: result.model, configured: result.configured, testedWithProvidedKey: result.testedWithProvidedKey });
 });
 
+// Chat dispatch: OpenRouter when its key is set, else Gemini. A failure of
+// the active provider is surfaced as-is — never silently answered by the
+// other provider, and never replaced by a local/demo reply.
+async function callAIChat(
+  system: string,
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+): Promise<{ reply: string; provider: 'openrouter' | 'gemini' }> {
+  const active = getActiveProvider();
+  if (!active) {
+    const err: any = new Error('No AI provider is configured on the server. Set OPENROUTER_API_KEY or GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.');
+    err.status = 503;
+    throw err;
+  }
+  if (active === 'openrouter') {
+    return { reply: await callOpenRouter(system, messages), provider: 'openrouter' };
+  }
+  return { reply: await callGemini(system, messages), provider: 'gemini' };
+}
+
 // -------------------------------------------------------------
-// AI ENDPOINTS (server-side only, Google Gemini — the single AI provider)
+// AI ENDPOINTS (server-side only: OpenRouter first when its key is set,
+// otherwise Google Gemini — the two providers in the app)
 // -------------------------------------------------------------
-// The single AI key is read only from the server environment variable
-// GEMINI_API_KEY (Google Gemini, model GEMINI_MODEL or gemini-3.8-flash).
+// AI keys are read only from server environment variables:
+// OPENROUTER_API_KEY (OpenRouter, model OPENROUTER_MODEL or
+// nvidia/nemotron-3-ultra-550b-a55b:free) or GEMINI_API_KEY (Google Gemini,
+// model GEMINI_MODEL or gemini-3.8-flash). OpenRouter is used when its key
+// is set; otherwise Gemini is used.
 // No key value is ever stored in this repo: a key pasted in chat
 // must be treated as exposed, rotated in the provider dashboard,
 // and the fresh key set directly in Vercel Environment Variables.
@@ -662,17 +691,17 @@ apiRouter.post('/ai/openai', async (req: AuthenticatedRequest, res: Response) =>
     const context = incident
       ? `Live incident context from the database (do not invent details beyond this): ${incident.id}, ${incident.title}, category ${incident.category}, priority ${incident.priority}, status ${incident.status}, location ${incident.location.address}, description: ${incident.description}.`
       : 'No specific incident is selected. Answer generally and ask for location/category if needed to help.';
-    const reply = await callGemini(agentDef.system, [
+    const { reply, provider } = await callAIChat(agentDef.system, [
       ...(Array.isArray(history) ? history.slice(-6).map((m: any) => ({ role: m.role === 'user' ? ('user' as const) : ('assistant' as const), content: String(m.content || '').slice(0, 500) })) : []),
       { role: 'user' as const, content: `${context}\n\nUser message: ${message.trim()}` }
     ]);
-    res.json({ agent: key, agentName: agentDef.name, reply, provider: 'gemini', timestamp: new Date().toISOString() });
+    res.json({ agent: key, agentName: agentDef.name, reply, provider, timestamp: new Date().toISOString() });
   } catch (err: any) {
     geminiError(res, err);
   }
 });
 
-// Emergency report summarization / incident analysis / recommendations (Gemini)
+// Emergency report summarization / incident analysis / recommendations (active AI provider)
 apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response) => {
   const { incidentId, text, task } = req.body || {};
   const input = incidentId ? dbService.getIncidentById(incidentId) : null;
@@ -692,17 +721,17 @@ apiRouter.post('/ai/summarize', async (req: AuthenticatedRequest, res: Response)
         ? 'Give practical emergency response recommendations for this report: which response units and facilities are relevant, and what the caller should do now. Do not claim any unit has been dispatched.'
         : 'Summarize this emergency report in 3-5 short, clear sentences for a dispatcher.';
   try {
-    const reply = await callGemini(
+    const { reply } = await callAIChat(
       'You are an emergency dispatch assistant. Be concise, factual and calm. Never invent locations, units, times or outcomes. State when information is missing.',
       [{ role: 'user', content: `${taskText}\n\nReport: ${sourceText.slice(0, 4000)}` }]
     );
-    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: 'gemini' });
+    res.json({ task: task || 'summary', summary: reply, incidentId: input?.id || null, provider: getActiveProvider() || 'gemini' });
   } catch (err: any) {
     geminiError(res, err);
   }
 });
 
-// Natural-language incident search: real DB search + optional Gemini summary
+// Natural-language incident search: real DB search + optional AI summary
 apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) => {
   const { query } = req.body || {};
   if (!query || typeof query !== 'string' || !query.trim()) {
@@ -721,9 +750,9 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
     .slice(0, 20);
   let summary: string | null = null;
   let summaryNotice: string | null = null;
-  if (matches.length > 0 && getGeminiConfig()) {
+  if (matches.length > 0 && getActiveProvider()) {
     try {
-      summary = await callGemini(
+      summary = (await callAIChat(
         'You are an emergency dispatch assistant. Summarize search results factually, without inventing incidents.',
         [
           {
@@ -733,12 +762,12 @@ apiRouter.post('/ai/search', async (req: AuthenticatedRequest, res: Response) =>
               .join('; ')}`
           }
         ]
-      );
+      )).reply;
     } catch {
       summaryNotice = 'AI summary unavailable: AI request failed. Matches below are from the live database.';
     }
-  } else if (!getGeminiConfig()) {
-    summaryNotice = 'AI summary unavailable: no Gemini key is configured on the server. Matches below are from the live database.';
+  } else if (!getActiveProvider()) {
+    summaryNotice = 'AI summary unavailable: no AI key is configured on the server. Matches below are from the live database.';
   }
   res.json({ query: query.trim(), total: matches.length, incidents: matches, summary, summaryNotice });
 });

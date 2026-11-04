@@ -12,6 +12,7 @@ import {
 } from '../types';
 import { dbService } from '../db';
 import { GoogleGenAI } from '@google/genai';
+import { callOpenRouter, getOpenRouterConfig } from '../openrouter';
 import { runIncidentAnalysisAgent } from './analysisAgent';
 import { runPriorityAssessmentAgent } from './priorityAgent';
 import { runResourceCoordinationAgent } from './resourceCoordinationAgent';
@@ -848,13 +849,20 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
       recentHistoryText ? `RECENT CONVERSATION:\n${recentHistoryText}\n\n` : ''
     }CALLER MESSAGE:\n${trimmedMessage}`;
 
-    // Gemini is the single AI provider. No other provider is tried, and no
-    // built-in reply is substituted when Gemini is unavailable: the error is
-    // thrown so callers surface it instead of presenting a local reply as AI.
-    const geminiKey = process.env.GEMINI_API_KEY?.trim();
-    if (!geminiKey) {
-      throw new Error('Gemini is not configured on the server. Set GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.');
-    }
+    // Active provider: OpenRouter when its key is set, else Gemini. No
+    // built-in reply is substituted when the active provider is unavailable:
+    // the error is thrown so callers surface it instead of presenting a
+    // local reply as AI.
+    if (getOpenRouterConfig()) {
+      const live = await callOpenRouter(systemInstruction, [{ role: 'user', content: fullPrompt }]);
+      replyText = live;
+      providerStatus = 'Online';
+      providerNotice = null;
+    } else {
+      const geminiKey = process.env.GEMINI_API_KEY?.trim();
+      if (!geminiKey) {
+        throw new Error('No AI provider is configured on the server. Set OPENROUTER_API_KEY or GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.');
+      }
     const activeModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
     try {
       const ai = new GoogleGenAI({
@@ -886,6 +894,7 @@ ${userLocation ? `- Caller Live GPS Location: ${userLocation.latitude}, ${userLo
       if (/429|quota|rate limit/i.test(msg)) throw new Error('Gemini rate limit or quota reached. Please wait a moment and retry.');
       if (/400|api key not valid/i.test(msg)) throw new Error('Gemini key is invalid. Check GEMINI_API_KEY in the server environment.');
       throw new Error(`Gemini is unavailable: ${msg.slice(0, 200)}`);
+    }
     }
   }
 

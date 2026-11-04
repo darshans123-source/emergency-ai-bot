@@ -100,16 +100,19 @@ export const AgentChatPage: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
-    // Gemini via the backend: the server holds the key, so no key is ever
-    // sent from this page. On any failure (no key configured, backend
-    // offline, rate limit, timeout) a clear error is shown and NO reply is
+    // AI chat via the backend: the server holds the key, so no key is ever
+    // sent from this page. The server uses OpenRouter when its key is set,
+    // otherwise Gemini. On any failure (no key configured, backend offline,
+    // rate limit, timeout) a clear error is shown and NO reply is
     // substituted — a local answer must never be presented as AI.
+    // Duplicate submissions are blocked by the isSending guard above.
     try {
       const history = messages.slice(-6).map((m) => ({ role: m.role === 'user' ? ('user' as const) : ('agent' as const), content: m.content }));
-      const live = await api.geminiChat({ agent: resolvedSlug, message: content, history });
-      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: 'gemini' }]);
+      const live = await api.aiChat({ agent: resolvedSlug, message: content, history });
+      const src: 'gemini' | 'openrouter' = live.provider === 'openrouter' ? 'openrouter' : 'gemini';
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'agent', content: live.reply, source: src }]);
     } catch (err: any) {
-      setError(`Gemini is unavailable (${err?.message || 'server error'}). No answer has been substituted — check GEMINI_API_KEY in Settings.`);
+      setError(`The AI assistant is unavailable (${err?.message || 'server error'}). No answer has been substituted — check the AI key in Settings.`);
     } finally {
       setIsSending(false);
     }
@@ -175,7 +178,7 @@ export const AgentChatPage: React.FC = () => {
           </div>
         </div>
         <p className="relative mt-3 text-sm text-white/85 leading-relaxed">{agentTranslations[agent.slug]?.description || agent.description}</p>
-        <p className="relative mt-3 text-[11px] text-white/70">Answers come from Google Gemini via the backend (GEMINI_API_KEY on the server — see Settings). If Gemini is unavailable, a clear error is shown instead of a substitute answer.</p>
+        <p className="relative mt-3 text-[11px] text-white/70">Answers come from the AI backend (OpenRouter when its key is set, otherwise Gemini — see Settings). If the AI is unavailable, a clear error is shown instead of a substitute answer.</p>
         <p className="relative mt-2 text-xs text-white/70">
           {t('chat.voice_note')}
           {isListening && (<span className="ml-2 inline-flex items-center gap-1 text-cyan-300 font-semibold"><span className="aurora-wave"><span /><span /><span /><span /><span /></span> Listening…</span>)}
@@ -252,7 +255,7 @@ export const AgentChatPage: React.FC = () => {
                   {m.demoMeta.demoInfo.map((d) => (<p key={d} className="text-xs text-slate-300">• {d}</p>))}
                 </div>
               )}
-              {m.role === 'agent' && m.source === 'gemini' && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live Gemini reply · decision support only, call 112 for real emergencies</p>)}
+              {m.role === 'agent' && (m.source === 'gemini' || m.source === 'openrouter') && (<p className="mt-1.5 text-[11px] font-semibold text-cyan-300">Live {m.source === 'openrouter' ? 'OpenRouter' : 'Gemini'} reply · decision support only, call 112 for real emergencies</p>)}
               {m.role === 'agent' && !m.structured && <VoiceControls text={m.content} lang={lang} />}
             </div>
           </div>

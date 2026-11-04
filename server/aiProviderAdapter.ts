@@ -4,7 +4,7 @@ import { SpecializedAgentId, Incident, IncidentCategory, IncidentPriority } from
 export type SupportedLanguage = 'en' | 'hi' | 'kn';
 
 export interface AIProviderStatus {
-  provider: 'gemini';
+  provider: 'gemini' | 'openrouter' | 'none';
   model: string;
   isExternalConfigured: boolean;
   status: 'Online' | 'NotConfigured';
@@ -61,7 +61,20 @@ export function detectLanguage(text: string, preferred: SupportedLanguage = 'en'
  * Validates AI provider status without exposing secrets
  */
 export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
-  // Gemini is the single AI provider. No other provider is checked here.
+  // Active provider: OpenRouter when its key is set, else Gemini when its
+  // key is set. No other provider exists in the app.
+  const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (openRouterKey) {
+    const configuredModel = process.env.OPENROUTER_MODEL?.trim() || 'nvidia/nemotron-3-ultra-550b-a55b:free';
+    return {
+      provider: 'openrouter',
+      model: configuredModel,
+      isExternalConfigured: true,
+      status: 'Online',
+      message: `OpenRouter Engine active with model ${configuredModel}. Multilingual voice agents enabled.`,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    };
+  }
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const configuredModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
   if (geminiKey) {
@@ -75,11 +88,11 @@ export async function checkAIProviderStatus(): Promise<AIProviderStatus> {
     };
   }
   return {
-    provider: 'gemini',
+    provider: 'none',
     model: configuredModel,
     isExternalConfigured: false,
     status: 'NotConfigured',
-    message: 'Gemini is not configured. Set GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.',
+    message: 'No AI provider is configured. Set OPENROUTER_API_KEY or GEMINI_API_KEY in the server environment (Vercel Settings -> Environment Variables, or a local .env file) and redeploy.',
     supportedLanguages: SUPPORTED_LANGUAGES
   };
 }

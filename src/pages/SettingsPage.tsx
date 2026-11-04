@@ -36,7 +36,8 @@ export const SettingsPage: React.FC = () => {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await api.testGemini(testKey.trim() || undefined);
+      const testProvider = aiStatus && (aiStatus.provider === 'openrouter' || aiStatus.provider === 'gemini') ? aiStatus.provider : undefined;
+      const res = await api.testAI(testKey.trim() || undefined, testProvider);
       setTestResult(`Connection works: ${res.provider}, model ${res.model}. ${res.testedWithProvidedKey ? 'This key was NOT saved — paste it in the server environment (below) and redeploy to actually use it.' : 'The server environment key works.'}`);
     } catch (e: any) {
       setTestResult(`Connection failed: ${e?.message || 'Unknown error.'} No key was saved.`);
@@ -227,7 +228,7 @@ export const SettingsPage: React.FC = () => {
           <KeyRound className="w-5 h-5 text-[#2563EB]" /> AI API Configuration
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
-          Google Gemini is connected through the backend only. The key is never stored in this browser, </p>
+          The active AI provider is shown below — OpenRouter when its key is set, otherwise Gemini. The key is never stored in this browser, </p>
         <dl className="mt-4 space-y-3 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-[#64748B]">Server AI provider</dt>
@@ -245,16 +246,16 @@ export const SettingsPage: React.FC = () => {
           )}
         </dl>
         <div className="mt-5">
-          <label className="block text-sm font-semibold text-[#172033]" htmlFor="gemini-test-key">
-            Test a Gemini key (optional, not saved)
+          <label className="block text-sm font-semibold text-[#172033]" htmlFor="ai-test-key">
+            Test an AI key (optional, not saved)
           </label>
           <input
-            id="gemini-test-key"
+            id="ai-test-key"
             type="password"
             autoComplete="off"
             value={testKey}
             onChange={(e) => setTestKey(e.target.value)}
-            placeholder="Leave empty to test the server key, or paste a Gemini key here only to test it"
+            placeholder="Leave empty to test the server key, or paste an AI key here only to test it (tested against the active provider above)"
             className="mt-2 w-full min-h-12 px-3.5 rounded-xl border border-slate-300 bg-white text-sm text-[#172033] focus:outline-none focus:border-[#2563EB]"
           />
           <p className="mt-1.5 text-xs text-[#64748B]">
@@ -273,9 +274,10 @@ export const SettingsPage: React.FC = () => {
         </div>
         <div className="mt-5 rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm leading-relaxed text-[#172033]">
           <p className="font-bold">Where to paste your Gemini key</p>
-          <p className="mt-2">Google Gemini is the single AI provider for Mitra and all four agents (Rakshak — police, Jeevan — medical, Agni — fire, Sanrakshak — disaster). There is no provider selector and no other provider to configure.</p>
-          <p className="mt-2"><span className="font-semibold">On Vercel (live site):</span> Vercel dashboard → project <span className="font-mono text-xs">emergency-ai-bot</span> → Settings → Environment Variables → Add New → Name <span className="font-mono text-xs">GEMINI_API_KEY</span>, Value = your Gemini key, Environment = Production (tick Preview too if you want previews) → Save → Deployments → Redeploy the latest deployment. Optional: <span className="font-mono text-xs">GEMINI_MODEL=gemini-3.8-flash</span> (default, a currently supported Flash model; change it only if Gemini reports that model as unavailable).</p>
-          <p className="mt-2"><span className="font-semibold">Locally:</span> in your copy of the repo, create <span className="font-mono text-xs">.env</span> at the repo root (same folder as <span className="font-mono text-xs">server.ts</span>) and add the line <span className="font-mono text-xs">GEMINI_API_KEY=your-gemini-key</span>. That file is gitignored and is never committed — do not copy it into <span className="font-mono text-xs">.env.example</span>, which must keep only the placeholder.</p>
+          <p className="mt-2">Mitra and all four agents (Rakshak — police, Jeevan — medical, Agni — fire, Sanrakshak — disaster) answer through the backend. The server uses OpenRouter when its key is set, otherwise Gemini — there is no provider selector in the app.</p>
+          <p className="mt-2"><span className="font-semibold">On Vercel (live site) — OpenRouter:</span> Vercel dashboard → project <span className="font-mono text-xs">emergency-ai-bot</span> → Settings → Environment Variables → Add New → Name <span className="font-mono text-xs">OPENROUTER_API_KEY</span>, Value = your OpenRouter key, Environment = Production (tick Preview too if you want previews) → Save → Deployments → Redeploy the latest deployment. Optional: <span className="font-mono text-xs">OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free</span> (default free model, verified against the live OpenRouter models list on 2026-11-04; free models rotate, so change it only if OpenRouter reports that model as unavailable) and <span className="font-mono text-xs">OPENROUTER_BASE_URL=https://openrouter.ai/api/v1</span> (default).</p>
+          <p className="mt-2"><span className="font-semibold">On Vercel (live site) — Gemini (used when no OpenRouter key is set):</span> same steps, Name <span className="font-mono text-xs">GEMINI_API_KEY</span>, Value = your Gemini key, Environment = Production. Optional: <span className="font-mono text-xs">GEMINI_MODEL=gemini-3.8-flash</span> (default, a currently supported Flash model).</p>
+          <p className="mt-2"><span className="font-semibold">Locally:</span> in your copy of the repo, create <span className="font-mono text-xs">.env</span> at the repo root (same folder as <span className="font-mono text-xs">server.ts</span>) and add the line <span className="font-mono text-xs">OPENROUTER_API_KEY=your-openrouter-key</span> (and/or <span className="font-mono text-xs">GEMINI_API_KEY=your-gemini-key</span>). That file is gitignored and is never committed — do not copy it into <span className="font-mono text-xs">.env.example</span>, which must keep only placeholders.</p>
           <p className="mt-2 text-amber-800"><span className="font-semibold">Security:</span> never paste a real key in chat, in this Settings box to &quot;save&quot; it, or in any file you commit. A key shared in chat must be treated as exposed: generate a fresh key in Google AI Studio and delete the shared one. If Gemini is unavailable, chats show a clear error — no substitute answer is given.</p>
         </div>
       </section>
